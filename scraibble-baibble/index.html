@@ -122,6 +122,12 @@ footer a{color:var(--muted)}
 .badge{display:inline-block;background:var(--accent);color:#2a1636;font-weight:900;border-radius:999px;padding:3px 10px;font-size:13px;margin:2px}
 #endModal .row{justify-content:center}
 #setupModal{z-index:75}
+.laySeg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%;margin-top:6px}
+.laySeg button{border:2px solid #ffffff1f;border-radius:10px;background:#130b2e;color:var(--ink);padding:6px 4px;font:inherit;font-size:12px;font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+.laySeg button.on{border-color:var(--accent);box-shadow:0 0 12px #ffd23f66}
+.mini{display:grid;grid-template-columns:repeat(15,1fr);width:66px;height:66px;gap:1px;background:#0b0620;padding:2px;border-radius:4px}
+.mini i{background:#2a1f55;border-radius:1px}.mini i.TW{background:var(--tw)}.mini i.DW{background:var(--dw)}.mini i.TL{background:var(--tl)}.mini i.DL{background:var(--dl)}.mini i.ST{background:var(--accent)}
+.mini.rnd i:not(.ST){animation:none}.layNote{width:100%;font-size:12px;color:var(--muted);margin-top:4px}
 @media (max-width:480px){.bots{gap:6px}.bot{padding:10px 4px}.bot .face{width:52px;height:52px;font-size:30px}.bot .bt{font-size:12px}.bigPlay{font-size:24px;padding:16px 44px}.tiles .tile{width:34px;height:34px;font-size:20px}}
 </style>
 </head>
@@ -154,7 +160,7 @@ footer a{color:var(--muted)}
     <div class="card"><h2>Move log</h2><div id="log"></div></div>
     <div class="card" style="font-size:13px;color:var(--muted)"><h2>How to play</h2>
       Drag tiles from your rack onto the board, or tap a tile then tap a square. Tap a tile you placed to take it back.
-      The score preview shows above your rack. Words are checked against the ENABLE word list with 135 slang words removed, plus DA, EE, EW, FE, GI, JA, KI, OI, QI and TE (172,698 words in all). Premium squares move to new spots every game, mirrored the same way on all four sides; the ★ start square stays in the centre. Quick game: 4 rounds each, highest score wins, no penalty for tiles left. Letter values come from Joshua Lewis’s Valett method run on this game’s own word list (Z is 7, W is 3).</div>
+      The score preview shows above your rack. Words are checked against the ENABLE word list with 135 slang words removed, plus DA, EE, EW, FE, GI, JA, KI, OI, QI and TE (172,698 words in all). Board layouts: with Random (the default) the premium squares move to new spots every game, mirrored the same way on all four sides. Setup also offers fixed patterns: Rings, Squares, Outer Edge, Cross and Grid. Every layout has the same number of premium squares, and the ★ start square stays in the centre. Quick game: 4 rounds each, highest score wins, no penalty for tiles left. Letter values come from Joshua Lewis’s Valett method run on this game’s own word list (Z is 7, W is 3).</div>
   </aside>
 </main>
 <footer>by OmniXR · <a href="https://myomnixr.com" target="_blank" rel="noopener">myomnixr.com</a></footer>
@@ -172,6 +178,7 @@ footer a{color:var(--muted)}
 </div></div>
 <div class="modal" id="setupModal"><div class="dlg"><h3>Setup</h3>
   <div class="setRow"><span>Game length</span><div class="seg" id="modeSeg"><button data-v="quick">Quick · 4 rounds</button><button data-v="full">Full game</button></div></div>
+  <div class="setRow" style="flex-wrap:wrap"><span>Board layout</span><div class="laySeg" id="laySeg"></div><div class="layNote" id="layNote"></div></div>
   <div class="setRow"><label for="firstSel">Who goes first</label><select id="firstSel" class="btn small" style="padding:6px 8px"><option value="me">Me</option><option value="random">Random</option></select></div>
   <div class="setRow"><span>Tips during play</span><div class="seg" id="tipsSeg"><button data-v="on">On</button><button data-v="off">Off</button></div></div>
   <div class="setRow"><span>Seen all the tips?</span><button class="btn small" id="tipsReset">Show tips again</button></div>
@@ -215,7 +222,36 @@ footer a{color:var(--muted)}
     return Object.keys(out).map(Number);
   }
   function plainLayout() { var P = []; for (var i = 0; i < SIZE; i++) P.push(CELL[i === CENTER ? 'ST' : '']); return P; }
-  function premiumLayout(seed) {
+  // Board layouts. 'random' (the default) is new every game; the others are fixed geometric patterns of our own.
+  // Every layout uses the same totals, the same fairness rules and the centre star; the patterns only steer where premiums go.
+  var LAYOUTS = [
+    { id: 'random', name: 'Random', desc: 'New spots every game' },
+    { id: 'rings', name: 'Rings', desc: 'Circles around the star' },
+    { id: 'squares', name: 'Squares', desc: 'Nested squares' },
+    { id: 'edge', name: 'Outer Edge', desc: 'Premiums hug the border' },
+    { id: 'cross', name: 'Cross', desc: 'Bands through the middle' },
+    { id: 'grid', name: 'Grid', desc: 'Evenly spaced lattice' }
+  ];
+  // Preferred distance for each premium type, per pattern: lower score = placed first.
+  function prefScore(kind, t, r, c) { return shapeScore(kind, t, r, c) + steerAway(t, r, c); }
+  // Keeps every pattern clearly unlike the familiar board: no word premiums on the long diagonals,
+  // and no triple word on the corners or the middle of an edge.
+  function steerAway(t, r, c) {
+    if (t !== 'TW' && t !== 'DW') return 0;
+    var diag = r === c || r + c === 14, corner = (r === 0 || r === 14) && (c === 0 || c === 14), midEdge = (r === 7 || c === 7) && (r % 14 === 0 || c % 14 === 0);
+    return (diag || (t === 'TW' && (corner || midEdge))) ? 20 : 0;
+  }
+  function shapeScore(kind, t, r, c) {
+    var dr = r - 7, dc = c - 7, eu = Math.sqrt(dr * dr + dc * dc), ch = Math.max(Math.abs(dr), Math.abs(dc)), near = Math.min(Math.abs(dr), Math.abs(dc));
+    if (kind === 'rings') { var R0 = { TW: 9.9, DW: 4.5, TL: 7.2, DL: [2.2, 5.8, 8.6] }[t]; return Array.isArray(R0) ? Math.min.apply(null, R0.map(function (x) { return Math.abs(eu - x); })) : Math.abs(eu - R0); }
+    if (kind === 'squares') { var S0 = { TW: [7], DW: [4], TL: [6, 2], DL: [5, 3, 7] }[t]; return Math.min.apply(null, S0.map(function (x) { return Math.abs(ch - x); })) * 4 + Math.abs(near - ch) * 0.05; }
+    if (kind === 'edge') { var E0 = { TW: 7, DW: 6, TL: 7, DL: 6 }[t]; return Math.abs(ch - E0) * 4 + (t === 'TW' ? -Math.abs(near - 3.5) : 0) * 0.1; }
+    if (kind === 'cross') { var C0 = { TW: [0, 7], DW: [1, 4], TL: [0, 4], DL: [1, 2] }[t]; return Math.abs(near - C0[0]) * 3 + Math.abs(ch - C0[1]) * 0.6 * (t === 'TW' ? 3 : 1); }
+    if (kind === 'grid') { var g = (Math.abs(dr) % 3 === 0 ? 0 : 1) + (Math.abs(dc) % 3 === 0 ? 0 : 1), sp = { TW: 7, DW: 3, TL: 6, DL: 3 }[t]; return g * 5 + Math.abs(ch - sp) * 0.3; }
+    return 0;
+  }
+  function premiumLayout(seed, kind) {
+    kind = kind || 'random';
     var R = rng((seed >>> 0) ^ 0x5bd1e995), base = [];
     for (var r = 0; r < 8; r++) for (var c = r; c < 8; c++) if (!(r === 7 && c === 7)) base.push(orbit(r, c));
     var zone = { TW: function (d) { return d >= 6; }, DW: function (d) { return d >= 2 && d <= 6; }, TL: function (d) { return d >= 2; }, DL: function (d) { return d >= 1; } };
@@ -231,6 +267,10 @@ footer a{color:var(--muted)}
       };
       ['TW', 'DW', 'TL', 'DL'].forEach(function (t) {
         if (!ok) return; var need = PREMIUM_COUNTS[t], pool = shuffle(base.slice(), R);
+        if (kind !== 'random') { // patterns: best-fitting squares first; the shuffle only breaks ties, so a pattern looks the same every game
+          var sc = function (o) { var k = o[0]; return prefScore(kind, t, Math.floor(k / N), k % N) + (attempt ? R() * 0.15 * attempt : 0); };
+          var m = pool.map(function (o) { return [sc(o), o]; }); m.sort(function (a, b) { return a[0] - b[0]; }); pool = m.map(function (x) { return x[1]; });
+        }
         for (var j = 0; j < pool.length && need > 0; j++) { var o = pool[j]; if (o.length <= need && free(o, t)) { o.forEach(function (k) { code[k] = t; }); need -= o.length; } }
         if (need) ok = false;
       });
@@ -464,10 +504,12 @@ footer a{color:var(--muted)}
   // opts.first: 'me' (seat 0 starts, the default) or 'random' (any seat, uniformly; announced in the log)
   // opts.maxRounds: quick game. The game ends after every player has had that many turns (normal end rules still apply earlier).
   // opts.layoutSeed: replay a known premium layout (by default it is derived from the game seed, so the same seed gives the same board).
+  // opts.layout: 'random' (default) or one of the fixed patterns in LAYOUTS.
   function newGame(players, seed, opts) {
     if (seed == null) seed = (Date.now() ^ (Math.random() * 1e9)) >>> 0;
+    var lay = opts && opts.layout && LAYOUTS.some(function (l) { return l.id === opts.layout; }) ? opts.layout : 'random';
     var R = rng(seed), ls = opts && opts.layoutSeed != null ? opts.layoutSeed >>> 0 : layoutSeedFor(seed);
-    var g = { seed: seed >>> 0, layoutSeed: ls, board: emptyBoard(premiumLayout(ls)), bag: shuffle(fullBag(), R), R: R, players: players.map(function (p) { return { name: p.name, bot: p.bot || null, human: !p.bot, rack: [], score: 0 }; }),
+    var g = { seed: seed >>> 0, layoutSeed: ls, layout: lay, board: emptyBoard(premiumLayout(lay === 'random' ? ls : 0, lay)), bag: shuffle(fullBag(), R), R: R, players: players.map(function (p) { return { name: p.name, bot: p.bot || null, human: !p.bot, rack: [], score: 0 }; }),
       turn: 0, scoreless: 0, over: false, endReason: '', log: [], lastTiles: [], turnNo: 0 };
     g.players.forEach(function (p) { draw(g, p, 7); });
     if (opts && opts.first === 'random') {
@@ -590,7 +632,7 @@ footer a{color:var(--muted)}
     pass(g); return c;
   }
 
-  var API = { N: N, SIZE: SIZE, CENTER: CENTER, DIST: DIST, VAL: VAL, premiumLayout: premiumLayout, plainLayout: plainLayout, layoutSeedFor: layoutSeedFor, PREMIUM_COUNTS: PREMIUM_COUNTS, Trie: Trie, encodeFrontCoded: encodeFrontCoded,
+  var API = { N: N, SIZE: SIZE, CENTER: CENTER, DIST: DIST, VAL: VAL, premiumLayout: premiumLayout, LAYOUTS: LAYOUTS, plainLayout: plainLayout, layoutSeedFor: layoutSeedFor, PREMIUM_COUNTS: PREMIUM_COUNTS, Trie: Trie, encodeFrontCoded: encodeFrontCoded,
     trieFromFrontCoded: trieFromFrontCoded, trieFromWords: trieFromWords, emptyBoard: emptyBoard, cloneBoard: cloneBoard, scoreMove: scoreMove,
     generateMoves: generateMoves, newGame: newGame, play: play, exchange: exchange, pass: pass, tileCount: tileCount, rackValue: rackValue,
     chooseBotMove: chooseBotMove, botTurn: botTurn, BOTS: BOTS, QUICK_ROUNDS: 4, fullBag: fullBag, rng: rng, shuffle: shuffle };
@@ -876,10 +918,14 @@ $('endAgain').onclick=function(){$('endModal').classList.remove('show');newGame(
 $('endMenu').onclick=function(){$('endModal').classList.remove('show');showTitle();};
 
 // ---------- Settings, title screen ----------
-var SETTINGS=(function(){var d={mode:'quick',tips:true};try{var x=JSON.parse(localStorage.getItem('sbSettings')||'null');if(x){if(x.mode==='full')d.mode='full';if(x.tips===false)d.tips=false;}}catch(e){}return d;})();
+var SETTINGS=(function(){var d={mode:'quick',tips:true,layout:'random'};try{var x=JSON.parse(localStorage.getItem('sbSettings')||'null');if(x){if(x.mode==='full')d.mode='full';if(x.tips===false)d.tips=false;if(E.LAYOUTS.some(function(l){return l.id===x.layout;}))d.layout=x.layout;}}catch(e){}return d;})();
 function saveSettings(){try{localStorage.setItem('sbSettings',JSON.stringify(SETTINGS));}catch(e){}}
 function syncSeg(id,v){[].forEach.call($(id).querySelectorAll('button'),function(b){b.classList.toggle('on',b.dataset.v===v);});}
-function syncSetup(){syncSeg('modeSeg',SETTINGS.mode);syncSeg('tipsSeg',SETTINGS.tips?'on':'off');$('firstSel').value=firstChoice();$('tipsBtn').style.opacity=SETTINGS.tips?1:.45;
+// Board layout picker with a small preview of each pattern (Random shows a sample, since it changes every game)
+(function(){var box=$('laySeg');E.LAYOUTS.forEach(function(L){var b=document.createElement('button');b.dataset.v=L.id;b.title=L.desc;
+  var P=E.premiumLayout(L.id==='random'?20261104:0,L.id),m=el('div','mini'+(L.id==='random'?' rnd':''));P.forEach(function(p){m.appendChild(el('i',p[2]||null));});
+  b.appendChild(m);b.appendChild(el('span',null,(L.id==='random'?'🎲 ':'')+L.name));b.onclick=function(){SETTINGS.layout=L.id;saveSettings();syncSetup();};box.appendChild(b);});})();
+function syncSetup(){syncSeg('modeSeg',SETTINGS.mode);syncSeg('laySeg',SETTINGS.layout);var LL=E.LAYOUTS.filter(function(l){return l.id===SETTINGS.layout;})[0];$('layNote').textContent=LL.name+': '+LL.desc+'. Every layout has the same number of premium squares and the ★ in the centre.';syncSeg('tipsSeg',SETTINGS.tips?'on':'off');$('firstSel').value=firstChoice();$('tipsBtn').style.opacity=SETTINGS.tips?1:.45;
   $('playSub').textContent=SETTINGS.mode==='quick'?'Quick game · 4 rounds · about 4 minutes':'Full game · until the tiles run out · about 10 minutes';}
 [].forEach.call($('modeSeg').querySelectorAll('button'),function(b){b.onclick=function(){SETTINGS.mode=b.dataset.v;saveSettings();syncSetup();};});
 [].forEach.call($('tipsSeg').querySelectorAll('button'),function(b){b.onclick=function(){SETTINGS.tips=b.dataset.v==='on';saveSettings();syncSetup();if(!SETTINGS.tips)hideTip();};});
@@ -893,10 +939,10 @@ function showTitle(){
   syncSetup();$('title').classList.add('show');
 }
 function hideTitle(){$('title').classList.remove('show');}
-$('playNow').onclick=function(){hideTitle();newGame();};
+$('playNow').onclick=function(){hideTitle();newGame('random');}; // quick play always uses the Random layout
 $('setupBtn').onclick=function(){syncSetup();$('setupModal').classList.add('show');};
 $('setupClose').onclick=function(){$('setupModal').classList.remove('show');if($('title').classList.contains('show'))showTitle();};
-$('setupStart').onclick=function(){$('setupModal').classList.remove('show');hideTitle();newGame();};
+$('setupStart').onclick=function(){$('setupModal').classList.remove('show');hideTitle();newGame(SETTINGS.layout);};
 $('menuBtn').onclick=function(){showTitle();};
 $('tipsBtn').onclick=function(){SETTINGS.tips=!SETTINGS.tips;saveSettings();syncSetup();if(!SETTINGS.tips)hideTip();else{setStatus('Tips on.','info');checkTips();}};
 (function(){var t=document.querySelector('#title .tiles');'SCRAIBBLE'.split('').forEach(function(L,i){var e=tileEl(L.toLowerCase(),false);e.style.setProperty('--r',((i%3)-1)*5+'deg');t.appendChild(e);});})();
@@ -910,7 +956,7 @@ var TIPS=[
   {id:'star',when:function(){return isEmptyBoard();},text:'Your first word must cover the ★ in the middle. Drag tiles from your rack, or tap a tile and then tap a square.'},
   {id:'preview',when:function(){return Object.keys(pending).length>0;},text:'The live score shows above your rack. Green means the play is valid, so press Play word.'},
   {id:'connect',when:function(){return !isEmptyBoard();},text:'New words must join tiles already on the board, and every word you make has to be real.'},
-  {id:'premium',when:function(){return !isEmptyBoard()&&myTurns()>=1;},text:'Coloured squares multiply. DL and TL double or triple one letter. DW and TW double or triple the whole word. They move to new spots every game.'},
+  {id:'premium',when:function(){return !isEmptyBoard()&&myTurns()>=1;},text:'Coloured squares multiply. DL and TL double or triple one letter. DW and TW double or triple the whole word. With the Random layout they move to new spots every game.'},
   {id:'blank',when:function(){return G.players[0].rack.indexOf('?')>=0;},text:'The blank tile can stand for any letter, but it scores 0.'},
   {id:'badrack',when:function(){var r=G.players[0].rack,v=r.filter(function(l){return 'aeiou'.indexOf(l)>=0;}).length;return G.bag.length>=7&&(v>=5||v===0);},text:'Stuck with a tricky rack? Exchange swaps tiles, but it costs your turn.'},
   {id:'bingo',when:function(){return myTurns()>=2;},text:'Play all 7 tiles in one go for a 50-point bingo bonus.'},
@@ -929,9 +975,10 @@ $('tipOk').onclick=function(){if(curTip){tipsSeen[curTip.id]=1;saveSeen();}hideT
 $('tipOff').onclick=function(){if(curTip){tipsSeen[curTip.id]=1;saveSeen();}SETTINGS.tips=false;saveSettings();syncSetup();hideTip();setStatus('Tips off. Turn them back on with 💡 or in Setup.','info');};
 var gameNo=0;
 function firstChoice(){var v='me';try{v=localStorage.getItem('sbFirst')||'me';}catch(e){}return v==='random'?'random':'me';}
-function newGame(){
+function newGame(layout){
+  layout=layout||(G&&G.layout)||'random';
   gameNo++;hideTip();$('endModal').classList.remove('show');
-  G=E.newGame(PLAYERS,null,{first:firstChoice(),maxRounds:SETTINGS.mode==='quick'?E.QUICK_ROUNDS:0});rack=[];syncRackFromGame();busy=false;render();
+  G=E.newGame(PLAYERS,null,{first:firstChoice(),maxRounds:SETTINGS.mode==='quick'?E.QUICK_ROUNDS:0,layout:layout});rack=[];syncRackFromGame();busy=false;render();
   if(G.players[G.turn].human){setStatus('New game! You go first — your word must cover the ★.','info');checkTips();}
   else afterTurn();
 }
@@ -962,7 +1009,7 @@ $('xOk').onclick=function(){
 
 buildBoard();buildBlankGrid();
 // Test and deep-link hook: #autostart=full or #autostart=quick skips the title screen (tips off for that game).
-function autostart(){var m=/autostart=(quick|full)/.exec(location.hash);if(!m)return false;SETTINGS.mode=m[1];SETTINGS.tips=false;newGame();return true;}
+function autostart(){var m=/autostart=(quick|full)/.exec(location.hash);if(!m)return false;SETTINGS.mode=m[1];SETTINGS.tips=false;var l=/layout=([a-z]+)/.exec(location.hash);newGame(l?l[1]:'random');return true;}
 syncSetup();
 loadDict().then(function(t){DICT=t;window.__dict=t;$('loading').style.display='none';if(!autostart())showTitle();})
  .catch(function(err){$('loadMsg').textContent='Could not load the word list: '+err.message;});
