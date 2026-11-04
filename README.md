@@ -11,6 +11,8 @@ Free browser games against AI bots, by OmniXR · https://myomnixr.com
 - cAIstles: https://yougitadmin.github.io/omnixr-games/caistles/
 - wAIrwolf hunt: https://yougitadmin.github.io/omnixr-games/wairwolf-hunt/
 - chAIss: https://yougitadmin.github.io/omnixr-games/chaiss/
+- strAItego: https://yougitadmin.github.io/omnixr-games/straitego/
+- mAIchu koru: https://yougitadmin.github.io/omnixr-games/maichu-koru/
 
 Each game is one self-contained HTML file that also works offline.
 
