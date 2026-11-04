@@ -1,0 +1,1954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0618">
+<title>AIrks</title>
+<meta name="description" content="Out-scheme two AI factions for six star clusters in about 7 minutes. A free space-empire card game in your browser, no sign-up.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="OmniXR Games">
+<meta property="og:title" content="AIrks: out-scheme the AI factions">
+<meta property="og:description" content="Out-scheme two AI factions for six star clusters in about 7 minutes. Free, offline, no sign-up.">
+<meta property="og:url" content="https://yougitadmin.github.io/omnixr-games/airks/">
+<meta property="og:image" content="https://yougitadmin.github.io/omnixr-games/airks/cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="AIrks: a space-empire card game against AI factions">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AIrks: out-scheme the AI factions">
+<meta name="twitter:description" content="Out-scheme two AI factions for six star clusters in about 7 minutes. Free, offline, no sign-up.">
+<meta name="twitter:image" content="https://yougitadmin.github.io/omnixr-games/airks/cover.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23140a33'/%3E%3Ccircle cx='32' cy='32' r='14' fill='none' stroke='%2300f0d0' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='5' fill='%23ffb020'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#0a0618;--panel:#171236;--panel2:#221a4d;--ink:#f1eeff;--muted:#b2a8e0;--accent:#ffb020;--ai:#00f0d0;--bad:#ff6b7a;--ok:#7ad17f;--neon:#b14dff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Roboto,system-ui,-apple-system,Arial,sans-serif}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;background:radial-gradient(900px 600px at 15% -5%,#3a1470 0%,transparent 60%),radial-gradient(900px 600px at 105% 105%,#04424a 0%,transparent 60%),var(--bg);background-attachment:fixed}
+header{width:100%;max-width:1500px;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;gap:8px;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(24px,5vw,34px);color:var(--accent);font-weight:900;letter-spacing:1px;white-space:nowrap}
+h1 .ai{color:var(--ai);text-shadow:0 0 16px #00f0d0aa}h1{text-shadow:0 0 18px #ffb02066}
+h1 small{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:0;margin-left:8px}
+.hbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.btn{appearance:none;border:0;border-radius:10px;padding:10px 14px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;background:#353d72;color:var(--ink);touch-action:manipulation}
+.btn:hover{filter:brightness(1.15)}.btn:disabled{opacity:.38;cursor:not-allowed;filter:none}
+.btn.primary{background:var(--accent);color:#2a1d00}.btn.small{padding:7px 10px;font-size:13px}.btn.on{background:#6a5acd}
+.btn.verb{min-width:84px}.btn.warn{background:#7a3340}
+select.btn{padding:7px 8px;font-size:13px}
+main{width:100%;max-width:1500px;display:grid;grid-template-columns:minmax(0,1fr) 400px;grid-template-areas:"map turn" "map side" "low side";gap:10px;padding:0 10px;align-items:start}
+#mapCard{grid-area:map}#turn{grid-area:turn}#side{grid-area:side;display:flex;flex-direction:column;gap:8px}#low{grid-area:low;display:flex;flex-direction:column;gap:8px}
+.card{background:var(--panel);border-radius:14px;padding:10px 12px;box-shadow:0 2px 14px #0005,inset 0 0 0 1px #b14dff33}
+.card h3{margin:0 0 6px;font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+svg{display:block;user-select:none;-webkit-user-select:none}
+#map{width:100%;height:auto;max-height:86vh}
+.sys{cursor:default}.sys.hl{cursor:pointer}
+.sys.hl .ring{stroke:#ffe27a!important;stroke-width:6!important;animation:pulse 1.1s ease-in-out infinite}
+.sys.sel .ring{stroke:var(--ai)!important;stroke-width:7!important}
+@keyframes pulse{50%{stroke:#fff}}
+.lbl{font-size:15px;font-weight:700;text-anchor:middle;fill:#fff;paint-order:stroke;stroke:#000b;stroke-width:3px;pointer-events:none}
+.ico{text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.bt{font-size:15px;font-weight:800;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+#turnCard{border:2px solid #353d72}#turnCard.mine{border-color:var(--accent)}
+#tTitle{font-weight:800;font-size:17px}
+#tHelp{font-size:14px;color:var(--muted);margin:4px 0 8px;line-height:1.4}
+#tHelp b{color:var(--ink)}
+.ctl{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.ctl .lab{font-size:12px;color:var(--muted);font-weight:700;width:100%;margin-top:4px}
+#hint{margin-top:8px;font-size:13.5px;color:var(--ai);display:none}#hint.show{display:block}
+#roundBox{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end;margin-top:8px}
+.mini{width:62px;height:84px;border-radius:8px;position:relative;font-size:10px;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid #0006}
+.mini b{font-size:22px;line-height:1}.mini .who{position:absolute;bottom:-15px;font-size:10px;color:var(--muted);white-space:nowrap}
+.mini.down{background:repeating-linear-gradient(45deg,#2b3263,#2b3263 6px,#232a55 6px,#232a55 12px)!important}
+.zero{position:absolute;top:3px;left:3px;background:#000c;color:var(--accent);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px}
+#hand{display:flex;gap:7px;flex-wrap:wrap}
+.acard{width:96px;height:136px;border-radius:11px;position:relative;cursor:pointer;color:#fff;overflow:hidden;border:3px solid transparent;box-shadow:0 3px 8px #0007;flex:0 0 auto}
+.acard svg{position:absolute;inset:0;width:100%;height:100%}
+.acard .num{position:absolute;top:4px;left:8px;font-size:30px;font-weight:900;text-shadow:0 2px 3px #0008}
+.acard .pips{position:absolute;top:44px;left:8px;display:flex;flex-direction:column;gap:3px}
+.acard .pips i{width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px #0004;display:block}
+.acard .sn{position:absolute;bottom:24px;left:2px;right:2px;text-align:center;font-size:9px;font-weight:800;letter-spacing:.2px;text-transform:uppercase}
+.acard .vb{position:absolute;bottom:5px;left:2px;right:2px;text-align:center;font-size:9px;opacity:.9;line-height:1.1}
+.acard .am{position:absolute;top:6px;right:6px;font-size:17px;background:#0006;border-radius:8px;padding:1px 4px}
+.acard.sel{border-color:var(--ai);transform:translateY(-6px)}.acard.zsel{border-color:var(--bad);transform:translateY(-6px)}
+.acard.dim{opacity:.45}
+#court{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:7px}
+.ccard{background:#262c56;border-radius:10px;padding:6px 7px 7px;position:relative;border:3px solid transparent;font-size:12px;line-height:1.3;min-height:150px}
+.ccard.hl{border-color:#ffe27a;cursor:pointer;animation:cpulse 1.1s ease-in-out infinite}
+@keyframes cpulse{50%{border-color:#fff}}
+.ccard .cn{font-weight:800;font-size:13px;margin:2px 0 3px;padding-right:30px}
+.ccard .ct{color:#d6daf5}
+.ccard .art{float:right;width:40px;height:40px;margin:0 0 3px 4px}
+.ccard .tagr{font-size:10.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.ccard .ags{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
+.ag{display:inline-flex;align-items:center;gap:2px;font-weight:800;font-size:12px;border-radius:6px;padding:1px 6px;color:#111}
+.keys{position:absolute;top:5px;right:6px;font-size:11px;font-weight:800;background:#0007;border-radius:6px;padding:1px 5px;color:#ffd27a}
+#amb{width:100%;border-collapse:collapse;font-size:13px}
+#amb td{padding:4px 4px;border-bottom:1px solid #ffffff12;vertical-align:middle}
+.mk{display:inline-block;background:var(--accent);color:#2a1d00;font-weight:900;border-radius:6px;padding:1px 6px;margin-right:3px;font-size:12px}
+.mk.av{background:#3b4378;color:var(--ink)}
+.cnt{display:inline-block;min-width:20px;text-align:center;font-weight:800;border-radius:5px;margin-right:2px;color:#111;font-size:12px;padding:0 3px}
+.pl{display:flex;gap:8px;padding:7px 8px;border-radius:10px;margin-bottom:5px;background:var(--panel2);border:2px solid transparent}
+.pl.cur{border-color:var(--accent)}
+.dot{width:16px;height:16px;border-radius:50%;flex:0 0 16px;margin-top:3px;border:2px solid #fff8}
+.pn{font-weight:800}.tag{font-size:11px;background:#0006;border-radius:6px;padding:1px 6px;margin-left:4px;color:var(--muted);font-weight:700}
+.strat{font-size:12.5px;margin-top:2px}.strat i{color:var(--muted);font-style:normal}
+.stats{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.5}.stats b{color:var(--ink)}
+.rs{display:inline-flex;gap:3px;vertical-align:middle;margin-left:2px}
+.rs span{width:21px;height:21px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;background:#0005;position:relative}
+.rs span.e{border:1px dashed #ffffff40;background:transparent}
+.rs span small{position:absolute;bottom:-3px;right:-2px;font-size:8px;color:#ffd27a;font-weight:800}
+.gchip{display:inline-block;background:#323a6e;border-radius:6px;padding:0 5px;margin:2px 3px 0 0;font-size:11px;color:var(--ink)}
+#log{max-height:240px;overflow:auto;font-size:13px;line-height:1.35}
+#log div{padding:2px 0;border-bottom:1px solid #ffffff10}
+#log .win{color:var(--accent);font-weight:800}#log .good{color:var(--ok)}#log .turn{color:#cfd6ff;font-weight:700}#log .bad{color:var(--bad)}
+#tip{display:none;margin-top:8px;background:linear-gradient(90deg,#00f0d022,#b14dff22);border:1px solid #00f0d066;border-radius:12px;padding:8px 10px;font-size:13.5px;align-items:center;gap:8px}
+#tip.show{display:flex}#tip .tx{flex:1;line-height:1.35}#tip .btn{padding:6px 9px;font-size:12.5px}
+.pill{font-size:12px;font-weight:800;background:#00f0d01f;color:#8ff8e8;border:1px solid #00f0d066;border-radius:999px;padding:4px 10px;white-space:nowrap}
+.screen{position:fixed;inset:0;z-index:15;overflow:auto;display:none;background:radial-gradient(800px 520px at 50% -5%,#4a1890 0%,transparent 65%),radial-gradient(700px 500px at 100% 100%,#04424a 0%,transparent 60%),var(--bg)}
+.screen.show{display:block}
+.tWrap{max-width:720px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 16px 28px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
+.orbit{width:120px;height:120px;border-radius:50%;border:3px solid #00f0d0;box-shadow:0 0 24px #00f0d088,inset 0 0 24px #b14dff88;position:relative;margin-top:6px;animation:spin 14s linear infinite}
+.orbit:before{content:'';position:absolute;inset:38px;border-radius:50%;background:radial-gradient(#ffd27a,#ff8a00);box-shadow:0 0 30px #ffb020}
+.orbit:after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#b14dff;box-shadow:0 0 12px #b14dff;top:-9px;left:50px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.logo{font-size:clamp(70px,20vw,124px);font-weight:900;line-height:1;margin:0;color:var(--accent);text-shadow:0 0 28px #ffb02088,0 5px 0 #7a4a00}
+.logo .ai{color:var(--ai);text-shadow:0 0 28px #00f0d0aa,0 5px 0 #00584c}
+.pitch{font-size:clamp(18px,4.6vw,24px);font-weight:800;max-width:560px;margin:0}.pitch em{color:var(--ai);font-style:normal}
+.bots{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;max-width:520px}
+.bot{background:#ffffff0d;border:2px solid #ffffff1a;border-radius:16px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bot .face{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;background:var(--fc);box-shadow:0 0 0 3px #ffffffaa,0 0 20px var(--fc)}
+.bot .bn{font-weight:900;font-size:17px}.bot .bl{font-size:12px;color:var(--muted)}.bot .bt{font-size:13px;font-style:italic;line-height:1.3}
+.bigPlay{font-size:26px!important;font-weight:900;padding:18px 54px!important;border-radius:999px!important;background:linear-gradient(180deg,#ffd27a,#ff9a00)!important;color:#2a1600!important;box-shadow:0 6px 0 #8a4a00,0 0 32px #ffb02088;animation:pulse2 1.8s ease-in-out infinite}
+.bigPlay:active{transform:translateY(4px);box-shadow:0 2px 0 #8a4a00}
+@keyframes pulse2{50%{box-shadow:0 6px 0 #8a4a00,0 0 48px #ffb020cc}}
+@media (prefers-reduced-motion:reduce){.bigPlay,.orbit{animation:none}}
+.sub{color:var(--muted);font-size:14px}
+.statsRow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.stat{background:#ffffff10;border-radius:12px;padding:8px 14px;min-width:96px}.stat b{display:block;font-size:22px;color:var(--accent)}.stat span{font-size:12px;color:var(--muted)}
+.credit{color:var(--muted);font-size:13px}.credit a{color:var(--ai);text-decoration:none}
+#cardImg{width:100%;border-radius:12px;box-shadow:0 6px 24px #000a;display:block;margin:6px 0 10px}
+.badge2{display:inline-block;background:var(--accent);color:#2a1600;font-weight:900;border-radius:999px;padding:3px 10px;font-size:13px;margin:2px}
+@media (max-width:480px){.bot .face{width:52px;height:52px;font-size:30px}.bot .bt{font-size:12px}.bigPlay{font-size:24px!important;padding:16px 44px!important}.spdLab,h1 small{display:none}}
+.picker{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:#0f1330;border-radius:10px;padding:8px;margin-top:6px}
+.picker .st{display:flex;align-items:center;gap:4px;font-weight:700;font-size:13px}
+.picker .st button{width:34px;height:34px;border-radius:8px;border:0;background:#353d72;color:#fff;font-size:18px;font-weight:900;cursor:pointer}
+.picker .st span{min-width:22px;text-align:center;font-size:16px}
+#diceTray{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.die{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff;flex-direction:column;line-height:1}
+.die.A{background:#b8413c}.die.S{background:#3b6fc0}.die.R{background:#d08a2a}
+.modal{position:fixed;inset:0;background:#000b;display:none;align-items:flex-start;justify-content:center;z-index:20;overflow:auto;padding:16px 8px}
+.modal.show{display:flex}
+.mbox{background:var(--panel);border-radius:14px;padding:16px;max-width:700px;width:100%;box-shadow:0 10px 40px #000a}
+.mbox h2{margin:0 0 10px;color:var(--accent)}
+.mbox h4{margin:14px 0 4px;color:var(--ai)}
+.mbox p,.mbox li{line-height:1.45;font-size:14.5px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.row>label.lab2{min-width:120px;color:var(--muted);font-size:14px;font-weight:700}
+.opt{display:inline-flex;border-radius:10px;overflow:hidden;flex-wrap:wrap}
+.opt button{appearance:none;border:0;background:#353d72;color:var(--ink);font:inherit;font-weight:700;font-size:14px;padding:9px 12px;cursor:pointer}
+.opt button.on{background:var(--accent);color:#2a1d00}
+.seat{display:grid;grid-template-columns:18px 1fr auto auto;gap:6px;align-items:center;background:var(--panel2);padding:6px 8px;border-radius:10px;margin-bottom:5px}
+.seat .sd{font-size:12px;color:var(--muted);grid-column:2/5}
+.seat select{background:#353d72;color:var(--ink);border:0;border-radius:8px;padding:7px 6px;font:inherit;font-size:13px;max-width:180px}
+.twnote{font-size:12px;color:var(--muted);flex-basis:100%;margin:-2px 0 2px 0}
+table.sc{border-collapse:collapse;width:100%;font-size:14px}table.sc td,table.sc th{padding:4px 6px;border-bottom:1px solid #ffffff18;text-align:right}table.sc td:first-child,table.sc th:first-child{text-align:left}
+table.sc tr.tot td{font-weight:800;color:var(--accent)}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#8a3a34;color:#fff;padding:10px 14px;border-radius:10px;font-weight:700;display:none;z-index:30;max-width:92vw;text-align:center}
+#toast.show{display:block}
+footer{margin:16px 0 18px;color:var(--muted);font-size:13px}
+footer a{color:var(--muted)}
+@media (max-width:1100px){main{grid-template-columns:1fr;grid-template-areas:"turn" "map" "side" "low"}header{padding:6px 8px}main{padding:0 6px}.card{padding:8px}#log{max-height:200px}#map{max-height:none}}
+@media (max-width:480px){.acard{width:84px;height:122px}.acard .num{font-size:26px}#court{grid-template-columns:repeat(2,minmax(0,1fr))}.btn.verb{min-width:0}.btn{padding:9px 11px}}
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="ai">AI</span>rks<small>a space-empire card game</small></h1>
+  <div class="hbar">
+    <span class="pill" id="modePill"></span>
+    <button class="btn small" id="tipsBtn" title="Tips on or off">💡</button>
+    <button class="btn small" id="menuBtn">Menu</button>
+    <button class="btn primary small" id="newBtn">New game</button>
+    <button class="btn small" id="rulesBtn">Rules</button>
+    <label for="speedSel" class="spdLab" style="font-size:13px;color:var(--muted)">Bot speed</label>
+    <select id="speedSel" class="btn small"><option value="slow">Slow</option><option value="normal">Normal</option><option value="fast">Fast</option><option value="instant">Instant</option></select>
+  </div>
+</header>
+<main>
+  <section id="turn">
+    <div class="card" id="turnCard">
+      <div id="tTitle">AIrks</div>
+      <div id="tHelp"></div>
+      <div id="ctl" class="ctl"></div>
+      <div id="sub"></div>
+      <div id="diceTray"></div>
+      <div id="hint"></div>
+      <div id="roundBox"></div>
+      <div id="tip" role="status"><span>💡</span><span class="tx" id="tipText"></span><button class="btn" id="tipOk">Got it</button><button class="btn" id="tipOff">Tips off</button></div>
+    </div>
+    <div class="card" style="margin-top:8px"><h3><span>My hand</span><span id="handInfo"></span></h3><div id="hand"></div></div>
+  </section>
+  <section class="card" id="mapCard"><h3><span id="mapTitle">The Hollow Verge</span><span id="chapLbl"></span></h3><svg id="map" viewBox="-40 -40 1080 1080" xmlns="http://www.w3.org/2000/svg"></svg></section>
+  <section id="side">
+    <div class="card"><h3><span>Ambitions</span><span id="availLbl"></span></h3><table id="amb"></table></div>
+    <div class="card"><h3>Players</h3><div id="players"></div></div>
+  </section>
+  <section id="low">
+    <div class="card"><h3><span>The Council</span><span id="courtInfo"></span></h3><div id="court"></div></div>
+    <div class="card"><h3>Log</h3><div id="log"></div></div>
+  </section>
+</main>
+<footer>AIrks · by OmniXR · <a href="https://myomnixr.com" target="_blank" rel="noopener">myomnixr.com</a></footer>
+
+<div class="modal" id="setup"><div class="mbox">
+  <h2>New game of <span style="color:var(--ai)">AI</span>rks</h2>
+  <div class="row"><label class="lab2">Players</label><div class="opt" id="optN"><button data-v="2">Me + 1 bot</button><button data-v="3">Me + 2 bots</button><button data-v="4">Me + 3 bots</button></div></div>
+  <div class="row"><label class="lab2">Who goes first</label><div class="opt" id="optFirst"><button data-v="me">Me</button><button data-v="random">Random</button></div></div>
+  <div id="seats"></div>
+  <h4>Twists</h4>
+  <div class="row"><label class="lab2">Game length</label><div class="opt" id="optQuick"><button data-v="2">Quick · 2 chapters</button><button data-v="1">Short · up to 3 chapters</button><button data-v="0">Full · up to 5 chapters</button></div></div>
+  <div class="row"><label class="lab2">Council deck</label><div class="opt" id="optCourt"><button data-v="standard">Standard 31</button><button data-v="shuffled">Shuffled + 6 new</button></div><div class="twnote">Shuffled mixes six extra cards of our own into the deck and plays a random 31 of the 37.</div></div>
+  <div class="row"><label class="lab2">Map</label><div class="opt" id="optMap"><button data-v="standard">Standard</button><button data-v="random">Random planets</button></div><div class="twnote">Random planets reshuffles which resource and how many building slots each planet has.</div></div>
+  <div class="row"><label class="lab2">Tips during play</label><div class="opt" id="optTips"><button data-v="1">On</button><button data-v="0">Off</button></div><button class="btn small" id="tipsReset">Show tips again</button></div>
+  <div class="row"><label class="lab2">Show hints</label><div class="opt" id="optHints"><button data-v="0">Off</button><button data-v="1">On</button></div><div class="twnote">Hints suggest the move a Hard bot would make in your seat.</div></div>
+  <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn" id="setupCancel">Cancel</button><button class="btn primary" id="startBtn">Start game</button></div>
+</div></div>
+
+<div class="modal" id="over"><div class="mbox"><h2 id="overTitle">Game over</h2>
+  <img id="cardImg" alt="Result card"><div id="endBadges"></div>
+  <div class="row" style="justify-content:center"><button class="btn" id="saveCard">⬇ Save image</button><button class="btn" id="shareX">Share on 𝕏</button></div>
+  <div id="overBody"></div><div class="row" style="justify-content:flex-end"><button class="btn" id="overClose">Look at the board</button><button class="btn primary" id="overNew">New game</button><button class="btn" id="overMenu">Menu</button><button class="btn primary" id="overAgain">Play again</button></div>
+  <div class="credit" style="text-align:center">by OmniXR · <a href="https://myomnixr.com" target="_blank" rel="noopener">myomnixr.com</a></div></div></div>
+<div class="screen" id="title"><div class="tWrap">
+  <div class="orbit" aria-hidden="true"></div>
+  <h1 class="logo"><span class="ai">AI</span>rks</h1>
+  <p class="pitch">Two AI factions want the stars. <em>Out-scheme them in about 7 minutes.</em></p>
+  <div class="bots" id="titleBots"></div>
+  <button class="btn bigPlay" id="playNow">▶ Play now</button>
+  <div class="sub">Quick game · 2 chapters · you vs 2 bots</div>
+  <div class="statsRow" id="titleStats"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><button class="btn" id="resumeBtn" style="display:none">↩ Resume game</button><button class="btn" id="setupBtn">⚙ Setup</button><button class="btn" id="reroll">🔀 New rivals</button><button class="btn" id="titleRules">📖 Rules</button></div>
+  <div class="credit">by OmniXR · <a href="https://myomnixr.com" target="_blank" rel="noopener">myomnixr.com</a></div>
+</div></div>
+
+<div class="modal" id="rules"><div class="mbox">
+  <h2>How to play AIrks</h2>
+  <p>Your faction is racing for control of the Hollow Verge, six star clusters on the edge of known space. Power is your score. A game runs for up to <b>5 chapters</b> (3 in a Short game, 2 in a Quick game, which is what Play now starts). It stops after any chapter that ends with someone on <b>33 Power or more with 2 players, 30 with 3, or 27 with 4</b>, or after the final chapter. The most Power wins.</p>
+  <h4>Chapters and rounds</h4>
+  <ul><li>At the start of a chapter each player draws <b>6 action cards</b>. A card shows a suit, a number and some action pips. Two or three players use the 2 to 6 of every suit; four players add the 1s and 7s.</li>
+  <li>Whoever holds the <b>initiative</b> opens the round with a <b>lead card</b> and gets one action for each pip. Then each other player answers with one card:
+  <b>Outplay</b> (same suit, higher number: you get all its pips), <b>Switch</b> (a different suit: 1 action from your own card) or <b>Echo</b> (any card, face down: 1 action from the lead card's suit).</li>
+  <li>The highest Outplay wins the initiative for the next round. Or <b>grab</b> it outright by adding a second card face down (with 4 players, Outplaying with a 7 also grabs it).</li>
+  <li>The initiative holder may <b>pass</b> rather than lead. A chapter is over when hands run out or every player still holding cards passes in turn.</li></ul>
+  <h4>Suits and actions</h4>
+  <ul><li><b>Civic</b>: Tax, Repair, Lobby. <b>Strike</b>: Battle, Move, Claim. <b>Forge</b>: Build, Repair. <b>Transit</b>: Move, Lobby.</li>
+  <li><b>Tax</b> one of your cities, or a rival's city in a system you control (and take one of their agents hostage). You gain that planet's resource.</li>
+  <li><b>Build</b> a city or shipyard in a free slot where you already have a piece, or launch a ship from your shipyard (one per shipyard each turn). If a rival controls the system, what you build starts damaged.</li>
+  <li><b>Move</b> any number of your ships into a neighbouring system. Ships setting out from your shipyard may <b>Gate-jump</b>: they keep travelling from gate to gate until they reach a planet or a gate a rival controls.</li>
+  <li><b>Repair</b> one damaged ship or building anywhere. <b>Lobby</b>: place an agent on a Council card. <b>Claim</b>: take a Council card on which you have the most agents; any rival agents on it become your hostages.</li>
+  <li>You <b>control</b> a system when you have more undamaged ships there than any single rival.</li></ul>
+  <h4>Ambitions</h4>
+  <p>Only the player who leads can <b>declare</b> an ambition, and the lead card's number picks which one (2 Prosperity, 3 Dominion, 4 Conquest, 5 Heritage, 6 Insight; a 7 picks any, a 1 picks none). Declaring takes the best free ambition marker and drops the lead card's number to 0, which makes it easy to Outplay. When the chapter ends, each declared ambition pays out: the leader takes the larger number on its markers, the runner-up the smaller one. If players tie for the lead they each take the smaller number. You score nothing for an ambition unless you have at least one of what it counts.</p>
+  <ul><li>💰 <b>Prosperity</b>: Alloy and Plasma. ⛓️ <b>Dominion</b>: hostages. ⚔️ <b>Conquest</b>: spoils. 🏺 <b>Heritage</b>: Artifacts. 🔮 <b>Insight</b>: Crystals. Ally cards count toward their resource type (Arms allies count toward none).</li>
+  <li>The markers begin at 5/3, 3/2 and 2/0. After every chapter the lowest marker that has not been flipped turns over to its larger side (4/2, then 6/3, then 9/4). Spoils and hostages go back to their owners when Conquest or Dominion pays out.</li>
+  <li>Your player board: a 2nd city opens a resource slot, a 3rd gives <b>+2 Power</b> on every ambition you win outright, a 4th opens two more slots and a 5th opens one more and lifts that bonus to <b>+5</b>.</li></ul>
+  <h4>Boosts (spend resources before you use any pips)</h4>
+  <ul><li>⬢ Alloy: one Build or Repair. ⛽ Plasma: one Move. 🚀 Arms: your card's pips can Battle this turn too. 🏺 Artifact: one Claim. 🔮 Crystal: one action from the lead card's suit.</li></ul>
+  <h4>Battle</h4>
+  <ul><li>Choose a system where you have ships and a rival is present. Roll one die per ship (at most 6 of any kind): <b>Light</b> (safe, hits half the time), <b>Heavy</b> (more hits, but some strike your own ships and the defender can intercept) or <b>Plunder</b> (only against buildings, or a rival with none there: hits buildings and rolls keys, but can backfire).</li>
+  <li>Results apply in this order: hits on your own ships; then, if anyone rolled an intercept, one hit on you for each undamaged defending ship; then hits on their ships (carrying over to buildings once their ships are gone); then building hits; then keys, spent to steal resources and ally cards (each slot and card shows its key cost).</li>
+  <li>One hit damages an undamaged piece or destroys a damaged one. Rival pieces you destroy become your spoils. Destroying a city <b>stirs Unrest</b>: you lose that resource type and its ally cards and cannot spend it any more. It also lets you <b>ransack the Council</b>: take a card holding the defender's agents, and every rival agent on it becomes your spoils.</li>
+  <li>AIrks assigns hits for you: hits on your own ships damage undamaged ships first, hits on rival ships finish off damaged ships first, and building hits strike shipyards before cities.</li></ul>
+  <h4>Two players</h4>
+  <p>The resources of the two unused clusters sit on the ambition boxes as a phantom third player. Once per chapter, the player without the initiative may redraw their hand.</p>
+  <h4>Controls</h4>
+  <p>Tap a card in your hand, then pick how to play it. On your turn, tap an action button, then a highlighted system on the map or a highlighted Council card. Moves and battles open a small picker for ship counts or dice.</p>
+  <p style="color:var(--muted);font-size:13px">AIrks is an original game by OmniXR. Its map, card names, card text, terms and art are our own.</p>
+  <div class="row" style="justify-content:flex-end"><button class="btn primary" id="rulesClose">Close</button></div>
+</div></div>
+<div id="toast"></div>
+
+<script>
+/* AIrks engine: map, court, action cards, rules and bots. Pure JS, runs in the browser and in node. by OmniXR · myomnixr.com */
+(function (root) {
+'use strict';
+
+/* ---------------- random numbers ---------------- */
+function rngNext(o) {
+  let t = (o.s = (o.s + 0x6D2B79F5) >>> 0);
+  t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+function mkRng(seed) { const o = { s: seed >>> 0 }; return () => rngNext(o); }
+function rnd(st) { return rngNext(st.rng); }
+function shuffle(a, f) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(f() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+
+/* ---------------- components ---------------- */
+const MAT = 0, FUEL = 1, WEAP = 2, RELIC = 3, PSI = 4;
+const RES = [
+  { k: 'material', n: 'Alloy', c: '#c98a45', i: '⬢', d: 'Boost: gain one Build or Repair.' },
+  { k: 'fuel', n: 'Plasma', c: '#e6c547', i: '⛽', d: 'Boost: gain one Move.' },
+  { k: 'weapons', n: 'Arms', c: '#e0553f', i: '🚀', d: 'Boost: your card\u2019s pips can Battle this turn too.' },
+  { k: 'relic', n: 'Artifact', c: '#3fbfb0', i: '🏺', d: 'Boost: gain one Claim.' },
+  { k: 'psionic', n: 'Crystal', c: '#a56be0', i: '🔮', d: 'Boost: gain one action from the lead card\u2019s suit.' }
+];
+const ADMIN = 0, AGGR = 1, CONS = 2, MOBI = 3;
+const SUITS = [
+  { n: 'Civic', s: 'Civic', c: '#4f8fd1', verbs: ['tax', 'repair', 'influence'] },
+  { n: 'Strike', s: 'Strike', c: '#d0493c', verbs: ['battle', 'move', 'secure'] },
+  { n: 'Forge', s: 'Forge', c: '#d98c2b', verbs: ['build', 'repair'] },
+  { n: 'Transit', s: 'Transit', c: '#3fae6a', verbs: ['move', 'influence'] }
+];
+// action pips by suit and card number (index 1-7)
+const PIPS = [[0, 4, 4, 3, 3, 3, 2, 1], [0, 3, 3, 2, 2, 2, 2, 1], [0, 4, 4, 3, 3, 2, 2, 1], [0, 4, 4, 3, 3, 2, 2, 1]];
+const VERB = { tax: 'Tax', build: 'Build', repair: 'Repair', move: 'Move', influence: 'Lobby', secure: 'Claim', battle: 'Battle' };
+const TYCOON = 0, TYRANT = 1, WARLORD = 2, KEEPER = 3, EMPATH = 4;
+const AMB = [
+  { n: 'Prosperity', i: '💰', d: 'Hold the most Alloy and Plasma, counting tokens and ally cards.' },
+  { n: 'Dominion', i: '⛓️', d: 'Hold the most hostages: rival agents you took by taxing or claiming.' },
+  { n: 'Conquest', i: '⚔️', d: 'Hold the most spoils: rival pieces you destroyed.' },
+  { n: 'Heritage', i: '🏺', d: 'Hold the most Artifacts, counting tokens and ally cards.' },
+  { n: 'Insight', i: '🔮', d: 'Hold the most Crystals, counting tokens and ally cards.' }
+];
+const MARK_LO = [[5, 3], [3, 2], [2, 0]], MARK_HI = [[9, 4], [6, 3], [4, 2]];
+const THRESH = { 2: 33, 3: 30, 4: 27 };
+// our player board: 6 resource slots with their raid costs (keys needed to steal)
+const RAID = [3, 1, 1, 2, 2, 3];
+const COLORS = ['#35c4b5', '#e5534b', '#f0b93a', '#9b8cf2'];
+const BOT_NAMES = ['AIdmiral', 'VAIceroy', 'MAIgnate'];
+const QUICK = { players: 3, chapters: 2 }; // Play now: me + 2 bots, 2 chapters
+
+// battle dice faces: h = hit ship, x = hit your own ship, b = hit building, n = intercept, k = key
+const DICE = {
+  A: [{}, { h: 2 }, { h: 2, x: 1 }, { h: 1, n: 1 }, { h: 1, x: 1 }, { h: 1, x: 1 }],
+  S: [{}, {}, {}, { h: 1 }, { h: 1 }, { h: 1 }],
+  R: [{ n: 1, k: 2 }, { x: 1, k: 1 }, { b: 1, k: 1 }, { x: 1, b: 1 }, { x: 1, b: 1 }, { n: 1 }]
+};
+const DIE_N = { A: 'Heavy', S: 'Light', R: 'Plunder' };
+
+/* ---------------- Council cards: names and wording are OmniXR's own (rewritten Nov 2026) ---------------- */
+// suit = resource icon it counts as; raid = keys to steal it; fx = effect key
+const COURT = [
+  { id: 'm1', g: 1, suit: MAT, raid: 3, n: 'Smelters\u2019 Oath', fx: 'any', d: 'Spend any resource as if it were Alloy, even while Alloy is in Unrest. Unrest never discards this card.' },
+  { id: 'm2', g: 1, suit: MAT, raid: 2, n: 'Deep Core Syndicate', fx: 'taxplus', d: 'Taxing an Alloy city yields 1 more Alloy.' },
+  { id: 'm3', g: 1, suit: MAT, raid: 2, n: 'Double Dock Union', fx: 'port2', d: 'Each of your shipyards can launch 2 ships a turn.' },
+  { id: 'm4', g: 1, suit: MAT, raid: 1, n: 'Wreck Reclaimers', fx: 'scrap', d: 'Gain 1 Alloy for every rival ship you destroy in battle.' },
+  { id: 'm5', g: 1, suit: MAT, raid: 1, n: 'Kit-Habitat Works', fx: 'prefab', pre: 1, d: 'Boost: discard this to raise 1 undamaged city in a system where you have a piece.' },
+  { id: 'f1', g: 1, suit: FUEL, raid: 3, n: 'Burners\u2019 Brotherhood', fx: 'any', d: 'Spend any resource as if it were Plasma, even while Plasma is in Unrest. Unrest never discards this card.' },
+  { id: 'f2', g: 1, suit: FUEL, raid: 2, n: 'Ring Pilots', fx: 'gatecat', d: 'You may Gate-jump starting from any gate, not only from your shipyards.' },
+  { id: 'f3', g: 1, suit: FUEL, raid: 1, n: 'Bulk Tankers', fx: 'tanker', pre: 1, d: 'Boost: discard this to fill every empty resource slot you have with Plasma.' },
+  { id: 'f4', g: 1, suit: FUEL, raid: 2, n: 'Comet Skimmers', fx: 'taxplus', d: 'Taxing a Plasma city yields 1 more Plasma.' },
+  { id: 'f5', g: 1, suit: FUEL, raid: 2, n: 'Far-Run Express', fx: 'move2', d: 'Each of your Moves can carry ships 2 steps.' },
+  { id: 'w1', g: 1, suit: WEAP, raid: 3, n: 'Armorers\u2019 Pact', fx: 'any', d: 'Spend any resource as if it were Arms, even while Arms are in Unrest. Unrest never discards this card.' },
+  { id: 'w2', g: 1, suit: WEAP, raid: 2, n: 'Fire Control School', fx: 'extradie', d: 'In battle, roll 1 die more than your ship count.' },
+  { id: 'w3', g: 1, suit: WEAP, raid: 2, n: 'Hardlight Screens', fx: 'shield', d: 'When you attack, the first hit that would land on your ships is ignored.' },
+  { id: 'w4', g: 1, suit: WEAP, raid: 1, n: 'Breach Teams', fx: 'key1', d: 'When you raid and roll at least one key, add 1 more key.' },
+  { id: 'w5', g: 1, suit: WEAP, raid: 2, n: 'Tripwire Pickets', fx: 'picket', d: 'A rival attacking you who rolls an intercept suffers 1 more hit.' },
+  { id: 'r1', g: 1, suit: RELIC, raid: 3, n: 'Vaultwrights\u2019 Accord', fx: 'any', d: 'Spend any resource as if it were an Artifact, even while Artifacts are in Unrest. Unrest never discards this card.' },
+  { id: 'r2', g: 1, suit: RELIC, raid: 2, n: 'Excavation License', fx: 'taxplus', d: 'Taxing an Artifact city yields 1 more Artifact.' },
+  { id: 'r3', g: 1, suit: RELIC, raid: 2, n: 'Strongroom Guards', fx: 'vault', d: 'Rivals must spend 1 extra key to take any of your resources.' },
+  { id: 'r4', g: 1, suit: RELIC, raid: 1, n: 'Black Market Brokers', fx: 'fence', pre: 1, d: 'Boost: discard this to take 1 Artifact from a rival.' },
+  { id: 'r5', g: 1, suit: RELIC, raid: 2, n: 'Consular Corps', fx: 'inf2', d: 'Each of your Lobby actions places 2 agents, not 1.' },
+  { id: 'p1', g: 1, suit: PSI, raid: 3, n: 'Resonance Circle', fx: 'any', d: 'Spend any resource as if it were a Crystal, even while Crystals are in Unrest. Unrest never discards this card.' },
+  { id: 'p2', g: 1, suit: PSI, raid: 2, n: 'Crystal Springs', fx: 'taxplus', d: 'Taxing a Crystal city yields 1 more Crystal.' },
+  { id: 'p3', g: 1, suit: PSI, raid: 2, n: 'Velvet Mediators', fx: 'sectie', d: 'Tying for the most agents on a card is enough for you to Claim it.' },
+  { id: 'p4', g: 1, suit: PSI, raid: 2, n: 'Mirror Savants', fx: 'copy2', d: 'When you Echo, take 2 actions of the lead card, not 1.' },
+  { id: 'p5', g: 1, suit: PSI, raid: 1, n: 'Portent Seers', fx: 'omen', d: 'Gain 1 Crystal whenever you declare an ambition.' },
+  { id: 'v1', g: 0, n: 'Signal Fire', fx: 'rally', d: 'On claim: pick a cluster and put 1 ship in every one of its systems. Then discard this.' },
+  { id: 'v2', g: 0, n: 'Herald\u2019s Decree', fx: 'proclaim', d: 'On claim: you may declare the ambition of your choice. Then discard this.' },
+  { id: 'v3', g: 0, n: 'Turncoat Pact', fx: 'defect', d: 'On claim: take 1 ally card with a raid cost of 2 or less from a rival. Then discard this.' },
+  { id: 'v4', g: 0, n: 'Bumper Harvest', fx: 'windfall', d: 'On claim: gain 1 resource for each planet type that holds one of your cities. Then discard this.' },
+  { id: 'v5', g: 0, n: 'General Levy', fx: 'muster', d: 'On claim: add 2 ships at every shipyard you own. Then discard this.' },
+  { id: 'v6', g: 0, n: 'Night of Fuses', fx: 'sabotage', d: 'On claim: damage 1 undamaged rival building in every system you control. Then discard this.' },
+  // six extra cards of our own, used by the "Shuffled court" twist
+  { id: 'x1', g: 1, x: 1, suit: MAT, raid: 2, n: 'Skyhook Yards', fx: 'citycraft', d: 'Your cities can launch ships too, once per city each turn.' },
+  { id: 'x2', g: 1, x: 1, suit: FUEL, raid: 2, n: 'Overdrive Tanks', fx: 'fuel2', d: 'Each Plasma you spend on a Boost gives 2 Moves instead of 1.' },
+  { id: 'x3', g: 1, x: 1, suit: WEAP, raid: 2, n: 'Sapper Corps', fx: 'siege', d: 'If you roll any building hit, add 1 more building hit.' },
+  { id: 'x4', g: 1, x: 1, suit: RELIC, raid: 2, n: 'Museum Trust', fx: 'curator', d: 'Before scoring at the end of each chapter, gain 1 Artifact.' },
+  { id: 'x5', g: 1, x: 1, suit: PSI, raid: 2, n: 'Rumor Mill', fx: 'whisper', d: 'Whenever you Claim, gain 1 Crystal as well.' },
+  { id: 'x6', g: 0, x: 1, n: 'Open Floor', fx: 'session', d: 'On claim: put 2 agents on one Council card of your choice. Then discard this.' }
+];
+const CARD = {}; COURT.forEach(c => { CARD[c.id] = c; });
+
+/* ---------------- the map: 6 clusters of 1 gate + 3 planets (our own layout) ---------------- */
+// [planet type, building slots, name] for planets a, b, c of each cluster
+const PLANETS = {
+  1: [[WEAP, 1, 'Cinder'], [FUEL, 2, 'Vesper'], [MAT, 1, 'Anvil']],
+  2: [[RELIC, 2, 'Ossuary'], [MAT, 1, 'Quarrow'], [PSI, 1, 'Lumen']],
+  3: [[FUEL, 1, 'Mirage'], [WEAP, 2, 'Bastion'], [RELIC, 1, 'Cairn']],
+  4: [[MAT, 2, 'Girder'], [PSI, 1, 'Reverie'], [FUEL, 1, 'Wick']],
+  5: [[WEAP, 1, 'Talon'], [RELIC, 1, 'Reliquary'], [MAT, 2, 'Kiln']],
+  6: [[PSI, 2, 'Halcyon'], [FUEL, 1, 'Ember'], [WEAP, 1, 'Spire']]
+};
+const CLUSTER_N = ['', 'Ashfall', 'Bonefield', 'Mirefall', 'Ironreach', 'Gloam', 'Haloreach'];
+const CROSS = [1, 3, 5]; // planet c of these clusters touches planet a of the next cluster
+function sid(k, j) { return (k - 1) * 4 + j; }
+function parsePos(s) { if (s[0] === 'g') return sid(+s.slice(1), 0); return sid(+s[0], ' abc'.indexOf(s[1])); }
+// setup cards: out-of-play clusters and each seat's A (3 ships + city), B (3 ships + starport), C (2 ships)
+const SETUPS = {
+  4: { out: [6], seats: [['1a', '3b', 'g5'], ['2b', '4c', 'g1'], ['3a', '5b', 'g2'], ['4b', '1c', 'g3']] },
+  3: { out: [3, 6], seats: [['1a', '2c', 'g4'], ['2b', '4a', 'g1'], ['5a', '1c', 'g2']] },
+  2: { out: [2, 5], seats: [['1b', '3c', '4b', 'g6'], ['4a', '6c', 'g1', '3a']] }
+};
+function rot(k, r) { return ((k - 1 + r) % 6) + 1; }
+function rotPos(s, r) { return s[0] === 'g' ? 'g' + rot(+s.slice(1), r) : rot(+s[0], r) + s[1]; }
+
+function buildMap(n, rotN, randomMap, f) {
+  const sys = [];
+  let planetDefs = [];
+  for (let k = 1; k <= 6; k++) for (let j = 0; j < 3; j++) planetDefs.push(PLANETS[k][j].slice());
+  if (randomMap) { const types = shuffle(planetDefs.map(p => p[0]), f), slots = shuffle(planetDefs.map(p => p[1]), f); planetDefs = planetDefs.map((p, i) => [types[i], slots[i], p[2]]); }
+  const out = SETUPS[n].out.map(k => rot(k, rotN));
+  for (let k = 1; k <= 6; k++) {
+    sys.push({ i: sid(k, 0), k, j: 0, gate: 1, type: -1, slots: 0, name: 'Gate ' + k, out: out.includes(k) ? 1 : 0, adj: [], sh: [], b: [] });
+    for (let j = 1; j <= 3; j++) {
+      const pd = planetDefs[(k - 1) * 3 + j - 1];
+      sys.push({ i: sid(k, j), k, j, gate: 0, type: pd[0], slots: pd[1], name: pd[2], out: out.includes(k) ? 1 : 0, adj: [], sh: [], b: [] });
+    }
+  }
+  const link = (a, b) => { if (sys[a].out || sys[b].out) return; if (!sys[a].adj.includes(b)) sys[a].adj.push(b); if (!sys[b].adj.includes(a)) sys[b].adj.push(a); };
+  for (let k = 1; k <= 6; k++) {
+    for (let j = 1; j <= 3; j++) link(sid(k, 0), sid(k, j));
+    link(sid(k, 1), sid(k, 2)); link(sid(k, 2), sid(k, 3));
+    if (CROSS.includes(k)) link(sid(k, 3), sid(k % 6 + 1, 1));
+  }
+  // gate ring; path markers on out-of-play gates join their neighbours
+  const inGates = []; for (let k = 1; k <= 6; k++) if (!out.includes(k)) inGates.push(k);
+  for (let i = 0; i < inGates.length; i++) { const a = inGates[i], b = inGates[(i + 1) % inGates.length]; if (a !== b) link(sid(a, 0), sid(b, 0)); }
+  sys.forEach(s => { s.b = Array.from({ length: s.slots }, () => null); s.sh = Array.from({ length: n }, () => [0, 0]); });
+  return { sys, out };
+}
+
+/* ---------------- strategy profiles ---------------- */
+const STRAT = {
+  tycoon: { n: 'Merchant', i: '💰', d: 'Builds cities, taxes hard and hoards Alloy and Plasma.', amb: [2.2, 0.7, 0.6, 0.8, 0.8], w: { res: [1.6, 1.6, 0.8, 0.9, 0.9], city: 1.5, port: 1.0, ship: 0.9, court: 0.9, fight: 0.6, raid: 0.6 } },
+  warlord: { n: 'Conqueror', i: '⚔️', d: 'Masses fleets and picks fights to pile up spoils.', amb: [0.7, 0.9, 2.3, 0.7, 0.7], w: { res: [0.9, 1.1, 1.6, 0.8, 0.8], city: 0.8, port: 1.3, ship: 1.5, court: 0.7, fight: 1.7, raid: 0.9 } },
+  tyrant: { n: 'Overlord', i: '⛓️', d: 'Taxes rival cities and grabs Council cards to take hostages.', amb: [0.8, 2.3, 0.8, 0.7, 0.7], w: { res: [1, 1, 1.1, 0.9, 0.9], city: 1.0, port: 1.0, ship: 1.2, court: 1.4, fight: 1.0, raid: 0.8 } },
+  keeper: { n: 'Archivist', i: '🏺', d: 'Hunts Artifact worlds and Artifact allies, then guards them.', amb: [0.8, 0.7, 0.7, 2.3, 0.8], w: { res: [0.9, 1, 0.9, 1.9, 0.9], city: 1.2, port: 1.0, ship: 1.0, court: 1.1, fight: 0.7, raid: 0.8 } },
+  empath: { n: 'Mystic', i: '🔮', d: 'Gathers Crystals and plays the lead card\u2019s suit to its own ends.', amb: [0.8, 0.7, 0.7, 0.8, 2.3], w: { res: [0.9, 1, 0.9, 0.9, 1.9], city: 1.2, port: 1.0, ship: 1.0, court: 1.1, fight: 0.7, raid: 0.8 } },
+  courtier: { n: 'Diplomat', i: '🎭', d: 'Floods the Council with agents and collects ally cards.', amb: [1.0, 1.3, 0.7, 1.1, 1.1], w: { res: [1, 1, 0.8, 1.1, 1.1], city: 1.0, port: 0.9, ship: 0.8, court: 2.0, fight: 0.6, raid: 0.6 } },
+  raider: { n: 'Raider', i: '🏴\u200d☠️', d: 'Rolls raid dice at Rival cities to steal resources and cards.', amb: [1.1, 1.0, 1.4, 1.0, 1.0], w: { res: [1.1, 1.1, 1.3, 1.1, 1.1], city: 0.8, port: 1.1, ship: 1.3, court: 0.9, fight: 1.4, raid: 2.0 } },
+  balanced: { n: 'Balanced', i: '⚖️', d: 'Weighs every ambition evenly and chases whichever it leads.', amb: [1.2, 1.2, 1.2, 1.2, 1.2], w: { res: [1, 1, 1, 1, 1], city: 1.1, port: 1.0, ship: 1.0, court: 1.0, fight: 1.0, raid: 1.0 } }
+};
+const STRAT_KEYS = Object.keys(STRAT);
+const NEUTRAL = { amb: [1, 1, 1, 1, 1], w: { res: [1, 1, 1, 1, 1], city: 1, port: 1, ship: 1, court: 1, fight: 1, raid: 1 } };
+const DIFF = { easy: { n: 'Easy' }, medium: { n: 'Medium' }, hard: { n: 'Hard' } };
+
+/* ---------------- setup ---------------- */
+function newGame(cfg) {
+  const seed = cfg.seed != null ? cfg.seed : Math.floor(Math.random() * 4294967296);
+  const f = mkRng(seed);
+  const n = cfg.players.length;
+  if (n < 2 || n > 4) throw new Error('2 to 4 players');
+  const opts = Object.assign({ quick: false, hints: false, court: 'standard', map: 'standard' }, cfg.opts || {});
+  const rotN = Math.floor(f() * 6);
+  const M = buildMap(n, rotN, opts.map === 'random', f);
+  const st = {
+    v: 1, seed, rng: { s: (seed ^ 0x9E3779B9) >>> 0 }, botRng: { s: (seed * 7 + 13) >>> 0 }, n, opts,
+    sys: M.sys, out: M.out, rot: rotN,
+    players: cfg.players.map((p, i) => ({
+      i, name: p.name, human: !!p.human, difficulty: p.difficulty || 'medium',
+      strategy: p.human ? null : (p.strategy && STRAT[p.strategy] ? p.strategy : STRAT_KEYS[Math.floor(f() * STRAT_KEYS.length)]),
+      randomStrat: !p.human && !(p.strategy && STRAT[p.strategy]),
+      color: COLORS[i], power: 0, cityLeft: 5, ports: 5, ships: 15, agents: 10,
+      res: [null, null], trophies: [], captives: [], guild: [], outrage: [0, 0, 0, 0, 0], hand: [], scored: []
+    })),
+    chapter: 1, maxChapter: opts.chapters >= 1 && opts.chapters <= 5 ? opts.chapters | 0 : opts.quick ? 3 : 5, init: 0, deck: [], discard: [],
+    markers: MARK_LO.map((v, i) => ({ v: v.slice(), fl: 0, at: -1, i })),
+    court: [], courtDeck: [], courtDiscard: [], dummy: null,
+    phase: 'play', cur: 0, round: null, turn: null, pending: [], passCount: 0,
+    log: [], over: false, winner: -1, sim: false, history: []
+  };
+  // initiative
+  st.init = cfg.first === 'random' ? Math.floor(f() * n) : (cfg.first === 'me' || cfg.first == null ? Math.max(0, st.players.findIndex(p => p.human)) : (+cfg.first || 0));
+  // action deck
+  let id = 0;
+  for (let s = 0; s < 4; s++) for (let r = 1; r <= 7; r++) if (n === 4 || (r >= 2 && r <= 6)) st.deck.push({ id: id++, s, r });
+  // court deck
+  let pool = COURT.filter(c => !c.x).map(c => c.id);
+  if (opts.court === 'shuffled') pool = shuffle(COURT.map(c => c.id), f).slice(0, 31);
+  st.courtDeck = shuffle(pool, f);
+  const rowN = n === 2 ? 3 : 4;
+  for (let i = 0; i < rowN; i++) st.court.push({ id: st.courtDeck.shift(), ag: new Array(n).fill(0) });
+  // starting pieces from the setup card
+  const S = SETUPS[n];
+  for (let q = 0; q < n; q++) {
+    const p = (st.init + q) % n, P = st.players[p];
+    const seat = S.seats[q].map(x => parsePos(rotPos(x, rotN)));
+    const A = st.sys[seat[0]], B = st.sys[seat[1]];
+    A.sh[p][0] += 3; A.b[0] = { p, c: 1, d: 0 }; P.cityLeft--;
+    B.sh[p][0] += 3; B.b[0] = { p, c: 0, d: 0 }; P.ports--;
+    for (let c = 2; c < seat.length; c++) st.sys[seat[c]].sh[p][0] += 2;
+    P.ships -= 6 + 2 * (seat.length - 2);
+    P.res = [A.type, B.type];
+    fixSlots(st, p);
+  }
+  // 2 players: the resources of the out-of-play planets act as a phantom third player
+  if (n === 2) {
+    st.dummy = [0, 0, 0, 0, 0];
+    st.sys.forEach(s => { if (s.out && !s.gate) st.dummy[s.type]++; });
+  }
+  log(st, 'AIrks begins. ' + st.players[st.init].name + ' ' + (st.players[st.init].human ? 'have' : 'has') + ' the initiative.', 'turn');
+  st.players.forEach(P => { if (!P.human) log(st, P.name + ' plays the ' + STRAT[P.strategy].i + ' ' + STRAT[P.strategy].n + ' strategy (' + DIFF[P.difficulty].n + ').'); });
+  startChapter(st);
+  return st;
+}
+
+function log(st, m, cls) { if (st.sim) return; st.log.push({ m, c: cls || '' }); if (st.log.length > 400) st.log.shift(); }
+function pn(st, p) { return st.players[p].name; }
+function verbS(st, p, a, b) { return st.players[p].human ? a : b; }
+
+/* ---------------- player board helpers ---------------- */
+function citiesBuilt(P) { return 5 - P.cityLeft; }
+function capacity(P) { const u = citiesBuilt(P); return 2 + (u >= 2 ? 1 : 0) + (u >= 4 ? 2 : 0) + (u >= 5 ? 1 : 0); }
+function cityBonus(P) { const u = citiesBuilt(P); return u >= 5 ? 5 : u >= 3 ? 2 : 0; }
+function hasFx(P, fx) { for (const c of P.guild) if (CARD[c].fx === fx) return c; return null; }
+function hasCardFx(P, fx, suit) { for (const c of P.guild) if (CARD[c].fx === fx && (suit == null || CARD[c].suit === suit)) return c; return null; }
+function resCount(P, t) { let c = 0; for (const r of P.res) if (r === t) c++; return c; }
+function emptySlots(P) { let c = 0; for (const r of P.res) if (r === null) c++; return c; }
+function supply(st, t) { let c = 5; st.players.forEach(P => { c -= resCount(P, t); }); return Math.max(0, c); }
+function resValue(st, p, t) { const P = st.players[p]; const W = P.human ? NEUTRAL : STRAT[P.strategy]; return W.w.res[t] + (t === MAT || t === FUEL ? W.amb[0] * 0.3 : t === RELIC ? W.amb[3] * 0.3 : t === PSI ? W.amb[4] * 0.3 : 0.2); }
+// keep the most valuable resources in the hardest-to-raid slots
+function fixSlots(st, p) {
+  const P = st.players[p], cap = capacity(P);
+  const held = P.res.filter(r => r !== null).sort((a, b) => resValue(st, p, b) - resValue(st, p, a));
+  while (held.length > cap) { const r = held.pop(); log(st, pn(st, p) + ' cannot hold ' + RES[r].n + ' and returns it.'); }
+  const order = []; for (let j = 0; j < cap; j++) order.push(j);
+  order.sort((a, b) => RAID[b] - RAID[a] || a - b);
+  const res = new Array(cap).fill(null);
+  held.forEach((r, i) => { res[order[i]] = r; });
+  P.res = res;
+}
+function removeRes(st, p, t) {
+  const P = st.players[p];
+  // spend from the cheapest-to-raid slot
+  let best = -1; for (let j = 0; j < P.res.length; j++) if (P.res[j] === t && (best < 0 || RAID[j] < RAID[best])) best = j;
+  if (best < 0) return false; P.res[best] = null; return true;
+}
+function gainRes(st, p, t, why) {
+  const P = st.players[p];
+  if (supply(st, t) <= 0) { log(st, 'The ' + RES[t].n + ' supply is empty.'); return false; }
+  const e = P.res.indexOf(null);
+  if (e >= 0) { P.res[e] = t; fixSlots(st, p); log(st, pn(st, p) + ' ' + verbS(st, p, 'gain', 'gains') + ' ' + RES[t].i + ' ' + RES[t].n + (why ? ' (' + why + ')' : '') + '.'); return true; }
+  st.pending.unshift({ type: 'overflow', p, r: t });
+  return false;
+}
+function counts(st, p) {
+  const P = st.players[p];
+  const c = [0, 0, 0, 0, 0];
+  for (const r of P.res) if (r !== null) { if (r === MAT || r === FUEL) c[0]++; else if (r === RELIC) c[3]++; else if (r === PSI) c[4]++; }
+  for (const id of P.guild) { const s = CARD[id].suit; if (s === MAT || s === FUEL) c[0]++; else if (s === RELIC) c[3]++; else if (s === PSI) c[4]++; }
+  c[1] = P.captives.length; c[2] = P.trophies.length;
+  return c;
+}
+function dummyCounts(st) { if (!st.dummy) return null; const d = st.dummy; return [d[MAT] + d[FUEL], 0, d[WEAP], d[RELIC], d[PSI]]; }
+
+/* ---------------- map helpers ---------------- */
+function control(st, s) {
+  const S = st.sys[s]; let best = -1, bv = 0, tie = false;
+  for (let p = 0; p < st.n; p++) { const f = S.sh[p][0]; if (f > bv) { bv = f; best = p; tie = false; } else if (f === bv && f > 0) tie = true; }
+  return tie ? -1 : best;
+}
+function shipsAt(st, s, p) { const x = st.sys[s].sh[p]; return x[0] + x[1]; }
+function hasLoyal(st, s, p) { const S = st.sys[s]; if (S.sh[p][0] + S.sh[p][1] > 0) return true; return S.b.some(b => b && b.p === p); }
+function portsOf(st, p) { const r = []; st.sys.forEach(S => S.b.forEach((b, j) => { if (b && b.p === p && b.c === 0) r.push([S.i, j]); })); return r; }
+function citiesOf(st, p) { const r = []; st.sys.forEach(S => S.b.forEach((b, j) => { if (b && b.p === p && b.c === 1) r.push([S.i, j]); })); return r; }
+function hasPortAt(st, s, p) { return st.sys[s].b.some(b => b && b.p === p && b.c === 0); }
+function piecesOnMap(st, p) { let sh = 0, bl = 0; st.sys.forEach(S => { sh += S.sh[p][0] + S.sh[p][1]; S.b.forEach(b => { if (b && b.p === p) bl++; }); }); return { sh, bl }; }
+function reach(st, p, s) {
+  const P = st.players[p], S = st.sys[s];
+  const set = new Set(S.adj);
+  const cat = hasPortAt(st, s, p) || (S.gate && hasFx(P, 'gatecat'));
+  if (cat) {
+    // Catapult: keep moving through gates that nobody else controls; stop at any planet or a gate someone else controls
+    const seen = new Set([s]); const q = [];
+    for (const a of S.adj) { set.add(a); if (st.sys[a].gate) { const c = control(st, a); if (c === -1 || c === p) { if (!seen.has(a)) { seen.add(a); q.push(a); } } } }
+    while (q.length) {
+      const x = q.shift();
+      for (const a of st.sys[x].adj) {
+        if (a === s) continue; set.add(a);
+        if (st.sys[a].gate && !seen.has(a)) { const c = control(st, a); seen.add(a); if (c === -1 || c === p) q.push(a); }
+      }
+    }
+  }
+  if (hasFx(P, 'move2')) for (const a of S.adj) for (const b of st.sys[a].adj) if (b !== s) set.add(b);
+  set.delete(s);
+  return [...set];
+}
+
+/* ---------------- chapters and rounds ---------------- */
+function nextWithCards(st, from) { for (let d = 1; d <= st.n; d++) { const q = (from + d) % st.n; if (st.players[q].hand.length) return q; } return -1; }
+function holders(st) { return st.players.filter(P => P.hand.length).length; }
+function startChapter(st) {
+  // gather and shuffle every action card, deal 6 each
+  let all = st.deck.concat(st.discard); st.players.forEach(P => { all = all.concat(P.hand); P.hand = []; });
+  st.deck = shuffle(all, () => rnd(st)); st.discard = [];
+  st.players.forEach(P => { P.hand = st.deck.splice(0, 6); sortHand(P); });
+  st.discard = st.deck; st.deck = [];
+  st.passCount = 0; st.seen = [];
+  log(st, 'Chapter ' + st.chapter + ' begins. Everyone draws 6 action cards.', 'turn');
+  if (st.n === 2) st.pending.push({ type: 'mulligan', p: (st.init + 1) % 2 });
+  startRound(st);
+}
+function sortHand(P) { P.hand.sort((a, b) => a.s - b.s || a.r - b.r); }
+function startRound(st) {
+  st.turn = null;
+  if (!holders(st)) return endChapter(st);
+  if (!st.players[st.init].hand.length) { const q = nextWithCards(st, st.init); log(st, pn(st, st.init) + ' has no cards and passes the initiative to ' + pn(st, q) + '.'); st.init = q; }
+  const order = []; for (let d = 1; d < st.n; d++) order.push((st.init + d) % st.n);
+  st.round = { lead: null, plays: [], seized: -1, high: null, order, oi: -1, holder: st.init };
+  st.cur = st.init; st.phase = 'play';
+}
+function leadNum(st) { const L = st.round.lead; return L.zero ? 0 : L.card.r; }
+function cardAmb(st, c) { if (c.r === 1) return []; if (c.r === 7) return [0, 1, 2, 3, 4]; return [c.r - 2]; }
+function availMarker(st) { let best = null; for (const m of st.markers) if (m.at < 0 && (!best || m.v[0] > best.v[0])) best = m; return best; }
+function declare(st, p, a, how) {
+  const m = availMarker(st); if (!m) return false;
+  m.at = a; log(st, pn(st, p) + ' ' + verbS(st, p, 'declare', 'declares') + ' ' + AMB[a].i + ' ' + AMB[a].n + (how ? ' ' + how : '') + ' (' + m.v[0] + '/' + m.v[1] + ' Power marker).', 'good');
+  if (hasFx(st.players[p], 'omen')) gainRes(st, p, PSI, 'Omen Readers');
+  return true;
+}
+function beginTurn(st, p, mode, card) {
+  const P = st.players[p];
+  const suit = mode === 'copy' ? st.round.lead.card.s : card.s;
+  const pips = (mode === 'lead' || mode === 'surpass') ? PIPS[card.s][card.r] : (mode === 'copy' && hasFx(P, 'copy2') ? 2 : 1);
+  st.turn = { p, mode, suit, pips, verbs: SUITS[suit].verbs.slice(), prelude: true, bonus: null, weapon: false, ports: {}, taxed: {}, fresh: [], used: 0 };
+  st.phase = 'act'; st.cur = p;
+}
+function endTurn(st) {
+  const p = st.turn ? st.turn.p : st.cur;
+  // a player with no ships and no starports on the map returns with 3 fresh ships at a gate
+  const pm = piecesOnMap(st, p), P = st.players[p];
+  if (!pm.sh && !portsOf(st, p).length && P.ships > 0) {
+    let best = -1, bv = 1e9; st.sys.forEach(S => { if (S.gate && !S.out) { let r = 0; for (let q = 0; q < st.n; q++) if (q !== p) r += S.sh[q][0] + S.sh[q][1]; if (r < bv) { bv = r; best = S.i; } } });
+    const k = Math.min(3, P.ships); st.sys[best].sh[p][0] += k; P.ships -= k;
+    log(st, pn(st, p) + ' had no ships or shipyards left and returns with ' + k + ' ships at ' + st.sys[best].name + '.');
+  }
+  st.turn = null;
+  nextFollower(st);
+}
+function nextFollower(st) {
+  const R = st.round;
+  while (++R.oi < R.order.length) { const q = R.order[R.oi]; if (st.players[q].hand.length) { st.cur = q; st.phase = 'play'; return; } }
+  endRound(st);
+}
+function endRound(st) {
+  const R = st.round;
+  if (R.seized >= 0) st.init = R.seized; else if (R.high) st.init = R.high.p;
+  if (R.lead) st.discard.push(R.lead.card);
+  R.plays.forEach(x => { st.discard.push(x.card); if (x.z) st.discard.push(x.z); });
+  if (st.init !== R.holder) log(st, pn(st, st.init) + ' ' + verbS(st, st.init, 'take', 'takes') + ' the initiative.');
+  st.round = null;
+  if (!holders(st)) return endChapter(st);
+  startRound(st);
+}
+function scoreAmbitions(st) {
+  const lines = [];
+  const scoredAmb = [];
+  for (let a = 0; a < 5; a++) {
+    const ms = st.markers.filter(m => m.at === a); if (!ms.length) continue;
+    scoredAmb.push(a);
+    const hi = ms.reduce((s, m) => s + m.v[0], 0), lo = ms.reduce((s, m) => s + m.v[1], 0);
+    const res = placeAmb(st, a);
+    res.first.forEach(p => { const bonus = res.first.length === 1 ? cityBonus(st.players[p]) : 0; const g = (res.first.length === 1 ? hi : lo) + bonus; st.players[p].power += g; lines.push(pn(st, p) + ' +' + g + ' for ' + AMB[a].n + (res.first.length > 1 ? ' (tied first)' : ' (first' + (bonus ? ', +' + bonus + ' city bonus' : '') + ')')); });
+    res.second.forEach(p => { st.players[p].power += lo; if (lo) lines.push(pn(st, p) + ' +' + lo + ' for ' + AMB[a].n + ' (second)'); });
+    if (!res.first.length && !res.second.length) lines.push('Nobody scores ' + AMB[a].n + '.');
+  }
+  return { lines, scoredAmb };
+}
+// who places in an ambition right now: first (unique, or all tied for first who then get second-place Power) and second
+function placeAmb(st, a, cnt) {
+  const vals = []; for (let p = 0; p < st.n; p++) vals.push({ p, v: cnt ? cnt[p][a] : counts(st, p)[a] });
+  const dc = dummyCounts(st); if (dc) vals.push({ p: -1, v: dc[a] });
+  const q = vals.filter(x => x.v > 0).sort((x, y) => y.v - x.v);
+  if (!q.length) return { first: [], second: [], tie: false };
+  const top = q.filter(x => x.v === q[0].v);
+  if (top.length > 1) return { first: top.map(x => x.p).filter(p => p >= 0), second: [], tie: true };
+  const rest = q.slice(1); let second = [];
+  if (rest.length) { const t2 = rest.filter(x => x.v === rest[0].v); if (t2.length === 1 && t2[0].p >= 0) second = [t2[0].p]; }
+  return { first: top[0].p >= 0 ? [top[0].p] : [], second, tie: false };
+}
+function endChapter(st) {
+  st.players.forEach(P => { st.discard = st.discard.concat(P.hand); P.hand = []; });
+  if (st.round) { if (st.round.lead) st.discard.push(st.round.lead.card); st.round.plays.forEach(x => { st.discard.push(x.card); if (x.z) st.discard.push(x.z); }); }
+  st.round = null; st.turn = null;
+  st.players.forEach((P, p) => { if (hasFx(P, 'curator') && P.res.indexOf(null) >= 0 && supply(st, RELIC) > 0) { P.res[P.res.indexOf(null)] = RELIC; fixSlots(st, p); log(st, P.name + ' gains an Artifact (' + CARD.x4.n + ').'); } });
+  log(st, 'Chapter ' + st.chapter + ' ends. Scoring ambitions.', 'turn');
+  const before = st.players.map(P => P.power);
+  const sc = scoreAmbitions(st);
+  sc.lines.forEach(l => log(st, l, 'good'));
+  st.players.forEach((P, p) => { P.scored.push(P.power - before[p]); });
+  st.lastScore = { chapter: st.chapter, lines: sc.lines, gains: st.players.map((P, p) => P.power - before[p]) };
+  // clean up
+  if (sc.scoredAmb.includes(WARLORD)) st.players.forEach(P => { P.trophies.forEach(t => returnPiece(st, t)); P.trophies = []; });
+  if (sc.scoredAmb.includes(TYRANT)) st.players.forEach(P => { P.captives.forEach(q => { st.players[q].agents++; }); P.captives = []; });
+  st.markers.forEach(m => { m.at = -1; });
+  const unf = st.markers.filter(m => !m.fl).sort((a, b) => a.v[0] - b.v[0])[0];
+  if (unf) { unf.fl = 1; unf.v = MARK_HI[unf.i].slice(); }
+  // end of game?
+  const th = THRESH[st.n];
+  if (st.players.some(P => P.power >= th) || st.chapter >= st.maxChapter) return finish(st);
+  st.chapter++;
+  startChapter(st);
+}
+function returnPiece(st, t) {
+  const O = st.players[t.p];
+  if (t.k === 'ship') O.ships++; else if (t.k === 'port') O.ports++; else if (t.k === 'agent') O.agents++;
+  else if (t.k === 'city') { O.cityLeft++; fixSlots(st, t.p); }
+}
+function finish(st) {
+  st.over = true; st.phase = 'over';
+  const order = []; for (let d = 0; d < st.n; d++) order.push((st.init + d) % st.n);
+  st.ranking = order.slice().sort((a, b) => st.players[b].power - st.players[a].power || order.indexOf(a) - order.indexOf(b));
+  st.winner = st.ranking[0];
+  log(st, pn(st, st.winner) + ' ' + verbS(st, st.winner, 'win', 'wins') + ' with ' + st.players[st.winner].power + ' Power!', 'win');
+}
+
+/* ---------------- what the acting player may do ---------------- */
+function actor(st) { if (st.over) return -1; return st.pending.length ? st.pending[0].p : st.cur; }
+function legal(st, full) {
+  if (st.over) return [];
+  if (st.pending.length) return pendingOptions(st, st.pending[0]);
+  if (st.phase === 'play') return playOptions(st);
+  if (st.phase === 'act') return turnOptions(st, full);
+  return [];
+}
+function playOptions(st) {
+  const p = st.cur, P = st.players[p], R = st.round, L = [];
+  if (!R.lead) {
+    for (const c of P.hand) {
+      L.push({ t: 'lead', c: c.id, amb: -1 });
+      if (availMarker(st)) for (const a of cardAmb(st, c)) L.push({ t: 'lead', c: c.id, amb: a });
+    }
+    L.push({ t: 'pass' });
+    return L;
+  }
+  const canSeize = R.seized < 0 && p !== R.holder && P.hand.length >= 2;
+  const ln = leadNum(st), ls = R.lead.card.s;
+  for (const c of P.hand) {
+    const modes = [];
+    if (c.s === ls && c.r > ln) modes.push('surpass');
+    if (c.s !== ls) modes.push('pivot');
+    modes.push('copy');
+    for (const m of modes) {
+      L.push({ t: 'follow', m, c: c.id, z: -1 });
+      if (canSeize) for (const z of P.hand) if (z.id !== c.id) L.push({ t: 'follow', m, c: c.id, z: z.id });
+    }
+  }
+  return L;
+}
+function bonusLeft(T) { return T.bonus && T.bonus.n > 0; }
+function turnOptions(st, full) {
+  const T = st.turn, p = T.p, P = st.players[p], L = [];
+  if (bonusLeft(T)) {
+    for (const v of T.bonus.verbs) actionsFor(st, p, v, full, L);
+    L.push({ t: 'skipbonus' });
+    return L;
+  }
+  if (T.prelude) {
+    // spend resources in the Prelude
+    const seen = {};
+    for (const r of P.res) {
+      if (r === null || seen[r]) continue; seen[r] = 1;
+      for (let as = 0; as < 5; as++) {
+        if (as !== r && !hasCardFx(P, 'any', as)) continue;
+        if (P.outrage[as] && !hasCardFx(P, 'any', as)) continue;
+        if (as === WEAP && (T.weapon || T.verbs.includes('battle') || T.pips <= 0)) continue;
+        L.push({ t: 'spend', r, as });
+      }
+    }
+    for (const id of P.guild) {
+      const C = CARD[id]; if (!C.pre || T.fresh.includes(id)) continue;
+      if (C.fx === 'prefab' && P.cityLeft > 0) L.push({ t: 'gpre', id });
+      if (C.fx === 'tanker' && emptySlots(P) > 0 && supply(st, FUEL) > 0) L.push({ t: 'gpre', id });
+      if (C.fx === 'fence') for (let q = 0; q < st.n; q++) if (q !== p && resCount(st.players[q], RELIC)) L.push({ t: 'gpre', id, q });
+    }
+  }
+  if (T.pips > 0) {
+    const verbs = T.verbs.slice(); if (T.weapon && !verbs.includes('battle')) verbs.push('battle');
+    for (const v of verbs) actionsFor(st, p, v, full, L);
+  }
+  L.push({ t: 'end' });
+  return L;
+}
+function moveCounts(f, d) {
+  const set = new Set(), out = [];
+  const add = (a, b) => { if (a < 0 || b < 0 || a > f || b > d || a + b < 1) return; const k = a + ',' + b; if (!set.has(k)) { set.add(k); out.push([a, b]); } };
+  add(f, d); add(f, 0); add(f - 1, d); add(f - 1, 0); add(1, 0); add(Math.ceil(f / 2), 0); add(0, d); add(2, 0); add(3, 0);
+  return out;
+}
+function diceOptions(st, p, s, def) {
+  const P = st.players[p], N = shipsAt(st, s, p) + (hasFx(P, 'extradie') ? 1 : 0), cap = x => Math.min(6, x);
+  const raidOk = canRaid(st, s, def);
+  const set = new Set(), out = [];
+  const add = (A, S, R) => { A = cap(A); S = cap(S); R = raidOk ? cap(R) : 0; if (A + S + R > N || A + S + R < 1) return; const k = A + ',' + S + ',' + R; if (!set.has(k)) { set.add(k); out.push([A, S, R]); } };
+  add(0, N, 0); add(N, 0, 0); add(Math.ceil(N / 2), N - Math.ceil(N / 2), 0);
+  if (raidOk) { add(0, 0, N); add(N - Math.ceil(N / 2), 0, Math.ceil(N / 2)); add(0, N - 1, 1); add(0, N - 2, 2); }
+  return out;
+}
+function canRaid(st, s, def) {
+  if (st.sys[s].b.some(b => b && b.p === def)) return true;
+  return !st.sys.some(S => S.b.some(b => b && b.p === def));
+}
+function actionsFor(st, p, v, full, L) {
+  const P = st.players[p], T = st.turn;
+  if (v === 'tax') {
+    st.sys.forEach(S => S.b.forEach((b, j) => { if (b && b.c === 1 && !T.taxed[S.i + ':' + j] && (b.p === p || control(st, S.i) === p)) L.push({ t: 'tax', s: S.i, slot: j }); }));
+  } else if (v === 'build' || v === 'prefab') {
+    st.sys.forEach(S => {
+      if (S.out || S.gate) return;
+      if (hasLoyal(st, S.i, p)) S.b.forEach((b, j) => {
+        if (b) return;
+        if (P.cityLeft > 0) L.push(v === 'prefab' ? { t: 'build', s: S.i, slot: j, w: 'city', pf: 1 } : { t: 'build', s: S.i, slot: j, w: 'city' });
+        if (v === 'build' && P.ports > 0) L.push({ t: 'build', s: S.i, slot: j, w: 'port' });
+      });
+      if (v === 'build' && P.ships > 0) S.b.forEach((b, j) => {
+        if (!b || b.p !== p) return;
+        if (b.c === 0 && (T.ports[S.i + ':' + j] || 0) < (hasFx(P, 'port2') ? 2 : 1)) L.push({ t: 'build', s: S.i, slot: j, w: 'ship' });
+        if (b.c === 1 && hasFx(P, 'citycraft') && !T.ports[S.i + ':' + j]) L.push({ t: 'build', s: S.i, slot: j, w: 'ship' });
+      });
+    });
+  } else if (v === 'repair') {
+    st.sys.forEach(S => { if (S.sh[p][1] > 0) L.push({ t: 'repair', s: S.i, slot: -1 }); S.b.forEach((b, j) => { if (b && b.p === p && b.d) L.push({ t: 'repair', s: S.i, slot: j }); }); });
+  } else if (v === 'move') {
+    st.sys.forEach(S => {
+      const f = S.sh[p][0], d = S.sh[p][1]; if (f + d === 0) return;
+      for (const t of reach(st, p, S.i)) for (const c of (full ? moveCounts(f, d) : moveCounts(f, d).slice(0, 4))) L.push({ t: 'move', s: S.i, s2: t, f: c[0], d: c[1] });
+    });
+  } else if (v === 'influence') {
+    if (P.agents > 0) st.court.forEach((c, ci) => L.push({ t: 'influence', ci }));
+  } else if (v === 'secure') {
+    st.court.forEach((c, ci) => { if (canSecure(st, p, ci)) L.push({ t: 'secure', ci }); });
+  } else if (v === 'battle') {
+    st.sys.forEach(S => {
+      if (shipsAt(st, S.i, p) === 0) return;
+      for (let q = 0; q < st.n; q++) {
+        if (q === p) continue;
+        if (shipsAt(st, S.i, q) === 0 && !S.b.some(b => b && b.p === q)) continue;
+        for (const dc of diceOptions(st, p, S.i, q)) L.push({ t: 'battle', s: S.i, q, A: dc[0], S: dc[1], R: dc[2] });
+      }
+    });
+  }
+  return L;
+}
+function canSecure(st, p, ci) {
+  const c = st.court[ci]; if (!c) return false; const mine = c.ag[p]; if (!mine) return false;
+  const tie = hasFx(st.players[p], 'sectie');
+  for (let q = 0; q < st.n; q++) if (q !== p && (tie ? c.ag[q] > mine : c.ag[q] >= mine)) return false;
+  return true;
+}
+function pendingOptions(st, pd) {
+  const p = pd.p, P = st.players[p], L = [];
+  if (pd.type === 'mulligan') { L.push({ t: 'pick', v: 0 }); L.push({ t: 'pick', v: 1 }); }
+  else if (pd.type === 'overflow') { P.res.forEach((r, j) => { if (r !== null && (j === 0 || P.res.indexOf(r) === j)) L.push({ t: 'pick', v: j }); }); L.push({ t: 'pick', v: -1 }); }
+  else if (pd.type === 'ransack') pd.opts.forEach(ci => L.push({ t: 'pick', v: ci }));
+  else if (pd.type === 'loot') { lootOptions(st, pd).forEach(o => L.push({ t: 'pick', v: o })); L.push({ t: 'pick', v: 'done' }); }
+  else if (pd.type === 'cluster') { for (let k = 1; k <= 6; k++) if (!st.out.includes(k)) L.push({ t: 'pick', v: k }); }
+  else if (pd.type === 'declare') { if (availMarker(st)) for (let a = 0; a < 5; a++) L.push({ t: 'pick', v: a }); L.push({ t: 'pick', v: -1 }); }
+  else if (pd.type === 'defect') pd.opts.forEach(o => L.push({ t: 'pick', v: o }));
+  else if (pd.type === 'session') st.court.forEach((c, ci) => L.push({ t: 'pick', v: ci }));
+  return L;
+}
+function lootCost(st, def, j) { return RAID[j] + (hasFx(st.players[def], 'vault') ? 1 : 0); }
+function lootOptions(st, pd) {
+  const D = st.players[pd.q], out = [];
+  D.res.forEach((r, j) => { if (r !== null && lootCost(st, pd.q, j) <= pd.keys) out.push('r' + j); });
+  D.guild.forEach(id => { if (CARD[id].raid <= pd.keys) out.push('c' + id); });
+  return out;
+}
+
+/* ---------------- applying moves ---------------- */
+function key(a) { return JSON.stringify(a); }
+function validMove(st, a) {
+  if (st.phase !== 'act' || st.pending.length) return false;
+  const T = st.turn, p = T.p;
+  const ok = bonusLeft(T) ? T.bonus.verbs.includes('move') : (T.pips > 0 && T.verbs.includes('move'));
+  if (!ok) return false;
+  const S = st.sys[a.s]; if (!S || a.f < 0 || a.d < 0 || a.f + a.d < 1 || a.f > S.sh[p][0] || a.d > S.sh[p][1]) return false;
+  return reach(st, p, a.s).includes(a.s2);
+}
+function validBattle(st, a) {
+  if (st.phase !== 'act' || st.pending.length) return false;
+  const T = st.turn, p = T.p; if (bonusLeft(T)) return false;
+  if (!(T.pips > 0 && (T.verbs.includes('battle') || T.weapon))) return false;
+  const S = st.sys[a.s]; if (!S || a.q === p || a.q < 0 || a.q >= st.n) return false;
+  if (shipsAt(st, a.s, p) === 0) return false;
+  if (shipsAt(st, a.s, a.q) === 0 && !S.b.some(b => b && b.p === a.q)) return false;
+  const N = shipsAt(st, a.s, p) + (hasFx(st.players[p], 'extradie') ? 1 : 0);
+  if (![a.A, a.S, a.R].every(x => Number.isInteger(x) && x >= 0 && x <= 6)) return false;
+  if (a.A + a.S + a.R > N || a.A + a.S + a.R < 1) return false;
+  if (a.R > 0 && !canRaid(st, a.s, a.q)) return false;
+  return true;
+}
+function act(st, a) {
+  if (a && a.t === 'move' && validMove(st, a)) return apply(st, a);
+  if (a && a.t === 'battle' && validBattle(st, a)) return apply(st, a);
+  const L = legal(st, true), k = key(a);
+  if (!L.some(x => key(x) === k)) throw new Error('Illegal move: ' + k);
+  apply(st, a);
+}
+function apply(st, a) {
+  if (st.pending.length) { resolvePending(st, st.pending[0], a.v); return afterStep(st); }
+  if (a.t === 'lead') return doLead(st, a);
+  if (a.t === 'pass') return doPass(st);
+  if (a.t === 'follow') return doFollow(st, a);
+  const T = st.turn, p = T.p, P = st.players[p];
+  if (a.t === 'end') { log(st, pn(st, p) + ' ' + verbS(st, p, 'end', 'ends') + ' the turn.'); return endTurn(st); }
+  if (a.t === 'skipbonus') { T.bonus = null; return afterStep(st); }
+  if (a.t === 'spend') {
+    removeRes(st, p, a.r);
+    const how = a.r === a.as ? RES[a.r].n : RES[a.r].n + ' as ' + RES[a.as].n;
+    if (a.as === WEAP) { T.weapon = true; log(st, pn(st, p) + ' ' + verbS(st, p, 'spend', 'spends') + ' ' + how + ': this turn\u2019s pips may also Battle.'); }
+    else {
+      const verbs = a.as === MAT ? ['build', 'repair'] : a.as === FUEL ? ['move'] : a.as === RELIC ? ['secure'] : SUITS[st.round.lead.card.s].verbs.slice();
+      T.bonus = { verbs, n: a.as === FUEL && hasFx(P, 'fuel2') ? 2 : 1, src: a.as };
+      log(st, pn(st, p) + ' ' + verbS(st, p, 'spend', 'spends') + ' ' + how + ' for a free ' + verbs.map(v => VERB[v]).join('/') + ' action.');
+    }
+    return afterStep(st);
+  }
+  if (a.t === 'gpre') {
+    const C = CARD[a.id]; P.guild.splice(P.guild.indexOf(a.id), 1); st.courtDiscard.push(a.id);
+    log(st, pn(st, p) + ' ' + verbS(st, p, 'discard', 'discards') + ' ' + C.n + '.');
+    if (C.fx === 'prefab') T.bonus = { verbs: ['prefab'], n: 1, src: 'prefab' };
+    if (C.fx === 'tanker') { let k = emptySlots(P); while (k-- > 0 && supply(st, FUEL) > 0) gainRes(st, p, FUEL, 'Tanker Convoy'); }
+    if (C.fx === 'fence') { const Q = st.players[a.q]; removeRes(st, a.q, RELIC); log(st, pn(st, p) + ' ' + verbS(st, p, 'steal', 'steals') + ' an Artifact from ' + Q.name + '.'); gainResRaw(st, p, RELIC); }
+    return afterStep(st);
+  }
+  // a standard action, paid by a bonus or by a pip
+  if (bonusLeft(T)) { T.bonus.n--; if (T.bonus.n <= 0) T.bonus = null; }
+  else { T.pips--; T.prelude = false; T.used++; }
+  doAction(st, p, a);
+  afterStep(st);
+}
+// gain a stolen resource (the token moves, so supply is not checked)
+function gainResRaw(st, p, t) {
+  const P = st.players[p], e = P.res.indexOf(null);
+  if (e >= 0) { P.res[e] = t; fixSlots(st, p); return; }
+  st.pending.unshift({ type: 'overflow', p, r: t, raw: 1 });
+}
+function afterStep(st) {
+  if (st.over || st.pending.length) return;
+  if (st.phase === 'act' && st.turn && st.turn.pips <= 0 && !bonusLeft(st.turn)) endTurn(st);
+}
+function doLead(st, a) {
+  const p = st.cur, P = st.players[p], c = P.hand.find(x => x.id === a.c);
+  P.hand.splice(P.hand.indexOf(c), 1);
+  st.round.lead = { p, card: c, zero: false }; st.seen.push(c.id);
+  st.passCount = 0;
+  log(st, pn(st, p) + ' ' + verbS(st, p, 'lead', 'leads') + ' ' + cardName(c) + '.', 'turn');
+  if (a.amb >= 0 && declare(st, p, a.amb)) st.round.lead.zero = true;
+  beginTurn(st, p, 'lead', c);
+  afterStep(st);
+}
+function doPass(st) {
+  const p = st.cur;
+  st.passCount++;
+  log(st, pn(st, p) + ' ' + verbS(st, p, 'pass', 'passes') + ' the initiative.', 'turn');
+  if (st.passCount >= holders(st)) { log(st, 'Everyone with cards passed.'); st.round = null; return endChapter(st); }
+  st.init = nextWithCards(st, p);
+  st.round = null;
+  startRound(st);
+}
+function doFollow(st, a) {
+  const p = st.cur, P = st.players[p], R = st.round;
+  const c = P.hand.find(x => x.id === a.c); P.hand.splice(P.hand.indexOf(c), 1);
+  let z = null; if (a.z >= 0) { z = P.hand.find(x => x.id === a.z); P.hand.splice(P.hand.indexOf(z), 1); }
+  R.plays.push({ p, m: a.m, card: c, z }); if (a.m !== 'copy') st.seen.push(c.id);
+  const word = a.m === 'surpass' ? 'outplays with ' + cardName(c) : a.m === 'pivot' ? 'switches with ' + cardName(c) : 'echoes (card face down)';
+  log(st, pn(st, p) + ' ' + (P.human ? word.replace('outplays', 'outplay').replace('switches', 'switch').replace('echoes', 'echo') : word) + '.', 'turn');
+  if (z) { R.seized = p; log(st, pn(st, p) + ' ' + verbS(st, p, 'grab', 'grabs') + ' the initiative with an extra card.', 'good'); }
+  if (a.m === 'surpass') {
+    if (c.r === 7 && st.n === 4 && R.seized < 0) { R.seized = p; log(st, pn(st, p) + ' ' + verbS(st, p, 'grab', 'grabs') + ' the initiative with a 7.', 'good'); }
+    if (!R.high || c.r > R.high.r) R.high = { p, r: c.r };
+  }
+  beginTurn(st, p, a.m, c);
+  afterStep(st);
+}
+function cardName(c) { return SUITS[c.s].n + ' ' + c.r; }
+
+function doAction(st, p, a) {
+  const P = st.players[p], T = st.turn;
+  if (a.t === 'tax') {
+    const S = st.sys[a.s], b = S.b[a.slot]; T.taxed[a.s + ':' + a.slot] = 1;
+    log(st, pn(st, p) + ' ' + verbS(st, p, 'tax', 'taxes') + ' ' + (b.p === p ? 'a city' : pn(st, b.p) + '\u2019s city') + ' on ' + S.name + '.');
+    gainRes(st, p, S.type);
+    if (hasCardFx(P, 'taxplus', S.type)) gainRes(st, p, S.type, CARD[hasCardFx(P, 'taxplus', S.type)].n);
+    if (b.p !== p) { const O = st.players[b.p]; if (O.agents > 0) { O.agents--; P.captives.push(b.p); log(st, pn(st, p) + ' ' + verbS(st, p, 'capture', 'captures') + ' one of ' + O.name + '\u2019s agents.'); } }
+  } else if (a.t === 'build') {
+    const S = st.sys[a.s], c = control(st, a.s), dmg = (!a.pf && c >= 0 && c !== p) ? 1 : 0;
+    if (a.w === 'ship') {
+      T.ports[a.s + ':' + a.slot] = (T.ports[a.s + ':' + a.slot] || 0) + 1;
+      S.sh[p][dmg]++; P.ships--;
+      log(st, pn(st, p) + ' ' + verbS(st, p, 'build', 'builds') + ' a ship at ' + S.name + (dmg ? ' (damaged: someone else controls it)' : '') + '.');
+    } else {
+      S.b[a.slot] = { p, c: a.w === 'city' ? 1 : 0, d: dmg };
+      if (a.w === 'city') { P.cityLeft--; fixSlots(st, p); } else P.ports--;
+      log(st, pn(st, p) + ' ' + verbS(st, p, 'build', 'builds') + ' a ' + (a.w === 'city' ? 'city' : 'shipyard') + ' on ' + S.name + (dmg ? ' (damaged)' : '') + '.');
+    }
+  } else if (a.t === 'repair') {
+    const S = st.sys[a.s];
+    if (a.slot < 0) { S.sh[p][1]--; S.sh[p][0]++; log(st, pn(st, p) + ' ' + verbS(st, p, 'repair', 'repairs') + ' a ship at ' + S.name + '.'); }
+    else { S.b[a.slot].d = 0; log(st, pn(st, p) + ' ' + verbS(st, p, 'repair', 'repairs') + ' a building on ' + S.name + '.'); }
+  } else if (a.t === 'move') {
+    const S = st.sys[a.s], D = st.sys[a.s2];
+    S.sh[p][0] -= a.f; S.sh[p][1] -= a.d; D.sh[p][0] += a.f; D.sh[p][1] += a.d;
+    log(st, pn(st, p) + ' ' + verbS(st, p, 'move', 'moves') + ' ' + (a.f + a.d) + ' ship' + (a.f + a.d > 1 ? 's' : '') + ' from ' + S.name + ' to ' + D.name + '.');
+  } else if (a.t === 'influence') {
+    const c = st.court[a.ci]; let k = hasFx(P, 'inf2') ? 2 : 1; k = Math.min(k, P.agents);
+    c.ag[p] += k; P.agents -= k;
+    log(st, pn(st, p) + ' ' + verbS(st, p, 'place', 'places') + ' ' + k + ' agent' + (k > 1 ? 's' : '') + ' on ' + CARD[c.id].n + '.');
+  } else if (a.t === 'secure') {
+    secureCard(st, p, a.ci, false);
+  } else if (a.t === 'battle') {
+    battle(st, p, a);
+  }
+}
+function secureCard(st, p, ci, ransack) {
+  const P = st.players[p], c = st.court[ci], C = CARD[c.id];
+  P.agents += c.ag[p];
+  let taken = 0;
+  for (let q = 0; q < st.n; q++) if (q !== p && c.ag[q]) { for (let i = 0; i < c.ag[q]; i++) { if (ransack) P.trophies.push({ p: q, k: 'agent' }); else P.captives.push(q); } taken += c.ag[q]; }
+  log(st, pn(st, p) + ' ' + verbS(st, p, 'claim', 'claims') + ' ' + C.n + (taken ? ' and ' + verbS(st, p, 'take', 'takes') + ' ' + taken + ' Rival agent' + (taken > 1 ? 's' : '') + ' as ' + (ransack ? 'spoils' : 'hostages') : '') + '.', 'good');
+  // refill the Court slot
+  if (st.courtDeck.length) st.court[ci] = { id: st.courtDeck.shift(), ag: new Array(st.n).fill(0) };
+  else st.court.splice(ci, 1);
+  if (C.g) { P.guild.push(C.id); if (st.turn) st.turn.fresh.push(C.id); }
+  else { st.courtDiscard.push(C.id); resolveVox(st, p, C); }
+  if (hasFx(P, 'whisper')) gainRes(st, p, PSI, 'Whisper Network');
+}
+function resolveVox(st, p, C) {
+  const P = st.players[p];
+  if (C.fx === 'rally') st.pending.push({ type: 'cluster', p });
+  else if (C.fx === 'proclaim') { if (availMarker(st)) st.pending.push({ type: 'declare', p }); }
+  else if (C.fx === 'defect') {
+    const opts = []; st.players.forEach((Q, q) => { if (q !== p) Q.guild.forEach(id => { if (CARD[id].raid <= 2) opts.push(q + ':' + id); }); });
+    if (opts.length) st.pending.push({ type: 'defect', p, opts });
+  } else if (C.fx === 'windfall') {
+    const types = new Set(citiesOf(st, p).map(x => st.sys[x[0]].type)); types.forEach(t => gainRes(st, p, t, 'Supply Windfall'));
+  } else if (C.fx === 'muster') {
+    portsOf(st, p).forEach(x => { const k = Math.min(2, P.ships); st.sys[x[0]].sh[p][0] += k; P.ships -= k; });
+    log(st, pn(st, p) + ' ' + verbS(st, p, 'muster', 'musters') + ' ships at every shipyard.');
+  } else if (C.fx === 'sabotage') {
+    st.sys.forEach(S => { if (control(st, S.i) !== p) return; const b = S.b.find(x => x && x.p !== p && !x.d); if (b) { b.d = 1; log(st, pn(st, p) + ' ' + verbS(st, p, 'damage', 'damages') + ' ' + pn(st, b.p) + '\u2019s ' + (b.c ? 'city' : 'shipyard') + ' on ' + S.name + '.'); } });
+  } else if (C.fx === 'session') { if (P.agents > 0) st.pending.push({ type: 'session', p }); }
+}
+function resolvePending(st, pd, v) {
+  const p = pd.p, P = st.players[p];
+  const done = () => { const i = st.pending.indexOf(pd); if (i >= 0) st.pending.splice(i, 1); };
+  if (pd.type === 'mulligan') {
+    done();
+    if (v === 1) { st.discard = st.discard.concat(P.hand); shuffle(st.discard, () => rnd(st)); P.hand = st.discard.splice(0, 6); sortHand(P); log(st, pn(st, p) + ' ' + verbS(st, p, 'redraw', 'redraws') + ' a new hand of 6.'); }
+    else log(st, pn(st, p) + ' ' + verbS(st, p, 'keep', 'keeps') + ' the hand.');
+  } else if (pd.type === 'overflow') {
+    done();
+    if (v >= 0) { const old = P.res[v]; P.res[v] = pd.r; fixSlots(st, p); log(st, pn(st, p) + ' ' + verbS(st, p, 'return', 'returns') + ' ' + RES[old].n + ' to make room for ' + RES[pd.r].n + '.'); }
+    else log(st, pn(st, p) + ' ' + verbS(st, p, 'have', 'has') + ' no room and ' + verbS(st, p, 'let', 'lets') + ' the ' + RES[pd.r].n + ' go.');
+  } else if (pd.type === 'ransack') {
+    done(); secureCard(st, p, v, true);
+  } else if (pd.type === 'loot') {
+    if (v === 'done' || v == null) { done(); return; }
+    const D = st.players[pd.q];
+    if (v[0] === 'r') { const j = +v.slice(1), r = D.res[j]; pd.keys -= lootCost(st, pd.q, j); D.res[j] = null; log(st, pn(st, p) + ' ' + verbS(st, p, 'steal', 'steals') + ' ' + RES[r].i + ' ' + RES[r].n + ' from ' + D.name + '.', 'good'); gainResRaw(st, p, r); }
+    else { const id = v.slice(1); pd.keys -= CARD[id].raid; D.guild.splice(D.guild.indexOf(id), 1); P.guild.push(id); log(st, pn(st, p) + ' ' + verbS(st, p, 'steal', 'steals') + ' the ' + CARD[id].n + ' card from ' + D.name + '.', 'good'); }
+    if (!lootOptions(st, pd).length) done();
+  } else if (pd.type === 'cluster') {
+    done();
+    st.sys.forEach(S => { if (S.k === v && !S.out && P.ships > 0) { S.sh[p][0]++; P.ships--; } });
+    log(st, pn(st, p) + ' ' + verbS(st, p, 'rally', 'rallies') + ' ships across the ' + CLUSTER_N[v] + ' cluster.');
+  } else if (pd.type === 'declare') {
+    done(); if (v >= 0) declare(st, p, v, 'by proclamation');
+  } else if (pd.type === 'defect') {
+    done(); const [q, id] = v.split(':'); const Q = st.players[+q]; Q.guild.splice(Q.guild.indexOf(id), 1); P.guild.push(id); log(st, pn(st, p) + ' ' + verbS(st, p, 'take', 'takes') + ' ' + CARD[id].n + ' from ' + Q.name + '.');
+  } else if (pd.type === 'session') {
+    done(); const k = Math.min(2, P.agents); st.court[v].ag[p] += k; P.agents -= k; log(st, pn(st, p) + ' ' + verbS(st, p, 'place', 'places') + ' ' + k + ' agents on ' + CARD[st.court[v].id].n + '.');
+  }
+}
+
+/* ---------------- battle ---------------- */
+function rollDie(st, t) { return DICE[t][Math.floor(rnd(st) * 6)]; }
+function battle(st, p, a) {
+  const P = st.players[p], D = st.players[a.q], S = st.sys[a.s];
+  const tot = { h: 0, x: 0, b: 0, n: 0, k: 0 }, faces = [];
+  [['A', a.A], ['S', a.S], ['R', a.R]].forEach(([t, k]) => { for (let i = 0; i < k; i++) { const f = rollDie(st, t); faces.push([t, f]); for (const z in f) tot[z] += f[z]; } });
+  st.lastBattle = { p, q: a.q, s: a.s, dice: faces, tot: Object.assign({}, tot) };
+  log(st, pn(st, p) + ' ' + verbS(st, p, 'attack', 'attacks') + ' ' + D.name + ' at ' + S.name + ' with ' + [a.A && a.A + ' heavy', a.S && a.S + ' light', a.R && a.R + ' plunder'].filter(Boolean).join(', ') + ' dice: ' + rollText(tot) + '.', 'turn');
+  let shield = hasFx(P, 'shield') ? 1 : 0;
+  // 1. self-hits
+  let sx = tot.x; if (shield && sx > 0) { sx--; shield = 0; }
+  hitShips(st, a.s, p, sx, a.q, 'spread');
+  // 2. intercept: once, one hit per fresh defending ship
+  if (tot.n > 0) { let ih = S.sh[a.q][0] + (hasFx(D, 'picket') ? 1 : 0); if (shield && ih > 0) { ih--; shield = 0; } if (ih) log(st, D.name + ' ' + verbS(st, a.q, 'intercept', 'intercepts') + ' for ' + ih + ' hit' + (ih > 1 ? 's' : '') + '.'); hitShips(st, a.s, p, ih, a.q, 'spread'); }
+  // 3. hits on defending ships, then on buildings once no ships remain
+  const left = hitShips(st, a.s, a.q, tot.h, p, 'focus');
+  // 4. building hits
+  let bh = left + tot.b + (tot.b > 0 && hasFx(P, 'siege') ? 1 : 0);
+  hitBuildings(st, a.s, a.q, bh, p);
+  // 5. raid with keys
+  if (tot.k > 0 && shipsAt(st, a.s, p) > 0) {
+    const keys = tot.k + (hasFx(P, 'key1') ? 1 : 0);
+    const pd = { type: 'loot', p, q: a.q, keys };
+    if (lootOptions(st, pd).length) st.pending.push(pd);
+  }
+}
+function rollText(t) {
+  const parts = []; if (t.h) parts.push(t.h + ' hit' + (t.h > 1 ? 's' : '')); if (t.b) parts.push(t.b + ' building hit' + (t.b > 1 ? 's' : '')); if (t.x) parts.push(t.x + ' self-hit' + (t.x > 1 ? 's' : '')); if (t.n) parts.push('intercept'); if (t.k) parts.push(t.k + ' key' + (t.k > 1 ? 's' : ''));
+  return parts.length ? parts.join(', ') : 'nothing';
+}
+// mode 'spread': damage fresh ships before destroying any; 'focus': finish damaged ships first
+function hitShips(st, s, victim, hits, killer, mode) {
+  const x = st.sys[s].sh[victim]; let destroyed = 0;
+  while (hits > 0 && x[0] + x[1] > 0) {
+    if (mode === 'spread') { if (x[0] > 0) { x[0]--; x[1]++; } else { x[1]--; destroyed++; } }
+    else { if (x[1] > 0) { x[1]--; destroyed++; } else { x[0]--; x[1]++; } }
+    hits--;
+  }
+  if (destroyed) {
+    const K = st.players[killer];
+    for (let i = 0; i < destroyed; i++) K.trophies.push({ p: victim, k: 'ship' });
+    log(st, pn(st, killer) + ' ' + verbS(st, killer, 'destroy', 'destroys') + ' ' + destroyed + ' of ' + pn(st, victim) + '\u2019s ships' + ' (spoils).');
+    if (hasFx(K, 'scrap')) for (let i = 0; i < destroyed; i++) { const e = K.res.indexOf(null); if (e >= 0 && supply(st, MAT) > 0) { K.res[e] = MAT; fixSlots(st, killer); } }
+  }
+  return hits;
+}
+function hitBuildings(st, s, def, hits, att) {
+  const S = st.sys[s];
+  const pick = () => {
+    let best = -1, bv = -1;
+    S.b.forEach((b, j) => { if (!b || b.p !== def) return; const v = (b.d ? 10 : 0) + (b.c === 0 ? 5 : 0); if (v > bv) { bv = v; best = j; } });
+    return best;
+  };
+  while (hits > 0) {
+    const j = pick(); if (j < 0) break;
+    const b = S.b[j]; hits--;
+    if (!b.d) { b.d = 1; log(st, pn(st, att) + ' ' + verbS(st, att, 'damage', 'damages') + ' ' + pn(st, def) + '\u2019s ' + (b.c ? 'city' : 'shipyard') + ' on ' + S.name + '.'); continue; }
+    S.b[j] = null; st.players[att].trophies.push({ p: def, k: b.c ? 'city' : 'port' });
+    log(st, pn(st, att) + ' ' + verbS(st, att, 'destroy', 'destroys') + ' ' + pn(st, def) + '\u2019s ' + (b.c ? 'city' : 'shipyard') + ' on ' + S.name + '!', 'good');
+    if (b.c) { outrage(st, att, S.type); ransack(st, att, def); }
+  }
+}
+function outrage(st, p, t) {
+  const P = st.players[p];
+  let lost = 0; for (let j = 0; j < P.res.length; j++) if (P.res[j] === t) { P.res[j] = null; lost++; }
+  const keep = [], gone = [];
+  P.guild.forEach(id => { const C = CARD[id]; if (C.suit === t && C.fx !== 'any') gone.push(id); else keep.push(id); });
+  P.guild = keep; gone.forEach(id => st.courtDiscard.push(id));
+  P.outrage[t] = 1;
+  log(st, pn(st, p) + ' ' + verbS(st, p, 'stir', 'stirs') + ' ' + RES[t].n + ' Unrest' + (lost || gone.length ? ', losing ' + [lost && lost + ' ' + RES[t].n, gone.length && gone.length + ' ally card' + (gone.length > 1 ? 's' : '')].filter(Boolean).join(' and ') : '') + '.', 'bad');
+}
+function ransack(st, p, def) {
+  const opts = []; st.court.forEach((c, ci) => { if (c.ag[def] > 0) opts.push(ci); });
+  if (!opts.length) return;
+  if (opts.length === 1) return secureCard(st, p, opts[0], true);
+  st.pending.unshift({ type: 'ransack', p, q: def, opts });
+}
+
+/* ---------------- descriptions ---------------- */
+function describe(st, a) {
+  const S = a.s != null ? st.sys[a.s] : null;
+  switch (a.t) {
+    case 'lead': { const c = findCard(st, a.c); return 'Lead ' + cardName(c) + (a.amb >= 0 ? ' and declare ' + AMB[a.amb].n : ''); }
+    case 'follow': { const c = findCard(st, a.c); return (a.m === 'surpass' ? 'Outplay with ' : a.m === 'pivot' ? 'Switch with ' : 'Echo using ') + cardName(c) + (a.z >= 0 ? ' and grab the initiative' : ''); }
+    case 'pass': return 'Pass the initiative';
+    case 'end': return 'End turn';
+    case 'skipbonus': return 'Skip the free action';
+    case 'spend': return 'Spend ' + RES[a.r].n + (a.r !== a.as ? ' as ' + RES[a.as].n : '');
+    case 'gpre': return 'Use ' + CARD[a.id].n + (a.q != null ? ' on ' + st.players[a.q].name : '');
+    case 'tax': return 'Tax the city on ' + S.name;
+    case 'build': return 'Build a ' + (a.w === 'port' ? 'shipyard' : a.w) + ' on ' + S.name;
+    case 'repair': return 'Repair ' + (a.slot < 0 ? 'a ship' : 'a building') + ' at ' + S.name;
+    case 'move': return 'Move ' + (a.f + a.d) + ' to ' + st.sys[a.s2].name;
+    case 'influence': return 'Lobby ' + CARD[st.court[a.ci].id].n;
+    case 'secure': return 'Claim ' + CARD[st.court[a.ci].id].n;
+    case 'battle': return 'Battle ' + st.players[a.q].name + ' at ' + S.name;
+    case 'pick': return pickLabel(st, a.v);
+  }
+  return a.t;
+}
+function pickLabel(st, v) {
+  const pd = st.pending[0]; if (!pd) return String(v);
+  const P = st.players[pd.p];
+  if (pd.type === 'mulligan') return v ? 'Redraw a new hand' : 'Keep this hand';
+  if (pd.type === 'overflow') return v < 0 ? 'Let the new ' + RES[pd.r].n + ' go' : 'Return ' + RES[P.res[v]].n + ' to keep ' + RES[pd.r].n;
+  if (pd.type === 'ransack' || pd.type === 'session') return CARD[st.court[v].id].n;
+  if (pd.type === 'loot') { if (v === 'done') return 'Stop raiding'; const D = st.players[pd.q]; if (v[0] === 'r') { const j = +v.slice(1); return 'Steal ' + RES[D.res[j]].n + ' (' + lootCost(st, pd.q, j) + ' key' + (lootCost(st, pd.q, j) > 1 ? 's' : '') + ')'; } const id = v.slice(1); return 'Steal ' + CARD[id].n + ' (' + CARD[id].raid + ' key' + (CARD[id].raid > 1 ? 's' : '') + ')'; }
+  if (pd.type === 'cluster') return 'Cluster ' + v + ' (' + CLUSTER_N[v] + ')';
+  if (pd.type === 'declare') return v < 0 ? 'Don\u2019t declare' : 'Declare ' + AMB[v].n;
+  if (pd.type === 'defect') { const [q, id] = v.split(':'); return CARD[id].n + ' from ' + st.players[+q].name; }
+  return String(v);
+}
+function findCard(st, id) { for (const P of st.players) for (const c of P.hand) if (c.id === id) return c; for (const c of st.deck.concat(st.discard)) if (c.id === id) return c; return { s: 0, r: 0 }; }
+
+/* ---------------- bots ---------------- */
+function botRand(st) { return rngNext(st.botRng); }
+function clone(st) {
+  const c = Object.assign({}, st);
+  c.rng = { s: st.rng.s }; c.botRng = { s: st.botRng.s };
+  c.sys = st.sys.map(S => { const o = Object.assign({}, S); o.sh = S.sh.map(x => [x[0], x[1]]); o.b = S.b.map(b => b ? { p: b.p, c: b.c, d: b.d } : null); return o; });
+  c.players = st.players.map(P => { const o = Object.assign({}, P); o.res = P.res.slice(); o.trophies = P.trophies.slice(); o.captives = P.captives.slice(); o.guild = P.guild.slice(); o.outrage = P.outrage.slice(); o.hand = P.hand.slice(); o.scored = P.scored.slice(); return o; });
+  c.markers = st.markers.map(m => ({ v: m.v.slice(), fl: m.fl, at: m.at, i: m.i }));
+  c.court = st.court.map(x => ({ id: x.id, ag: x.ag.slice() }));
+  c.courtDeck = st.courtDeck.slice(); c.courtDiscard = st.courtDiscard.slice(); c.deck = st.deck.slice(); c.discard = st.discard.slice();
+  if (st.round) { const R = st.round; c.round = Object.assign({}, R); c.round.plays = R.plays.slice(); c.round.lead = R.lead ? Object.assign({}, R.lead) : null; c.round.high = R.high ? Object.assign({}, R.high) : null; }
+  if (st.turn) { const T = st.turn; c.turn = Object.assign({}, T); c.turn.verbs = T.verbs.slice(); c.turn.bonus = T.bonus ? { verbs: T.bonus.verbs.slice(), n: T.bonus.n, src: T.bonus.src } : null; c.turn.ports = Object.assign({}, T.ports); c.turn.taxed = Object.assign({}, T.taxed); c.turn.fresh = T.fresh.slice(); }
+  c.pending = st.pending.map(p => Object.assign({}, p, p.opts ? { opts: p.opts.slice() } : {}));
+  c.log = []; c.sim = true; c.history = []; c.seen = st.seen ? st.seen.slice() : [];
+  return c;
+}
+function wOf(st, p) { const P = st.players[p]; return P.human ? STRAT.balanced : STRAT[P.strategy]; }
+function progress(st) { let left = 0; st.players.forEach(P => { left += P.hand.length; }); return Math.max(0, Math.min(1, 1 - left / (6 * st.n))); }
+function projection(st, soft) {
+  const out = new Array(st.n).fill(0);
+  const cnt = []; for (let p = 0; p < st.n; p++) cnt.push(counts(st, p));
+  const dc = dummyCounts(st);
+  const tau = 0.35 + 2.2 * (1 - progress(st));
+  for (let a = 0; a < 5; a++) {
+    let hi = 0, lo = 0; for (const m of st.markers) if (m.at === a) { hi += m.v[0]; lo += m.v[1]; }
+    if (!hi && !lo) continue;
+    if (!soft) {
+      const r = placeAmb(st, a, cnt);
+      r.first.forEach(p => { out[p] += r.first.length === 1 ? hi + cityBonus(st.players[p]) : lo; });
+      r.second.forEach(p => { out[p] += lo; });
+      continue;
+    }
+    // soft standings: the less of the chapter is left, the more the current leader is likely to hold on
+    const vals = cnt.map(c => c[a]); if (dc) vals.push(dc[a]);
+    const mx = Math.max.apply(null, vals);
+    if (mx <= 0 && tau < 0.6) continue;
+    const e = vals.map(v => Math.exp((v - mx) / tau) * (v > 0 ? 1 : 0.35));
+    const tot = e.reduce((x, y) => x + y, 0);
+    for (let q = 0; q < st.n; q++) {
+      const pf = e[q] / tot;
+      let p2 = 0; for (let r = 0; r < e.length; r++) if (r !== q) p2 += (e[r] / tot) * (e[q] / (tot - e[r]));
+      out[q] += pf * (hi + cityBonus(st.players[q])) + p2 * lo;
+    }
+  }
+  return { out, cnt };
+}
+function assets(st, p, W, cnt) {
+  const P = st.players[p], w = W.w; let v = 0;
+  for (const r of P.res) if (r !== null) v += 0.45 * w.res[r];
+  v += P.guild.length * 0.9 * w.court;
+  let fresh = 0, dmg = 0;
+  st.sys.forEach(S => {
+    fresh += S.sh[p][0]; dmg += S.sh[p][1];
+    let mine = 0; S.b.forEach(b => { if (b && b.p === p) { mine++; v += (b.c ? 1.4 * w.city : 1.1 * w.port) * (b.d ? 0.7 : 1); } });
+    if (mine) { const c = control(st, S.i); if (c === p) v += 0.25 * mine; else if (c >= 0) v -= 0.4 * mine; }
+    // Rival cities I control can be taxed for captives
+    if (control(st, S.i) === p) S.b.forEach(b => { if (b && b.p !== p && b.c) v += 0.3 * W.amb[1]; });
+  });
+  v += Math.min(fresh, 14) * 0.42 * w.ship + Math.min(dmg, 10) * 0.22 * w.ship;
+  st.court.forEach(c => {
+    const mine = c.ag[p]; if (!mine) return; let mx = 0; for (let q = 0; q < st.n; q++) if (q !== p) mx = Math.max(mx, c.ag[q]);
+    let rivals = 0; for (let q = 0; q < st.n; q++) if (q !== p) rivals += c.ag[q];
+    v += mine > mx ? (0.35 * (CARD[c.id].g ? 1 : 0.8) * w.court + 0.04 * mine + 0.1 * rivals * W.amb[1]) : 0.04 * mine * w.court;
+  });
+  v += (P.captives.length + P.trophies.length) * 0.12;
+  v -= P.outrage.reduce((s, x) => s + x, 0) * 0.5;
+  const u = citiesBuilt(P); v += (u >= 3 ? 0.8 : 0) + (u >= 5 ? 0.8 : 0);
+  const c = cnt[p]; for (let a = 0; a < 5; a++) v += c[a] * 0.22 * (W.amb[a] - 0.8);
+  return v;
+}
+function nextInit(st) {
+  const R = st.round; if (!R) return st.init;
+  if (R.seized >= 0) return R.seized; if (R.high) return R.high.p; return st.init;
+}
+function evalFor(st, p, W) {
+  if (st.over) { const me = st.players[p].power; let best = -1e9; st.players.forEach((P, q) => { if (q !== p) best = Math.max(best, P.power); }); return (st.winner === p ? 50 : 0) + me - best; }
+  const cert = 1;
+  const pr = projection(st, true);
+  const late = st.chapter >= st.maxChapter || st.players.some(P => P.power >= THRESH[st.n] - 8) ? 0.45 : 1;
+  const ni = nextInit(st);
+  const V = [];
+  for (let q = 0; q < st.n; q++) {
+    const Wq = q === p ? W : NEUTRAL;
+    let v = st.players[q].power + cert * pr.out[q] * (q === p ? 1 : 1) + late * assets(st, q, Wq, pr.cnt);
+    if (q === ni && !st.over) v += 0.35;
+    V.push(v);
+  }
+  let best = -1e9, sum = 0; for (let q = 0; q < st.n; q++) if (q !== p) { best = Math.max(best, V[q]); sum += V[q]; }
+  return V[p] - (st.n === 2 ? best : 0.6 * best + 0.4 * sum / (st.n - 1));
+}
+// quick, non-simulating choices for pending decisions
+function heuristicPick(st) {
+  const pd = st.pending[0], p = pd.p, P = st.players[p], L = pendingOptions(st, pd);
+  if (pd.type === 'mulligan') return { t: 'pick', v: handScore(st, p, P.hand) < 6.5 ? 1 : 0 };
+  if (pd.type === 'overflow') { let bj = -1, bv = resValue(st, p, pd.r); P.res.forEach((r, j) => { if (r !== null && resValue(st, p, r) < bv - 0.01) { bv = resValue(st, p, r); bj = j; } }); return { t: 'pick', v: bj }; }
+  if (pd.type === 'ransack') { let b = pd.opts[0], bv = -1; pd.opts.forEach(ci => { let v = 0; st.court[ci].ag.forEach((x, q) => { if (q !== p) v += x; }); if (CARD[st.court[ci].id].g) v += 0.5; if (v > bv) { bv = v; b = ci; } }); return { t: 'pick', v: b }; }
+  if (pd.type === 'loot') { const o = lootOptions(st, pd); if (!o.length) return { t: 'pick', v: 'done' }; o.sort((x, y) => lootVal(st, p, pd, y) - lootVal(st, p, pd, x)); return { t: 'pick', v: o[0] }; }
+  if (pd.type === 'cluster') { let bk = L[0].v, bv = -1; L.forEach(o => { let v = 0; st.sys.forEach(S => { if (S.k === o.v) { v += hasLoyal(st, S.i, p) ? 2 : 0; v += S.b.filter(b => b && b.p === p).length * 2; } }); if (v > bv) { bv = v; bk = o.v; } }); return { t: 'pick', v: bk }; }
+  if (pd.type === 'declare') { const c = counts(st, p); let best = -1, bv = 0; for (let a = 0; a < 5; a++) { const r = placeAmb(st, a); if (r.first.length === 1 && r.first[0] === p && c[a] > bv) { bv = c[a]; best = a; } } return { t: 'pick', v: best }; }
+  if (pd.type === 'defect') { let b = pd.opts[0], bv = -1; pd.opts.forEach(o => { const id = o.split(':')[1]; const C = CARD[id]; const v = (C.suit === MAT || C.suit === FUEL || C.suit === RELIC || C.suit === PSI ? 1 : 0.5) + C.raid * 0.1; if (v > bv) { bv = v; b = o; } }); return { t: 'pick', v: b }; }
+  if (pd.type === 'session') { let b = 0, bv = -1e9; st.court.forEach((c, ci) => { let mx = 0; c.ag.forEach((x, q) => { if (q !== p) mx = Math.max(mx, x); }); const v = (c.ag[p] + 2 > mx ? 2 : 0) - Math.abs(c.ag[p] + 2 - mx - 1) * 0.1; if (v > bv) { bv = v; b = ci; } }); return { t: 'pick', v: b }; }
+  return L[0];
+}
+function lootVal(st, p, pd, o) { if (o[0] === 'c') return 2 + CARD[o.slice(1)].raid * 0.2; const r = st.players[pd.q].res[+o.slice(1)]; return resValue(st, p, r) / Math.max(1, lootCost(st, pd.q, +o.slice(1))) + 0.3; }
+function drain(st) { let g = 0; while (st.pending.length && !st.over && g++ < 30) apply(st, heuristicPick(st)); }
+function simApply(st, a) { const c = clone(st); c.rng = { s: (botRand(st) * 4294967296) >>> 0 }; apply(c, a); drain(c); return c; }
+function valueAfter(st, a, p, W, samples) {
+  if (a.t === 'battle') { let s = 0; for (let i = 0; i < samples; i++) s += evalFor(simApply(st, a), p, W); return s / samples; }
+  return evalFor(simApply(st, a), p, W);
+}
+function inTurn(st, p) { return st.phase === 'act' && st.turn && st.turn.p === p && !st.over; }
+// one greedy step inside a turn; spending a resource or a guild prelude is judged by its best follow-up
+function greedyStep(st, p, W, samples, noise) {
+  const L = legal(st);
+  const base = evalFor(st, p, W);
+  let best = { v: base, a: L.find(x => x.t === 'end' || x.t === 'skipbonus') || L[0] };
+  for (const a of L) {
+    if (a.t === 'end' || a.t === 'skipbonus') continue;
+    let v;
+    if (a.t === 'spend' || a.t === 'gpre') {
+      const c = simApply(st, a);
+      v = evalFor(c, p, W);
+      if (inTurn(c, p) && c.turn.bonus) { let bb = -1e9; for (const b of legal(c)) { if (b.t === 'skipbonus') continue; const vb = valueAfter(c, b, p, W, Math.max(1, samples >> 1)); if (vb > bb) bb = vb; } v = Math.max(v, bb); }
+      else if (a.as === WEAP && inTurn(c, p)) { let bb = -1e9; for (const b of legal(c)) if (b.t === 'battle') { const vb = valueAfter(c, b, p, W, Math.max(1, samples >> 1)); if (vb > bb) bb = vb; } v = Math.max(v - 0.3, bb); }
+      v -= 0.05;
+    } else v = valueAfter(st, a, p, W, samples);
+    if (noise) v += (botRand(st) - 0.5) * noise;
+    if (v > best.v + 0.02) best = { v, a };
+  }
+  return best;
+}
+// beam search over the rest of this turn (Hard)
+function beamTurn(st, p, W, width, depth, samples) {
+  let layer = [{ s: st, first: null, v: evalFor(st, p, W) }];
+  let best = { v: layer[0].v, a: null };
+  for (let d = 0; d < depth && layer.length; d++) {
+    const next = [];
+    for (const node of layer) {
+      if (!inTurn(node.s, p)) continue;
+      for (const a of legal(node.s)) {
+        if (a.t === 'end' || a.t === 'skipbonus') continue;
+        let c, v;
+        if (a.t === 'battle') { let sum = 0, keep = null; for (let i = 0; i < samples; i++) { const x = simApply(node.s, a); const xv = evalFor(x, p, W); sum += xv; if (!keep || xv < keep.v) keep = { s: x, v: xv }; } v = sum / samples; c = keep.s; }
+        else { c = simApply(node.s, a); v = evalFor(c, p, W); }
+        const first = node.first || a;
+        if (v > best.v + 0.02) best = { v, a: first };
+        next.push({ s: c, first, v: v + (a.t === 'spend' || a.t === 'gpre' || a.t === 'move' ? 0.6 : 0) });
+      }
+    }
+    next.sort((x, y) => y.v - x.v);
+    const per = {}; layer = [];
+    for (const nd of next) { const k = key(nd.first); per[k] = (per[k] || 0) + 1; if (per[k] > 2) continue; layer.push(nd); if (layer.length >= width) break; }
+  }
+  return best;
+}
+function finishTurn(c, p, W, diff) {
+  let g = 0;
+  while (inTurn(c, p) && g++ < 12) {
+    if (c.pending.length) { drain(c); continue; }
+    const b = greedyStep(c, p, W, diff === 'hard' ? 2 : 1, 0);
+    apply(c, b.a); drain(c);
+  }
+  return c;
+}
+function cardKeep(st, c) { return 0.3 * PIPS[c.s][c.r] + 0.09 * c.r + (c.r === 7 ? 0.4 : 0); }
+function handScore(st, p, hand) { let s = 0; for (const c of hand) s += cardKeep(st, c) * 1.6; const suits = new Set(hand.map(c => c.s)).size; return s + suits * 0.4; }
+function playCands(st, p, hard) {
+  const L = playOptions(st), P = st.players[p];
+  const seen = {}, out = [];
+  // cheapest card to throw away when seizing
+  const keepOrder = P.hand.slice().sort((a, b) => cardKeep(st, a) - cardKeep(st, b));
+  for (const a of L) {
+    if (a.t === 'pass') { if (hard && P.hand.length <= 1) out.push(a); continue; }
+    const c = P.hand.find(x => x.id === a.c);
+    if (a.t === 'follow' && a.z >= 0) { if (!hard) continue; const z = keepOrder.find(x => x.id !== a.c); if (!z || z.id !== a.z) continue; }
+    const k = a.t + a.m + ':' + c.s + ':' + c.r + ':' + (a.amb != null ? a.amb : '') + ':' + (a.z >= 0 ? 1 : 0);
+    if (seen[k]) continue; seen[k] = 1;
+    // copying always throws away the weakest card
+    if (a.t === 'follow' && a.m === 'copy' && c.id !== (keepOrder.find(x => a.z < 0 || x.id !== a.z) || c).id) continue;
+    out.push(a);
+  }
+  return out;
+}
+const ENV = (typeof process !== 'undefined' && process.env) || {};
+let HANDW = +ENV.HANDW || 1.6, ROLL_TOP = +ENV.RTOP || 4, ROLL_K = +ENV.RK || 3;
+// re-deal the hidden cards of the other players from everything this player cannot see
+function determinize(c, p) {
+  const seen = new Set(c.seen || []);
+  let pool = [];
+  c.players.forEach((P, q) => { if (q !== p) pool = pool.concat(P.hand); });
+  const hidden = c.discard.filter(x => !seen.has(x.id));
+  const known = c.discard.filter(x => seen.has(x.id));
+  pool = shuffle(pool.concat(hidden), () => botRand(c));
+  c.players.forEach((P, q) => { if (q !== p) { P.hand = pool.splice(0, P.hand.length); sortHand(P); } });
+  c.discard = known.concat(pool);
+}
+function rollout(st, p, W, a, cap, seed) {
+  const c = clone(st); c.botRng = { s: seed >>> 0 }; determinize(c, p); c.rng = { s: (seed ^ 0x5bd1e995) >>> 0 };
+  apply(c, a); drain(c);
+  const ch = c.chapter; let g = 0;
+  while (!c.over && c.chapter === ch && g++ < cap) {
+    const q = actor(c); const Q = c.players[q], Wq = wOf(c, q);
+    let b;
+    if (c.pending.length) b = heuristicPick(c);
+    else if (c.phase === 'play') b = Q.hand.length ? choosePlayMedium(c, q, Wq, false) : { t: 'pass' };
+    else b = greedyStep(c, q, Wq, 1, 0).a;
+    apply(c, b); drain(c);
+  }
+  return evalFor(c, p, W);
+}
+function choosePlayHard(st, p, W) {
+  const P = st.players[p], C = playCands(st, p, true);
+  const scored = [];
+  for (const a of C) {
+    let c = simApply(st, a);
+    if (a.t !== 'pass') c = finishTurn(c, p, W, 'hard');
+    const rest = P.hand.filter(x => x.id !== a.c && x.id !== a.z);
+    const v = evalFor(c, p, W) + HANDW * handScore(st, p, rest) / 1.6 - (a.amb >= 0 ? 0.4 : 0);
+    scored.push({ a, v });
+  }
+  scored.sort((x, y) => y.v - x.v);
+  if (!scored.length) return { t: 'pass' };
+  // Monte Carlo: play the rest of the chapter several times for the most promising plays
+  const top = scored.slice(0, ROLL_TOP), K = ROLL_K;
+  const seeds = []; for (let k = 0; k < K; k++) seeds.push((botRand(st) * 4294967296) >>> 0);
+  let best = top[0].a, bv = -1e9;
+  for (const x of top) {
+    let sum = 0; for (let k = 0; k < K; k++) sum += rollout(st, p, W, x.a, 400, seeds[k]);
+    const v = sum / K + 0.15 * x.v;
+    if (v > bv) { bv = v; best = x.a; }
+  }
+  return best;
+}
+function suitGain(st, p, W, verbs) {
+  // value of the best single action of these verbs right now, as if it were our turn
+  const c = clone(st); c.phase = 'act'; c.turn = { p, mode: 'pivot', suit: 0, pips: 1, verbs, prelude: false, bonus: null, weapon: false, ports: {}, taxed: {}, fresh: [], used: 0 };
+  c.pending = [];
+  const base = evalFor(c, p, W); let best = 0;
+  const L = []; for (const v of verbs) actionsFor(c, p, v, false, L);
+  for (const a of L) { const v = valueAfter(c, a, p, W, 1) - base; if (v > best) best = v; }
+  return best;
+}
+function choosePlayMedium(st, p, W, easy) {
+  const P = st.players[p], R = st.round;
+  const g = [0, 1, 2, 3].map(s => suitGain(st, p, W, SUITS[s].verbs));
+  const keepOrder = P.hand.slice().sort((a, b) => cardKeep(st, a) - cardKeep(st, b));
+  let best = null, bv = -1e9;
+  const consider = (a, v) => { if (easy) v += (botRand(st) - 0.5) * 3; if (v > bv) { bv = v; best = a; } };
+  if (!R.lead) {
+    for (const c of P.hand) {
+      const pips = PIPS[c.s][c.r];
+      let v = g[c.s] * (1 + 0.55 * (pips - 1)) - 0.25 * cardKeep(st, c);
+      consider({ t: 'lead', c: c.id, amb: -1 }, v);
+      if (availMarker(st)) for (const a of cardAmb(st, c)) {
+        const r = placeAmb(st, a);
+        const lead = r.first.length === 1 && r.first[0] === p;
+        if (lead || (easy && botRand(st) < 0.3)) consider({ t: 'lead', c: c.id, amb: a }, v + (lead ? 1.2 + availMarker(st).v[0] * 0.25 * W.amb[a] : 0.3) - 0.3);
+      }
+    }
+    return best;
+  }
+  const ln = leadNum(st), ls = R.lead.card.s;
+  for (const c of P.hand) {
+    const pips = PIPS[c.s][c.r];
+    if (c.s === ls && c.r > ln) consider({ t: 'follow', m: 'surpass', c: c.id, z: -1 }, g[c.s] * (1 + 0.55 * (pips - 1)) + 0.5 - 0.25 * cardKeep(st, c));
+    if (c.s !== ls) consider({ t: 'follow', m: 'pivot', c: c.id, z: -1 }, g[c.s] - 0.25 * cardKeep(st, c));
+  }
+  const w = keepOrder[0];
+  consider({ t: 'follow', m: 'copy', c: w.id, z: -1 }, g[ls] * (hasFx(P, 'copy2') ? 1.6 : 1) - 0.25 * cardKeep(st, w));
+  return best;
+}
+function deepPick(st, p, W) {
+  const L = legal(st);
+  if (L.length === 1) return L[0];
+  const pd = st.pending[0];
+  if (pd.type === 'loot' || pd.type === 'mulligan') return heuristicPick(st);
+  let best = L[0], bv = -1e9;
+  for (const a of L) { const v = evalFor(simApply(st, a), p, W); if (v > bv) { bv = v; best = a; } }
+  return best;
+}
+function botAction(st, asDiff) {
+  const p = actor(st); if (p < 0) return null;
+  const P = st.players[p], W = wOf(st, p), diff = asDiff || P.difficulty || 'medium';
+  if (st.pending.length) return diff === 'easy' ? heuristicPick(st) : deepPick(st, p, W);
+  if (st.phase === 'play') {
+    if (!P.hand.length) return { t: 'pass' };
+    if (diff === 'hard') return choosePlayHard(st, p, W);
+    return choosePlayMedium(st, p, W, diff === 'easy');
+  }
+  // inside a turn
+  if (diff === 'hard') {
+    const T = st.turn, depth = Math.min(4, T.pips + (T.bonus ? T.bonus.n : 0) + (T.prelude ? 1 : 0));
+    const b = beamTurn(st, p, W, 4, Math.max(1, depth), 3);
+    if (b.a) return b.a;
+    return legal(st).find(x => x.t === 'end' || x.t === 'skipbonus');
+  }
+  const b = greedyStep(st, p, W, diff === 'easy' ? 1 : 2, diff === 'easy' ? 1.2 : 0);
+  return b.a;
+}
+function hint(st) { const p = actor(st); if (p < 0) return null; const c = clone(st); c.sim = true; return botAction(c, 'hard'); }
+
+/* ---------------- export ---------------- */
+const api = {
+  newGame, legal, act, apply, botAction, hint, describe, evalFor, key, clone, actor, control, reach, counts, placeAmb, projection, capacity, cityBonus,
+  citiesBuilt, supply, canSecure, canRaid, availMarker, leadNum, cardAmb, cardName, validMove, validBattle, playOptions, lootOptions, lootCost, diceOptions,
+  RES, SUITS, PIPS, VERB, AMB, MARK_LO, MARK_HI, THRESH, RAID, COLORS, BOT_NAMES, DICE, DIE_N, COURT, CARD, PLANETS, CLUSTER_N, SETUPS, STRAT, STRAT_KEYS, DIFF, mkRng, QUICK
+};
+if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.AirksEngine = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+(function(){
+'use strict';
+var E=window.AirksEngine, $=function(id){return document.getElementById(id);};
+var SPEED={slow:1100,normal:550,fast:180,instant:0};
+var G=null, ui={card:null,seize:false,z:null,verb:null,src:null,dst:null,def:null,mv:null,dice:null,busy:false,speed:'normal',hint:null,hintKey:'',hintBusy:false};
+var cfg=loadCfg();
+function loadCfg(){
+  var d={n:3,first:'me',quick:0,court:'standard',map:'standard',hints:0,seats:[{s:'random',d:'medium'},{s:'random',d:'medium'},{s:'random',d:'medium'}]};
+  try{var c=JSON.parse(localStorage.getItem('airksSetup')||'null');if(c){['n','first','quick','court','map','hints'].forEach(function(k){if(c[k]!=null)d[k]=c[k];});if(Array.isArray(c.seats))c.seats.slice(0,3).forEach(function(s,i){if(s&&(s.s==='random'||E.STRAT[s.s]))d.seats[i].s=s.s;if(s&&E.DIFF[s.d])d.seats[i].d=s.d;});}}catch(e){}
+  return d;
+}
+function saveCfg(){try{localStorage.setItem('airksSetup',JSON.stringify(cfg));}catch(e){}}
+try{ui.speed=localStorage.getItem('airksSpeed')||'fast';if(!(ui.speed in SPEED))ui.speed='normal';}catch(e){}
+$('speedSel').value=ui.speed;
+
+/* ---------- svg helpers ---------- */
+var NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent,text){var e=document.createElementNS(NS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;if(parent)parent.appendChild(e);return e;}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+var CX=500,CY=500;
+function pos(S){var th=(-90+(S.k-1)*60)*Math.PI/180;if(S.gate)return {x:CX+205*Math.cos(th),y:CY+205*Math.sin(th),th:th};var off=(S.j-2)*19*Math.PI/180;return {x:CX+372*Math.cos(th+off),y:CY+372*Math.sin(th+off),th:th+off};}
+function hashN(s){var h=7;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h;}
+
+/* ---------- who acts, and what can I do ---------- */
+function me(){return G.players.findIndex(function(p){return p.human;});}
+function myTurn(){return G&&!G.over&&E.actor(G)===me();}
+function L(){return myTurn()?E.legal(G,true):[];}
+function matchVerb(a,v){if(v==='prefab')return a.t==='build'&&a.pf;if(a.t==='build')return v==='build'&&!a.pf;return a.t===v;}
+function verbCands(){return ui.verb?L().filter(function(a){return matchVerb(a,ui.verb);}):[];}
+function resetSel(){ui.verb=null;ui.src=null;ui.dst=null;ui.def=null;ui.mv=null;ui.dice=null;}
+
+/* ---------- rendering ---------- */
+function render(){if(!G)return;renderMap();renderTurn();renderHand();renderCourt();renderAmb();renderPlayers();renderLog();}
+function renderMap(){
+  var svg=$('map');svg.innerHTML='';
+  var defs=el('defs',{},svg);
+  var rg=el('radialGradient',{id:'hub'},defs);el('stop',{offset:'0%','stop-color':'#2e3a85'},rg);el('stop',{offset:'100%','stop-color':'#0d1130'},rg);
+  // star field
+  var R=E.mkRng(99);for(var i=0;i<140;i++)el('circle',{cx:(R()*1080-40).toFixed(0),cy:(R()*1080-40).toFixed(0),r:(R()*1.6+0.3).toFixed(1),fill:'#ffffff',opacity:(R()*0.6+0.2).toFixed(2)},svg);
+  // nebula wedges per cluster
+  for(var k=1;k<=6;k++){var th=(-90+(k-1)*60)*Math.PI/180,a0=th-0.5,a1=th+0.5;var out=G.out.indexOf(k)>=0;
+    var p='M'+(CX+120*Math.cos(a0))+','+(CY+120*Math.sin(a0))+' L'+(CX+470*Math.cos(a0))+','+(CY+470*Math.sin(a0))+' A470,470 0 0 1 '+(CX+470*Math.cos(a1))+','+(CY+470*Math.sin(a1))+' L'+(CX+120*Math.cos(a1))+','+(CY+120*Math.sin(a1))+' A120,120 0 0 0 '+(CX+120*Math.cos(a0))+','+(CY+120*Math.sin(a0))+'Z';
+    el('path',{d:p,fill:out?'#000':['#2a2f6a','#3a2550','#1f3d55','#3d3322','#25403a','#40283a'][k-1],opacity:out?0.55:0.45,stroke:'#ffffff14'},svg);
+    var la=th+0.36;el('text',{x:CX+292*Math.cos(la),y:CY+292*Math.sin(la)+4,'class':'lbl','font-size':12,fill:'#c8cdf5',opacity:0.85},svg,k+' · '+E.CLUSTER_N[k].toUpperCase()+(out?' (OUT)':''));
+  }
+  el('circle',{cx:CX,cy:CY,r:112,fill:'url(#hub)',stroke:'#6ff0d650','stroke-width':2},svg);
+  el('text',{x:CX,y:CY-8,'class':'lbl','font-size':22,fill:'#ffcf5a'},svg,'HOLLOW');
+  el('text',{x:CX,y:CY+18,'class':'lbl','font-size':22,fill:'#ffcf5a'},svg,'VERGE');
+  el('text',{x:CX,y:CY+44,'class':'lbl','font-size':12,fill:'#a4abd6'},svg,'Chapter '+G.chapter+' of '+G.maxChapter);
+  // lanes
+  var drawn={};
+  G.sys.forEach(function(S){if(S.out)return;S.adj.forEach(function(b){var k2=Math.min(S.i,b)+'-'+Math.max(S.i,b);if(drawn[k2])return;drawn[k2]=1;var A=pos(S),B=pos(G.sys[b]);var path=S.gate&&G.sys[b].gate&&Math.abs(S.k-G.sys[b].k)%5!==1;
+    el('line',{x1:A.x,y1:A.y,x2:B.x,y2:B.y,stroke:path?'#ffcf5a':'#8fa0ff','stroke-width':path?4:3,'stroke-dasharray':path?'10 8':'',opacity:path?0.6:0.45},svg);});});
+  // highlights
+  var hl={},sel={};
+  if(myTurn()&&ui.verb){var C=verbCands();
+    if(ui.verb==='move'){if(ui.src==null)C.forEach(function(a){hl[a.s]=1;});else{sel[ui.src]=1;C.forEach(function(a){if(a.s===ui.src)hl[a.s2]=1;});if(ui.dst!=null)sel[ui.dst]=1;}}
+    else if(ui.verb!=='influence'&&ui.verb!=='secure'){if(ui.src==null)C.forEach(function(a){hl[a.s]=1;});else sel[ui.src]=1;}
+  }
+  G.sys.forEach(function(S){
+    var P0=pos(S),g=el('g',{'class':'sys'+(hl[S.i]?' hl':'')+(sel[S.i]?' sel':''),'data-s':S.i},svg);
+    if(S.out){el('circle',{cx:P0.x,cy:P0.y,r:S.gate?30:40,fill:'#111',stroke:'#444','stroke-dasharray':'4 4',opacity:0.6},g);el('text',{x:P0.x,y:P0.y+5,'class':'lbl','font-size':11,fill:'#888'},g,S.gate?'path':'out');return;}
+    var r=S.gate?42:54;
+    if(S.gate){
+      el('polygon',{points:[0,1,2,3,4,5,6,7].map(function(q){var a=Math.PI/8+q*Math.PI/4;return (P0.x+r*Math.cos(a)).toFixed(1)+','+(P0.y+r*Math.sin(a)).toFixed(1);}).join(' '),fill:'#151a3d','class':'ring',stroke:'#9aa6ff','stroke-width':3},g);
+      el('text',{x:P0.x,y:P0.y-10,'class':'bt',fill:'#ffcf5a','font-size':26},g,String(S.k));
+      el('text',{x:P0.x,y:P0.y+16,'class':'lbl','font-size':11,fill:'#a4abd6'},g,'GATE');
+    }else{
+      var col=E.RES[S.type].c;
+      el('circle',{cx:P0.x,cy:P0.y,r:r,fill:col,opacity:0.95,'class':'ring',stroke:'#ffffffaa','stroke-width':3},g);
+      el('circle',{cx:P0.x-14,cy:P0.y-16,r:r*0.55,fill:'#ffffff',opacity:0.13},g);
+      el('path',{d:'M'+(P0.x-r)+','+(P0.y+6)+' Q'+P0.x+','+(P0.y+24)+' '+(P0.x+r)+','+(P0.y+2),stroke:'#0003','stroke-width':5,fill:'none'},g);
+      el('text',{x:P0.x,y:P0.y-30,'class':'ico','font-size':20},g,E.RES[S.type].i);
+      el('text',{x:P0.x,y:P0.y-7,'class':'lbl','font-size':14},g,S.name);
+      // building slots
+      var w=S.b.length*30;S.b.forEach(function(b,j){var bx=P0.x-w/2+j*30+15,by=P0.y+22;
+        if(!b){el('rect',{x:bx-12,y:by-12,width:24,height:24,rx:5,fill:'#0005',stroke:'#fff9','stroke-dasharray':'3 3'},g);return;}
+        var pc=G.players[b.p].color, f=b.d?'#222':pc;
+        if(b.c){el('polygon',{points:(bx-12)+','+(by+11)+' '+(bx-12)+','+(by-3)+' '+bx+','+(by-14)+' '+(bx+12)+','+(by-3)+' '+(bx+12)+','+(by+11),fill:f,stroke:pc,'stroke-width':3},g);}
+        else{el('polygon',{points:[0,1,2,3,4,5].map(function(q){var a=q*Math.PI/3;return (bx+13*Math.cos(a)).toFixed(1)+','+(by+13*Math.sin(a)).toFixed(1);}).join(' '),fill:f,stroke:pc,'stroke-width':3},g);el('circle',{cx:bx,cy:by,r:4,fill:b.d?pc:'#111'},g);}
+      });
+    }
+    // ships
+    var ps=[];for(var q=0;q<G.n;q++){var x=S.sh[q];if(x[0]+x[1]>0)ps.push(q);}
+    var ctl=E.control(G,S.i);
+    var rad=S.gate?135:445, th2=P0.th, bx0=CX+rad*Math.cos(th2), by0=CY+rad*Math.sin(th2);
+    var tx=-Math.sin(th2), ty=Math.cos(th2);
+    ps.forEach(function(q,ii){var off=(ii-(ps.length-1)/2)*36;var x0=bx0+tx*off,y0=by0+ty*off;var x=S.sh[q];
+      el('rect',{x:x0-17,y:y0-13,width:34,height:26,rx:7,fill:G.players[q].color,stroke:ctl===q?'#fff':'#0008','stroke-width':ctl===q?3:1.5},g);
+      el('text',{x:x0,y:y0+1,'class':'bt',fill:'#111','font-size':15},g,x[0]+(x[1]?'·'+x[1]:''));
+    });
+    g.addEventListener('click',function(){onSys(S.i);});
+  });
+}
+function renderTurn(){
+  var t=$('tTitle'),h=$('tHelp'),c=$('ctl'),sub=$('sub');c.innerHTML='';sub.innerHTML='';$('hint').className='';
+  var card=$('turnCard');card.className='card'+(myTurn()?' mine':'');
+  renderRound();renderDice();
+  $('chapLbl').textContent='Chapter '+G.chapter+'/'+G.maxChapter+' · goal '+E.THRESH[G.n]+' Power';
+  if(G.over){var W=G.players[G.winner];t.textContent='Game over';h.innerHTML=(W.human?'<b>You win!</b>':'<b>'+esc(W.name)+'</b> wins')+' with '+W.power+' Power.';return;}
+  var p=E.actor(G),P=G.players[p];
+  if(!myTurn()){t.textContent=P.name+' is thinking…';h.innerHTML=G.phase==='act'&&G.turn?turnStatus():'';return;}
+  var LL=L();
+  if(G.pending.length){var pd=G.pending[0];t.textContent=pendTitle(pd);h.innerHTML=pendHelp(pd);LL.forEach(function(a){btn(c,E.describe(G,a),function(){doAct(a);},a.v==='done'||a.v===-1||a.v===0&&pd.type==='mulligan'?'':'primary');});showHint();return;}
+  if(G.phase==='play'){
+    var R=G.round,lead=!R.lead;
+    t.textContent=lead?'You have the initiative: lead a card':'Your turn: answer the lead';
+    if(!lead)h.innerHTML='Lead card: <b>'+E.cardName(R.lead.card)+'</b>'+(R.lead.zero?' (declared, number is now <b>0</b>)':'')+'. '+(R.seized>=0?esc(G.players[R.seized].name)+' grabbed the initiative.':'');
+    else h.innerHTML='Tap a card in your hand, then choose how to lead it.';
+    if(ui.card==null){h.innerHTML+=(lead?'':' Tap a card in your hand.');if(lead){var pa=LL.find(function(a){return a.t==='pass';});if(pa)btn(c,'Pass the initiative',function(){doAct(pa);});}showHint();return;}
+    var cd=myCard(ui.card);if(!cd){ui.card=null;return renderTurn();}
+    var mine=LL.filter(function(a){return a.c===ui.card;});
+    if(lead){
+      mine.forEach(function(a){btn(c,a.amb<0?'Lead '+E.cardName(cd)+' · '+E.PIPS[cd.s][cd.r]+' actions':'Lead and declare '+E.AMB[a.amb].i+' '+E.AMB[a.amb].n,function(){doAct(a);},a.amb<0?'primary':'');});
+      var pa2=LL.find(function(a){return a.t==='pass';});if(pa2)btn(c,'Pass the initiative',function(){doAct(pa2);},'warn');
+      if(!E.availMarker(G))note(c,'All three ambition markers are placed, so nothing more can be declared this chapter.');
+    }else{
+      var canSeize=mine.some(function(a){return a.z>=0;});
+      if(canSeize){btn(c,ui.seize?'✓ Grab the initiative (tap a 2nd card to discard)':'Also grab the initiative',function(){ui.seize=!ui.seize;ui.z=null;render();},ui.seize?'on':'');}
+      var modes={surpass:'Outplay · '+E.PIPS[cd.s][cd.r]+' actions',pivot:'Switch · 1 '+E.SUITS[cd.s].s+' action',copy:'Echo · 1 '+E.SUITS[R.lead.card.s].s+' action (face down)'};
+      ['surpass','pivot','copy'].forEach(function(m){var a=mine.find(function(x){return x.m===m&&(ui.seize?x.z===ui.z:x.z<0);});var avail=mine.some(function(x){return x.m===m;});if(!avail)return;var b=btn(c,modes[m],function(){if(a)doAct(a);},m==='surpass'?'primary':'');if(!a)b.disabled=true;});
+      if(ui.seize&&ui.z==null)note(c,'Tap the extra card you will discard face down.');
+    }
+    showHint();return;
+  }
+  // inside my turn
+  var T=G.turn;t.textContent=modeName(T.mode)+(T.bonus&&T.bonus.n>0?' · free action':'');
+  h.innerHTML=turnStatus();
+  var verbs=[];
+  if(T.bonus&&T.bonus.n>0)verbs=T.bonus.verbs.slice();else if(T.pips>0){verbs=T.verbs.slice();if(T.weapon&&verbs.indexOf('battle')<0)verbs.push('battle');}
+  verbs.forEach(function(v){var any=LL.some(function(a){return matchVerb(a,v);});var b=btn(c,(v==='prefab'?'Build city (Prefab)':E.VERB[v]),function(){if(ui.verb===v){resetSel();}else{resetSel();ui.verb=v;autoStep();}render();},'verb'+(ui.verb===v?' on':''));if(!any)b.disabled=true;});
+  var pre=LL.filter(function(a){return a.t==='spend'||a.t==='gpre';});
+  if(pre.length){var lb=document.createElement('div');lb.className='lab';lb.textContent='Boost (before you use a pip):';c.appendChild(lb);pre.forEach(function(a){btn(c,preLabel(a),function(){resetSel();doAct(a);},'small');});}
+  var sk=LL.find(function(a){return a.t==='skipbonus';});if(sk)btn(c,'Skip the free action',function(){resetSel();doAct(sk);},'small');
+  var en=LL.find(function(a){return a.t==='end';});if(en)btn(c,T.pips>0?'End turn ('+T.pips+' unused)':'End turn',function(){resetSel();doAct(en);},'primary small');
+  renderSub(sub);
+  showHint();
+}
+function note(c,txt){var d=document.createElement('div');d.className='lab';d.style.fontWeight='600';d.textContent=txt;c.appendChild(d);}
+function preLabel(a){if(a.t==='gpre')return '🃏 '+E.describe(G,a);var eff=a.as===0?'Build/Repair':a.as===1?'Move':a.as===2?'pips may Battle':a.as===3?'Claim':'1 '+E.SUITS[G.round.lead.card.s].s+' action';return E.RES[a.r].i+' Spend '+E.RES[a.r].n+(a.r!==a.as?' as '+E.RES[a.as].n:'')+' → '+eff;}
+function modeName(m){return {lead:'Leading',surpass:'Outplaying',pivot:'Switching',copy:'Echoing'}[m];}
+function turnStatus(){var T=G.turn;if(!T)return '';var P=G.players[T.p];var s='<b>'+esc(P.name)+'</b> · '+modeName(T.mode)+' · <b>'+T.pips+'</b> action'+(T.pips===1?'':'s')+' left ('+T.verbs.map(function(v){return E.VERB[v];}).join(', ')+(T.weapon?', Battle':'')+')';if(T.bonus&&T.bonus.n>0)s+='<br>Free action: <b>'+T.bonus.verbs.map(function(v){return v==='prefab'?'Build city':E.VERB[v];}).join(' or ')+'</b>'+(T.bonus.n>1?' ×'+T.bonus.n:'');if(T.prelude&&P.human)s+='<br><span style="font-size:12.5px">Boost is open: you may spend resources first.</span>';return s;}
+function pendTitle(pd){return {mulligan:'Redraw your hand?',overflow:'Your resource slots are full',ransack:'Ransack the Council',loot:'Plunder: spend your keys',cluster:E.CARD.v1.n+': choose a cluster',declare:E.CARD.v2.n,defect:E.CARD.v3.n+': take a card',session:E.CARD.x6.n+': choose a card'}[pd.type]||'Choose';}
+function pendHelp(pd){if(pd.type==='loot')return 'You have <b>'+pd.keys+'</b> key'+(pd.keys>1?'s':'')+' to spend on '+esc(G.players[pd.q].name)+'\u2019s resources and ally cards.';if(pd.type==='overflow')return 'You are gaining '+E.RES[pd.r].i+' <b>'+E.RES[pd.r].n+'</b>. Return one resource to make room, or let it go.';if(pd.type==='mulligan')return 'Two-player rule: the player without the initiative may swap their 6 cards for 6 new ones.';if(pd.type==='ransack')return 'You destroyed a city: take a Council card holding the defender\u2019s agents. All Rival agents on it become your spoils.';if(pd.type==='declare')return 'You may declare any ambition now with the best free marker.';return '';}
+function renderSub(sub){
+  if(!ui.verb)return;
+  var C=verbCands(),help='';
+  if(ui.verb==='influence'||ui.verb==='secure'){help='Tap a highlighted Council card.';}
+  else if(ui.verb==='move'){
+    if(ui.src==null)help='Tap a system with your ships.';
+    else if(ui.dst==null)help='Tap where they go (highlighted).';
+    else{var S=G.sys[ui.src].sh[me()];if(!ui.mv)ui.mv={f:S[0],d:S[1]};var pk=picker(sub);stepper(pk,'Fresh',ui.mv,'f',0,S[0]);if(S[1])stepper(pk,'Damaged',ui.mv,'d',0,S[1]);var a={t:'move',s:ui.src,s2:ui.dst,f:ui.mv.f,d:ui.mv.d};var b=btn(pk,'Move '+(ui.mv.f+ui.mv.d)+' to '+G.sys[ui.dst].name,function(){doAct(a);},'primary');if(!E.validMove(G,a))b.disabled=true;}
+  }else if(ui.verb==='battle'){
+    if(ui.src==null)help='Tap a system where you have ships and a Rival.';
+    else{var qs=[];C.forEach(function(a){if(a.s===ui.src&&qs.indexOf(a.q)<0)qs.push(a.q);});
+      if(ui.def==null&&qs.length===1)ui.def=qs[0];
+      if(ui.def==null){help='Choose who to attack.';qs.forEach(function(q){btn(sub,'Attack '+G.players[q].name,function(){ui.def=q;render();});});}
+      else{var N=E.counts&&0;var mine=G.sys[ui.src].sh[me()],max=mine[0]+mine[1]+(G.players[me()].guild.some(function(id){return E.CARD[id].fx==='extradie';})?1:0);var raid=E.canRaid(G,ui.src,ui.def);
+        if(!ui.dice)ui.dice={A:0,S:Math.min(6,max),R:0};var pk2=picker(sub);
+        ['A','S','R'].forEach(function(k){if(k==='R'&&!raid)return;stepper(pk2,E.DIE_N[k],ui.dice,k,0,Math.min(6,max),function(){var tot=ui.dice.A+ui.dice.S+ui.dice.R;return tot<max;});});
+        var a2={t:'battle',s:ui.src,q:ui.def,A:ui.dice.A,S:ui.dice.S,R:raid?ui.dice.R:0};var tot=a2.A+a2.S+a2.R;
+        var b2=btn(pk2,'Roll '+tot+' dice vs '+G.players[ui.def].name,function(){doAct(a2);},'primary');if(!E.validBattle(G,a2))b2.disabled=true;
+        help='Up to '+max+' dice (one per ship). Light is safe; Heavy hits harder but can hurt you'+(raid?'; Plunder hits buildings and rolls keys to steal.':'; Plunder is not allowed here.');}
+    }
+  }else{
+    if(ui.src==null)help='Tap a highlighted system.';
+    else{var opts=C.filter(function(a){return a.s===ui.src;});opts.forEach(function(a){btn(sub,E.describe(G,a),function(){doAct(a);},'primary');});help='Choose:';}
+  }
+  if(help){var d=document.createElement('div');d.className='lab';d.style.marginTop='6px';d.style.fontWeight='600';d.style.color='var(--ai)';d.textContent=help;sub.insertBefore(d,sub.firstChild);}
+}
+function picker(parent){var d=document.createElement('div');d.className='picker';parent.appendChild(d);return d;}
+function stepper(pk,label,obj,k,mn,mx,canUp){var d=document.createElement('div');d.className='st';d.innerHTML='<span style="min-width:auto">'+label+'</span>';var m=document.createElement('button');m.textContent='−';m.setAttribute('aria-label',label+' minus');m.onclick=function(){if(obj[k]>mn){obj[k]--;render();}};var v=document.createElement('span');v.textContent=obj[k];v.setAttribute('data-k',k);var p=document.createElement('button');p.textContent='+';p.setAttribute('aria-label',label+' plus');p.onclick=function(){if(obj[k]<mx&&(!canUp||canUp())){obj[k]++;render();}};d.appendChild(m);d.appendChild(v);d.appendChild(p);pk.appendChild(d);}
+function btn(parent,label,fn,cls){var b=document.createElement('button');b.className='btn '+(cls||'');b.textContent=label;b.onclick=fn;parent.appendChild(b);return b;}
+function autoStep(){var C=verbCands();if(ui.verb!=='move'&&ui.verb!=='battle'&&ui.verb!=='influence'&&ui.verb!=='secure'&&C.length===1&&C[0].s!=null){ui.src=C[0].s;}}
+function onSys(s){
+  if(!myTurn()||!ui.verb)return;var C=verbCands();
+  if(ui.verb==='move'){
+    if(ui.src==null||(ui.dst==null&&s===ui.src&&false)){if(C.some(function(a){return a.s===s;})){ui.src=s;ui.dst=null;ui.mv=null;}}
+    else if(C.some(function(a){return a.s===ui.src&&a.s2===s;})){ui.dst=s;ui.mv=null;}
+    else if(C.some(function(a){return a.s===s;})){ui.src=s;ui.dst=null;ui.mv=null;}
+    render();return;
+  }
+  if(ui.verb==='influence'||ui.verb==='secure')return;
+  if(C.some(function(a){return a.s===s;})){ui.src=s;ui.def=null;ui.dice=null;var o=C.filter(function(a){return a.s===s;});if(ui.verb!=='battle'&&o.length===1){doAct(o[0]);return;}render();}
+}
+function onCourt(ci){if(!myTurn()||(ui.verb!=='influence'&&ui.verb!=='secure'))return;var a=verbCands().find(function(x){return x.ci===ci;});if(a)doAct(a);}
+function myCard(id){var P=G.players[me()];return P.hand.find(function(c){return c.id===id;});}
+function renderRound(){
+  var box=$('roundBox');box.innerHTML='';var R=G.round;if(!R||!R.lead)return;
+  var add=function(c,who,down,zero,z){var d=document.createElement('div');d.className='mini'+(down?' down':'');if(!down){d.style.background=E.SUITS[c.s].c;d.innerHTML='<b>'+c.r+'</b>'+E.SUITS[c.s].s;}else d.innerHTML='<b>?</b>'+(z?'grab':'echo');if(zero){var zz=document.createElement('div');zz.className='zero';zz.textContent='0';d.appendChild(zz);}var w=document.createElement('div');w.className='who';w.textContent=who;d.appendChild(w);box.appendChild(d);};
+  var l=document.createElement('div');l.className='lab';l.style.width='100%';l.style.fontSize='12px';l.style.color='var(--muted)';l.textContent='This round';box.appendChild(l);
+  add(R.lead.card,G.players[R.lead.p].name+' (lead)',false,R.lead.zero);
+  R.plays.forEach(function(x){add(x.card,G.players[x.p].name+' · '+({surpass:'outplay',pivot:'switch',copy:'echo'}[x.m]||x.m),x.m==='copy');if(x.z)add(x.z,G.players[x.p].name,true,false,true);});
+  box.style.marginBottom='16px';
+}
+function renderDice(){
+  var tr=$('diceTray');tr.innerHTML='';var B=G.lastBattle;if(!B||B.shown===G.log.length+9999)return;
+  if(!B.dice||!B.dice.length)return;
+  var lab=document.createElement('div');lab.className='lab';lab.style.width='100%';lab.style.fontSize='12px';lab.style.color='var(--muted)';lab.textContent='Last battle: '+G.players[B.p].name+' vs '+G.players[B.q].name+' at '+G.sys[B.s].name;tr.appendChild(lab);
+  B.dice.forEach(function(d){var f=d[1],s='';if(f.h)s+=(f.h>1?'✸✸':'✸');if(f.b)s+='▲';if(f.x)s+='✖';if(f.n)s+='⛨';if(f.k)s+=(f.k>1?'🔑🔑':'🔑');var e=document.createElement('div');e.className='die '+d[0];e.title=E.DIE_N[d[0]];e.textContent=s||'·';tr.appendChild(e);});
+  var lg=document.createElement('div');lg.className='lab';lg.style.width='100%';lg.style.fontSize='11px';lg.style.color='var(--muted)';lg.textContent='✸ hit · ▲ building hit · ✖ self-hit · ⛨ intercept · 🔑 key';tr.appendChild(lg);
+}
+function cardArt(c){var col=E.SUITS[c.s].c;var g='<svg viewBox="0 0 96 136" preserveAspectRatio="none"><defs><linearGradient id="cg'+c.id+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+col+'"/><stop offset="1" stop-color="#0b0e1c"/></linearGradient></defs><rect width="96" height="136" fill="url(#cg'+c.id+')"/>';
+  var sym=['<circle cx="62" cy="62" r="20" fill="none" stroke="#fff6" stroke-width="4"/><rect x="54" y="54" width="16" height="16" fill="#fff5"/>','<polygon points="62,36 74,74 62,66 50,74" fill="#fff6"/>','<rect x="46" y="48" width="32" height="10" fill="#fff5"/><rect x="50" y="62" width="24" height="10" fill="#fff5"/><rect x="54" y="76" width="16" height="8" fill="#fff5"/>','<path d="M40 70 Q62 30 84 70" stroke="#fff6" stroke-width="5" fill="none"/><circle cx="62" cy="70" r="6" fill="#fff6"/>'][c.s];
+  return g+sym+'</svg>';}
+function renderHand(){
+  var box=$('hand');box.innerHTML='';var P=G.players[me()];
+  $('handInfo').textContent=P.hand.length+' card'+(P.hand.length===1?'':'s');
+  var playing=myTurn()&&G.phase==='play'&&!G.pending.length;
+  P.hand.forEach(function(c){var d=document.createElement('div');d.className='acard'+(ui.card===c.id?' sel':'')+(ui.z===c.id?' zsel':'')+(!playing?' dim':'');d.setAttribute('data-c',c.id);
+    var amb=c.r===1?'':c.r===7?'★':E.AMB[c.r-2].i;
+    d.innerHTML=cardArt(c)+'<div class="num">'+c.r+'</div><div class="pips">'+new Array(E.PIPS[c.s][c.r]+1).join('<i></i>')+'</div>'+(amb?'<div class="am" title="'+(c.r===7?'Declare any ambition':E.AMB[c.r-2].n)+'">'+amb+'</div>':'')+'<div class="sn">'+E.SUITS[c.s].n+'</div><div class="vb">'+E.SUITS[c.s].verbs.map(function(v){return E.VERB[v];}).join(' · ')+'</div>';
+    d.onclick=function(){if(!playing)return;if(ui.seize&&ui.card!=null&&ui.card!==c.id){ui.z=(ui.z===c.id?null:c.id);}else{ui.card=(ui.card===c.id?null:c.id);ui.z=null;if(ui.card==null)ui.seize=false;}render();};
+    box.appendChild(d);});
+  if(!P.hand.length)box.innerHTML='<div style="color:var(--muted);font-size:13px">No cards left this chapter.</div>';
+}
+function courtArt(id){var C=E.CARD[id],h=hashN(id),col=C.g?E.RES[C.suit].c:'#e0e4ff';var s='<svg class="art" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#0b0e1c" stroke="'+col+'" stroke-width="2"/>';
+  var n=3+(h%4);for(var i=0;i<n;i++){var a=(i/n)*Math.PI*2+(h%7)/7;s+='<line x1="20" y1="20" x2="'+(20+14*Math.cos(a)).toFixed(1)+'" y2="'+(20+14*Math.sin(a)).toFixed(1)+'" stroke="'+col+'" stroke-width="2.5" opacity=".8"/>';}
+  s+=(C.g?'<circle cx="20" cy="20" r="6" fill="'+col+'"/>':'<polygon points="20,9 24,20 20,31 16,20" fill="'+col+'"/>')+'</svg>';return s;}
+function renderCourt(){
+  var box=$('court');box.innerHTML='';var C=(myTurn()&&(ui.verb==='influence'||ui.verb==='secure'))?verbCands():[];
+  $('courtInfo').textContent=G.courtDeck.length+' in deck';
+  G.court.forEach(function(c,ci){var K=E.CARD[c.id];var d=document.createElement('div');d.className='ccard'+(C.some(function(a){return a.ci===ci;})?' hl':'');d.setAttribute('data-ci',ci);
+    var ags=c.ag.map(function(x,q){return x?'<span class="ag" style="background:'+G.players[q].color+'">◆'+x+'</span>':'';}).join('');
+    d.innerHTML=courtArt(c.id)+(K.g?'<span class="keys" title="Keys needed to steal it">🔑'+K.raid+'</span>':'')+'<div class="tagr">'+(K.g?'Ally · '+E.RES[K.suit].i+' '+E.RES[K.suit].n:'Edict · one-time')+'</div><div class="cn">'+esc(K.n)+'</div><div class="ct">'+esc(K.d)+'</div><div class="ags">'+(ags||'<span style="color:var(--muted);font-size:11px">no agents</span>')+'</div>';
+    d.onclick=function(){onCourt(ci);};box.appendChild(d);});
+}
+function renderAmb(){
+  var t=$('amb');var pr=E.projection(G,false);var cnt=pr.cnt;var h='';
+  for(var a=0;a<5;a++){var ms=G.markers.filter(function(m){return m.at===a;});
+    var lead=E.placeAmb(G,a);
+    h+='<tr><td style="white-space:nowrap">'+E.AMB[a].i+' <b>'+E.AMB[a].n+'</b><div style="font-size:11px;color:var(--muted)">card '+(a+2)+'</div></td><td>'+(ms.length?ms.map(function(m){return '<span class="mk">'+m.v[0]+'/'+m.v[1]+'</span>';}).join(''):'<span style="color:var(--muted);font-size:12px">not declared</span>')+'</td><td style="text-align:right;white-space:nowrap">'+G.players.map(function(P,q){return '<span class="cnt" style="background:'+P.color+(lead.first.indexOf(q)>=0?';box-shadow:0 0 0 2px #fff':'')+'" title="'+esc(P.name)+'">'+cnt[q][a]+'</span>';}).join('')+'</td></tr>';}
+  t.innerHTML=h;
+  var av=G.markers.filter(function(m){return m.at<0;});
+  $('availLbl').innerHTML='free: '+(av.length?av.map(function(m){return '<span class="mk av">'+m.v[0]+'/'+m.v[1]+'</span>';}).join(''):'none');
+}
+function renderPlayers(){
+  var box=$('players');box.innerHTML='';var cur=E.actor(G);
+  G.players.forEach(function(P,q){var d=document.createElement('div');d.className='pl'+(q===cur?' cur':'');
+    var S=P.human?null:E.STRAT[P.strategy];var ships=0,dm=0,cities=0,ports=0;G.sys.forEach(function(s){ships+=s.sh[q][0];dm+=s.sh[q][1];s.b.forEach(function(b){if(b&&b.p===q){if(b.c)cities++;else ports++;}});});
+    var slots=P.res.map(function(r,j){return '<span class="'+(r===null?'e':'')+'" style="'+(r!==null?'background:'+E.RES[r].c:'')+'" title="'+(r===null?'empty':E.RES[r].n)+', raid cost '+E.RAID[j]+'">'+(r===null?'':E.RES[r].i)+'<small>'+E.RAID[j]+'</small></span>';}).join('');
+    var outr=P.outrage.map(function(x,t){return x?E.RES[t].i:'';}).join('');
+    d.innerHTML='<div class="dot" style="background:'+P.color+'"></div><div style="flex:1;min-width:0"><div><span class="pn">'+esc(P.name)+'</span>'+(P.human?'<span class="tag">You</span>':'<span class="tag">'+E.DIFF[P.difficulty].n+'</span>')+(G.init===q?'<span class="tag" style="color:var(--accent)">★ initiative</span>':'')+'<span style="float:right;font-weight:900;color:var(--accent)">'+P.power+' ⚡</span></div>'+
+      (S?'<div class="strat">'+S.i+' <b>'+S.n+'</b> <i>— '+esc(S.d)+'</i></div>':'')+
+      '<div class="stats">Resources <span class="rs">'+slots+'</span><br>🚀 ships <b>'+ships+'</b>'+(dm?' (+'+dm+' damaged)':'')+' · 🏙 cities <b>'+cities+'</b> · ⬡ shipyards <b>'+ports+'</b> · ◆ agents <b>'+P.agents+'</b><br>⛓ hostages <b>'+P.captives.length+'</b> · 🏆 spoils <b>'+P.trophies.length+'</b> · 🂠 cards <b>'+P.hand.length+'</b>'+(E.cityBonus(P)?' · +'+E.cityBonus(P)+' win bonus':'')+(outr?' · Unrest '+outr:'')+
+      (P.guild.length?'<br>'+P.guild.map(function(id){var K=E.CARD[id];return '<span class="gchip" title="'+esc(K.d)+'">'+E.RES[K.suit].i+' '+esc(K.n)+'</span>';}).join(''):'')+'</div></div>';
+    box.appendChild(d);});
+}
+function renderLog(){var box=$('log');box.innerHTML=G.log.slice(-90).map(function(l){return '<div class="'+l.c+'">'+esc(l.m)+'</div>';}).join('');box.scrollTop=box.scrollHeight;}
+function toast(m){var t=$('toast');t.textContent=m;t.className='show';clearTimeout(toast.t);toast.t=setTimeout(function(){t.className='';},2200);}
+
+/* ---------- hints ---------- */
+function showHint(){
+  if(!G.opts.hints||!myTurn())return;var hd=$('hint');
+  var k=JSON.stringify([G.log.length,G.phase,G.pending.length,G.turn&&G.turn.pips,G.turn&&G.turn.bonus]);
+  if(ui.hintKey===k&&ui.hint){hd.className='show';hd.textContent='💡 Hint: '+ui.hint;return;}
+  if(ui.hintBusy)return;ui.hintBusy=true;hd.className='show';hd.textContent='💡 Thinking about a hint…';
+  setTimeout(function(){try{var a=E.hint(G);ui.hint=a?E.describe(G,a)+(a.t==='battle'?' ('+a.A+' heavy, '+a.S+' light, '+a.R+' plunder)':a.t==='move'?' ('+(a.f+a.d)+' ship'+(a.f+a.d>1?'s':'')+' from '+G.sys[a.s].name+')':''):'';}catch(e){ui.hint='';}ui.hintKey=k;ui.hintBusy=false;if(myTurn()){var h2=$('hint');h2.className='show';h2.textContent='💡 Hint: '+(ui.hint||'no suggestion');}},30);
+}
+
+/* ---------- game flow ---------- */
+function doAct(a){
+  if(!G||G.over)return;
+  try{E.act(G,a);}catch(e){toast('That move is not allowed.');return;}
+  ui.card=null;ui.seize=false;ui.z=null;resetSel();ui.hint=null;
+  render();pump();
+}
+var pumpT=null;
+function pump(){
+  clearTimeout(pumpT);
+  if(!G)return;
+  if(G.over){ui.busy=false;render();showOver();return;}
+  if(myTurn()){ui.busy=false;render();return;}
+  ui.busy=true;
+  pumpT=setTimeout(function(){
+    if(!G||G.over||myTurn()){pump();return;}
+    var a=E.botAction(G);E.act(G,a);
+    render();
+    pump();
+  },SPEED[ui.speed]);
+}
+function showOver(){
+  var ps=G.ranking.map(function(i){return G.players[i];});
+  var h='<table class="sc"><tr><th></th>'+ps.map(function(P){return '<th>'+esc(P.name)+'</th>';}).join('')+'</tr>';
+  for(var c=0;c<G.chapter;c++)h+='<tr><td>Chapter '+(c+1)+'</td>'+ps.map(function(P){return '<td>+'+(P.scored[c]||0)+'</td>';}).join('')+'</tr>';
+  h+='<tr class="tot"><td>Power</td>'+ps.map(function(P){return '<td>'+P.power+'</td>';}).join('')+'</tr></table>';
+  h+='<p style="color:var(--muted);font-size:13px">'+ps.filter(function(P){return !P.human;}).map(function(P){return esc(P.name)+': '+E.STRAT[P.strategy].i+' '+E.STRAT[P.strategy].n+' ('+E.DIFF[P.difficulty].n+')';}).join(' · ')+'</p>';
+  var W=G.players[G.winner];
+  $('overTitle').textContent=W.human?'You win! 🏆':W.name+' wins';
+  $('overBody').innerHTML=h;
+  $('over').className='modal show';
+}
+function startGame(){
+  saveCfg();
+  var players=[{name:'Me',human:true}];
+  for(var i=0;i<cfg.n-1;i++)players.push({name:E.BOT_NAMES[i],human:false,strategy:cfg.seats[i].s,difficulty:cfg.seats[i].d});
+  var q=+cfg.quick;mode='custom';
+  launch(E.newGame({players:players,first:cfg.first,opts:{quick:q===1,chapters:q===2?E.QUICK.chapters:0,hints:!!+cfg.hints,court:cfg.court,map:cfg.map}}));
+}
+
+/* ---------- setup screen ---------- */
+function opt(id,val,on){var box=$(id);[].forEach.call(box.querySelectorAll('button'),function(b){b.className=b.getAttribute('data-v')===String(val)?'on':'';b.onclick=function(){on(b.getAttribute('data-v'));drawSetup();};});}
+function drawSetup(){
+  opt('optN',cfg.n,function(v){cfg.n=+v;});
+  opt('optFirst',cfg.first,function(v){cfg.first=v;});
+  opt('optQuick',+cfg.quick,function(v){cfg.quick=+v;});
+  opt('optCourt',cfg.court,function(v){cfg.court=v;});
+  opt('optMap',cfg.map,function(v){cfg.map=v;});
+  opt('optHints',+cfg.hints,function(v){cfg.hints=+v;});
+  opt('optTips',tipsOn?1:0,function(v){setTips(+v);});
+  var box=$('seats');box.innerHTML='<div class="seat"><div class="dot" style="background:'+E.COLORS[0]+'"></div><b>Me</b><span></span><span></span></div>';
+  for(var i=0;i<cfg.n-1;i++){
+    var s=cfg.seats[i], d=document.createElement('div');d.className='seat';
+    var so='<option value="random">🎲 Random strategy</option>'+E.STRAT_KEYS.map(function(k){return '<option value="'+k+'"'+(s.s===k?' selected':'')+'>'+E.STRAT[k].i+' '+E.STRAT[k].n+'</option>';}).join('');
+    var dd=Object.keys(E.DIFF).map(function(k){return '<option value="'+k+'"'+(s.d===k?' selected':'')+'>'+E.DIFF[k].n+'</option>';}).join('');
+    var desc=s.s==='random'?'A strategy is drawn at random when the game starts.':E.STRAT[s.s].d;
+    d.innerHTML='<div class="dot" style="background:'+E.COLORS[i+1]+'"></div><b>'+E.BOT_NAMES[i]+'</b><select data-seat="'+i+'" data-k="s" aria-label="'+E.BOT_NAMES[i]+' strategy">'+so+'</select><select data-seat="'+i+'" data-k="d" aria-label="'+E.BOT_NAMES[i]+' difficulty">'+dd+'</select><div class="sd">'+desc+'</div>';
+    box.appendChild(d);
+  }
+  [].forEach.call(box.querySelectorAll('select'),function(sel){sel.onchange=function(){cfg.seats[+sel.getAttribute('data-seat')][sel.getAttribute('data-k')]=sel.value;saveCfg();drawSetup();};});
+  saveCfg();
+}
+function openSetup(){drawSetup();$('setup').className='modal show';$('setupCancel').style.display='';}
+$('newBtn').onclick=function(){openSetup();};$('overNew').onclick=function(){$('over').className='modal';openSetup();};
+$('overClose').onclick=function(){$('over').className='modal';};
+$('setupCancel').onclick=function(){$('setup').className='modal';if(!G)showTitle();};
+$('tipsReset').onclick=function(){tipSeen={};lsSet('airksTipsSeen',{});setTips(1);drawSetup();toast('Tips will show again');};
+$('startBtn').onclick=startGame;
+$('rulesBtn').onclick=function(){$('rules').className='modal show';};$('rulesClose').onclick=function(){$('rules').className='modal';};
+$('speedSel').onchange=function(){ui.speed=this.value;try{localStorage.setItem('airksSpeed',ui.speed);}catch(e){}};
+
+
+/* ---------- polish: title screen, quick mode, tips, result card, stats ---------- */
+var PUBLIC_URL='https://yougitadmin.github.io/omnixr-games/airks/';
+var MASCOT=['🛸','👽','🤖'];
+var TAUNT={tycoon:'Every star has a price. Yours is low.',warlord:'I don\u2019t negotiate. I invade.',tyrant:'Your pilots will make fine hostages.',keeper:'I\u2019ll collect your artifacts. And your sector.',empath:'I\u2019ve already seen how this ends. Badly, for you.',courtier:'The Council votes my way. It always does.',raider:'Nice shipyard. Mine now.',balanced:'I adapt. You won\u2019t.'};
+var WINQ={tycoon:'Profit margins: excellent. Yours: zero.',warlord:'Your fleets made lovely fireworks.',tyrant:'Kneel. It\u2019s more comfortable.',keeper:'Filed under: easy wins.',empath:'I told you how it ends.',courtier:'The Council thanks you for your cooperation.',raider:'Thanks for the loot!',balanced:'Balance restored. In my favour.'};
+var LOSEQ={tycoon:'I demand a refund.',warlord:'A tactical retreat. Obviously.',tyrant:'This changes nothing. Rematch.',keeper:'I\u2019ll be writing this down. Bitterly.',empath:'I did NOT see that coming.',courtier:'I\u2019ll be filing a complaint with the Council.',raider:'You got lucky. I\u2019ll be back for it.',balanced:'Recalibrating\u2026'};
+var mode='custom', rivals=pickRivals(), recorded=false;
+function pickRivals(){var k=E.STRAT_KEYS.slice(),r=[];while(r.length<E.QUICK.players-1){var i=Math.floor(Math.random()*k.length);r.push(k.splice(i,1)[0]);}return r;}
+function lsGet(k,d){try{var v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function getStats(){return Object.assign({played:0,wins:0,streak:0,bestStreak:0,bestPower:0,quick:0},lsGet('airksStats',{}));}
+function drawTitle(){
+  var h='';for(var i=0;i<rivals.length;i++){var S=E.STRAT[rivals[i]];h+='<div class="bot" style="--fc:'+E.COLORS[i+1]+'"><div class="face">'+MASCOT[i]+'</div><div class="bn">'+E.BOT_NAMES[i]+'</div><div class="bl">'+S.i+' '+S.n+'</div><div class="bt">\u201c'+TAUNT[rivals[i]]+'\u201d</div></div>';}
+  $('titleBots').innerHTML=h;
+  var st=getStats();
+  $('titleStats').innerHTML=st.played?['<div class="stat"><b>'+st.played+'</b><span>played</span></div>','<div class="stat"><b>'+st.wins+'</b><span>won</span></div>','<div class="stat"><b>'+st.streak+'</b><span>win streak</span></div>','<div class="stat"><b>'+st.bestPower+'</b><span>best Power</span></div>'].join(''):'<div class="sub">Lead cards, win ambitions, earn Power. Most Power wins.</div>';
+  $('resumeBtn').style.display=G&&!G.over?'':'none';
+}
+function showTitle(){drawTitle();$('title').className='screen show';$('over').className='modal';$('setup').className='modal';}
+function hideTitle(){$('title').className='screen';}
+function playNow(){
+  var players=[{name:'Me',human:true}];
+  for(var i=0;i<rivals.length;i++)players.push({name:E.BOT_NAMES[i],human:false,strategy:rivals[i],difficulty:'medium'});
+  mode='quick';
+  launch(E.newGame({players:players,first:'me',opts:{chapters:E.QUICK.chapters,hints:false,court:'standard',map:'standard'}}));
+}
+function launch(g){
+  G=g;recorded=false;
+  ui.card=null;ui.seize=false;ui.z=null;resetSel();ui.hint=null;ui.hintKey='';
+  $('setup').className='modal';$('over').className='modal';hideTitle();
+  $('modePill').textContent=mode==='quick'?'⚡ Quick game':'Custom game';
+  render();pump();
+}
+/* tips */
+var tipsOn=lsGet('airksTips',1)!==0, tipSeen=lsGet('airksTipsSeen',{}), curTip=null;
+var TIPS=[
+  ['goal',function(){return G.chapter===1;},function(){return 'Goal: win ambitions to earn Power. Most Power after chapter '+G.maxChapter+' wins, or the first to '+E.THRESH[G.n]+'.';}],
+  ['lead',function(){return myTurn()&&G.phase==='play'&&G.round&&G.round.lead==null&&!G.pending.length;},function(){return 'You lead this round: play a card. Its suit sets which actions you get and its number sets how many.';}],
+  ['ambition',function(){return myTurn()&&G.phase==='play'&&G.round&&G.round.lead==null&&!G.pending.length&&E.legal(G).some(function(a){return a.t==='lead'&&a.amb>=0;});},function(){return 'Leading a 2 to 6 can also declare an ambition. Ambitions score at the end of the chapter, and that is where Power comes from.';}],
+  ['follow',function(){return myTurn()&&G.phase==='play'&&G.round&&G.round.lead!=null&&!G.pending.length;},function(){return 'Answer the lead: Outplay with a higher card of the same suit, Switch to another suit for 1 action, or Echo face down for 1 action of the lead suit.';}],
+  ['act',function(){return myTurn()&&G.phase==='act'&&G.turn&&!G.pending.length;},function(){return 'Pick an action, then tap a highlighted system or Council card. Press End turn when you are done.';}],
+  ['strike',function(){return myTurn()&&G.turn&&G.turn.verbs.indexOf('battle')>=0;},function(){return 'Strike lets you battle. Heavy dice hit hardest, Light dice are safe, Plunder steals resources and Council cards.';}],
+  ['council',function(){return myTurn()&&G.turn&&G.turn.verbs.indexOf('influence')>=0;},function(){return 'Lobby puts an agent on a Council card. Claim (a Strike action) takes a card where you have the most agents.';}],
+  ['last',function(){return G.chapter===G.maxChapter&&G.maxChapter>1;},function(){return 'Final chapter! Every ambition you win now is your last chance at Power.';}]
+];
+function updateTip(){
+  var box=$('tip');curTip=null;
+  if(G&&!G.over&&tipsOn)for(var i=0;i<TIPS.length;i++){var t=TIPS[i];if(!tipSeen[t[0]]&&t[1]()){curTip=t[0];$('tipText').textContent=t[2]();break;}}
+  box.className=curTip?'show':'';$('tipsBtn').style.opacity=tipsOn?'1':'.45';
+}
+function setTips(on){tipsOn=!!on;lsSet('airksTips',on?1:0);updateTip();}
+$('tipOk').onclick=function(){if(curTip){tipSeen[curTip]=1;lsSet('airksTipsSeen',tipSeen);}updateTip();};
+$('tipOff').onclick=function(){setTips(0);toast('Tips off. Tap 💡 to turn them back on.');};
+$('tipsBtn').onclick=function(){setTips(!tipsOn);toast(tipsOn?'Tips on':'Tips off');};
+/* result */
+var lastCard='',lastShare='';
+function recordResult(){
+  if(recorded)return null;recorded=true;
+  var me=G.players[0],won=G.winner===0,st=getStats(),badges=[];
+  st.played++;if(mode==='quick')st.quick++;
+  if(won){st.wins++;st.streak++;if(st.streak>st.bestStreak)st.bestStreak=st.streak;if(st.streak>1)badges.push('🔥 '+st.streak+'-win streak');}else st.streak=0;
+  if(me.power>st.bestPower){if(st.played>1)badges.push('⭐ New best Power');st.bestPower=me.power;}
+  if(st.wins===1&&won)badges.push('🏅 First win');
+  lsSet('airksStats',st);
+  return badges;
+}
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath();}
+function drawCard(){
+  var c=document.createElement('canvas');c.width=1200;c.height=630;var x=c.getContext('2d');
+  var g=x.createLinearGradient(0,0,1200,630);g.addColorStop(0,'#2a0d5c');g.addColorStop(.55,'#0a0618');g.addColorStop(1,'#033a40');x.fillStyle=g;x.fillRect(0,0,1200,630);
+  var R=E.mkRng(G.seed||7);x.fillStyle='#fff';for(var i=0;i<120;i++){x.globalAlpha=R()*.6+.2;x.fillRect(R()*1200,R()*630,R()*2+.5,R()*2+.5);}x.globalAlpha=1;
+  x.font='900 84px system-ui,sans-serif';x.fillStyle='#00f0d0';x.fillText('AI',60,120);var w=x.measureText('AI').width;x.fillStyle='#ffb020';x.fillText('rks',60+w,120);
+  var me=G.players[0],won=G.winner===0,W=G.players[G.winner];
+  x.font='900 58px system-ui,sans-serif';x.fillStyle='#fff';x.fillText(won?'I won! 🏆':W.name+' beat me',60,205);
+  x.font='700 26px system-ui,sans-serif';x.fillStyle='#b2a8e0';x.fillText((mode==='quick'?'Quick game':'Custom game')+' · '+G.chapter+' chapter'+(G.chapter>1?'s':'')+' · '+G.n+' players',60,250);
+  var ps=G.ranking.map(function(i){return G.players[i];}),mx=Math.max.apply(null,ps.map(function(P){return P.power;}).concat([1]));
+  ps.forEach(function(P,k){var y=300+k*72,idx=G.players.indexOf(P);
+    x.fillStyle='#ffffff14';rr(x,60,y,640,58,14);x.fill();
+    x.fillStyle=E.COLORS[idx];rr(x,60,y,Math.max(60,640*P.power/mx),58,14);x.globalAlpha=.55;x.fill();x.globalAlpha=1;
+    x.font='800 28px system-ui,sans-serif';x.fillStyle='#fff';x.fillText((k+1)+'. '+(P.human?'Me':P.name),80,y+39);
+    x.textAlign='right';x.fillText(P.power+' Power',680,y+39);x.textAlign='left';});
+  var bi=won?G.ranking[1]:G.winner;var B=G.players[bi];
+  if(B){var cx=950,cy=330;x.fillStyle=E.COLORS[bi];x.beginPath();x.ellipse(cx,cy,78,78,0,0,7);x.fill();x.lineWidth=6;x.strokeStyle='#fff';x.stroke();
+    x.font='84px system-ui,sans-serif';x.textAlign='center';x.fillText(MASCOT[bi-1]||'🤖',cx,cy+30);
+    x.font='800 26px system-ui,sans-serif';x.fillStyle='#fff';x.fillText(B.name,cx,cy+118);
+    var q='\u201c'+(won?LOSEQ:WINQ)[B.strategy]+'\u201d';x.font='italic 600 22px system-ui,sans-serif';x.fillStyle='#ffd27a';
+    var words=q.split(' '),line='',ly=cy+156;words.forEach(function(wd){if(x.measureText(line+wd).width>360){x.fillText(line.trim(),cx,ly);ly+=28;line='';}line+=wd+' ';});x.fillText(line.trim(),cx,ly);x.textAlign='left';}
+  x.font='600 22px system-ui,sans-serif';x.fillStyle='#b2a8e0';x.fillText('by OmniXR · myomnixr.com',60,600);
+  x.textAlign='right';x.fillStyle='#00f0d0';x.fillText(PUBLIC_URL.replace(/^https?:\/\//,''),1140,600);x.textAlign='left';
+  return c.toDataURL('image/png');
+}
+function shareText(){var me=G.players[0],W=G.players[G.winner];
+  return G.winner===0?'I out-schemed '+(G.n-1)+' AI factions in AIrks with '+me.power+' Power 🏆 Think you can beat them?':W.name+' beat me at AIrks ('+W.power+' to '+me.power+' Power). Can you take the stars back?';}
+var baseShowOver=showOver;
+showOver=function(){
+  baseShowOver();
+  var won=G.winner===0,W=G.players[G.winner],badges=recordResult()||[];
+  $('overTitle').textContent=won?'You win! 🏆':W.name+' wins';
+  lastCard=drawCard();$('cardImg').src=lastCard;
+  $('endBadges').innerHTML=badges.map(function(b){return '<span class="badge2">'+b+'</span>';}).join('');
+  lastShare='https://x.com/intent/post?text='+encodeURIComponent(shareText()+' '+PUBLIC_URL);
+  updateTip();
+};
+$('saveCard').onclick=function(){var a=document.createElement('a');a.href=lastCard;a.download='airks-result.png';document.body.appendChild(a);a.click();a.remove();};
+$('shareX').onclick=function(){window.open(lastShare,'_blank','noopener');};
+$('overMenu').onclick=showTitle;$('menuBtn').onclick=showTitle;
+$('overAgain').onclick=function(){if(mode==='quick'){rivals=pickRivals();playNow();}else startGame();};
+$('playNow').onclick=playNow;
+$('setupBtn').onclick=function(){openSetup();};
+$('resumeBtn').onclick=hideTitle;
+$('reroll').onclick=function(){rivals=pickRivals();drawTitle();};
+$('titleRules').onclick=function(){$('rules').className='modal show';};
+var baseRender=render;render=function(){baseRender();updateTip();};
+window.__result=function(){return G&&G.over?{winner:G.winner,won:G.winner===0,power:G.players.map(function(P){return P.power;}),chapters:G.chapter,maxChapter:G.maxChapter,mode:mode,card:lastCard.length}:null;};
+window.__shareUrl=function(){return lastShare;};window.__stats=getStats;window.__tip=function(){return curTip;};window.__rivals=function(){return rivals.slice();};
+window.__playNow=playNow;
+
+window.__game=function(){return G;};window.__E=E;window.__cfg=function(){return cfg;};
+window.__ui={ui:ui,act:doAct,render:render,start:startGame,setCfg:function(c){Object.assign(cfg,c);saveCfg();},busy:function(){return ui.busy;},setGame:function(g){G=g;render();pump();}};
+function boot(){var h=location.hash;
+  if(h==='#setup'){hideTitle();openSetup();}
+  else if(/^#autostart=quick/.test(h))playNow();
+  else showTitle();}
+window.addEventListener('hashchange',boot);
+boot();
+})();
+
+</script>
+</body>
+</html>
