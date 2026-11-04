@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0d1f">
+<title>wAIrwolf hunt</title>
+<meta name="description" content="A hidden-role party game against AI bots that bluff, accuse and lie. Type to them freely, find the Wolf, win the vote. Free, in your browser, no sign-up.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="OmniXR Games">
+<meta property="og:title" content="wAIrwolf hunt: out-talk the AI bluffers">
+<meta property="og:description" content="Some of these bots are Wolves. They will lie to your face. Talk, cross-examine, and vote one out. Free, offline, no sign-up.">
+<meta property="og:url" content="https://yougitadmin.github.io/omnixr-games/wairwolf-hunt/">
+<meta property="og:image" content="https://yougitadmin.github.io/omnixr-games/wairwolf-hunt/cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="wAIrwolf hunt: a hidden-role deduction game against AI bots">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="wAIrwolf hunt: out-talk the AI bluffers">
+<meta name="twitter:description" content="Some of these bots are Wolves. They will lie to your face. Talk, cross-examine, and vote one out. Free, offline, no sign-up.">
+<meta name="twitter:image" content="https://yougitadmin.github.io/omnixr-games/wairwolf-hunt/cover.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101633'/%3E%3Ccircle cx='40' cy='24' r='14' fill='%23ffe9a8'/%3E%3Ccircle cx='46' cy='20' r='12' fill='%23101633'/%3E%3Cpath d='M10 54 L22 30 L28 40 L36 26 L54 54Z' fill='%239b7bff'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#0a0d1f;--panel:#141a36;--panel2:#1d2550;--ink:#eef0ff;--muted:#a6acd6;--accent:#ffe08a;--ai:#9b7bff;--moon:#ffe9a8;--bad:#ff6b7a;--ok:#7ad17f;--wolf:#ff5c6c}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Roboto,system-ui,-apple-system,Arial,sans-serif}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;background:radial-gradient(900px 600px at 85% -10%,#2b2a6b 0%,transparent 60%),radial-gradient(900px 600px at -10% 110%,#3b1240 0%,transparent 60%),var(--bg);background-attachment:fixed}
+header{width:100%;max-width:1400px;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;gap:8px;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(22px,5vw,32px);color:var(--accent);font-weight:900;white-space:nowrap;text-shadow:0 0 18px #ffe08a55}
+h1 .ai,.logo .ai{color:var(--ai)}h1 .h,.logo .h{color:var(--ink);font-weight:800}
+h1 small{font-size:12px;color:var(--muted);font-weight:600;margin-left:8px;text-shadow:none}
+.hbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.btn{appearance:none;border:0;border-radius:10px;padding:10px 14px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;background:#2f3770;color:var(--ink);touch-action:manipulation}
+.btn:hover{filter:brightness(1.15)}.btn:disabled{opacity:.38;cursor:not-allowed;filter:none}
+.btn.primary{background:var(--accent);color:#2a2000}.btn.small{padding:7px 10px;font-size:13px}.btn.warn{background:#8a3340}.btn.good{background:#2e8a5a}
+select.btn{padding:7px 8px;font-size:13px}
+.pill{font-size:12px;font-weight:800;background:#9b7bff22;color:#d6c9ff;border:1px solid #9b7bff66;border-radius:999px;padding:4px 10px;white-space:nowrap}
+#timer{font-variant-numeric:tabular-nums;font-weight:900;font-size:15px;color:var(--moon);min-width:48px;text-align:center}
+#timer.low{color:var(--wolf)}
+main{width:100%;max-width:1400px;display:grid;grid-template-columns:minmax(0,1fr) 440px;grid-template-areas:"table side" "notes side";gap:10px;padding:0 10px;align-items:start}
+#tableCard{grid-area:table}#side{grid-area:side}#notes{grid-area:notes}
+.card{background:var(--panel);border-radius:14px;padding:10px 12px;box-shadow:0 2px 14px #0005,inset 0 0 0 1px #9b7bff33}
+.card h3{margin:0 0 6px;font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+#tableWrap{position:relative;width:100%;aspect-ratio:1.25/1;max-height:72vh;margin:0 auto}
+#table{position:absolute;inset:0}
+.felt{position:absolute;left:12%;right:12%;top:16%;bottom:16%;border-radius:50%;background:radial-gradient(circle at 50% 40%,#25306a,#141a3a 70%);box-shadow:inset 0 0 40px #000a,0 0 30px #9b7bff33}
+.moonD{position:absolute;left:50%;top:22%;transform:translateX(-50%);font-size:28px;opacity:.85}
+.seat{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;width:108px;background:none;border:0;color:var(--ink);font:inherit;padding:0;cursor:default}
+.seat .face{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;background:var(--fc);box-shadow:0 0 0 3px #ffffffcc,0 0 16px var(--fc);position:relative;transition:transform .15s}
+.seat .nm{font-weight:800;font-size:13.5px;white-space:nowrap;text-shadow:0 1px 3px #000}
+.seat .sty{font-size:11px;color:var(--muted);white-space:nowrap}
+.seat .clm{font-size:11.5px;font-weight:800;background:#000a;border:1px solid #ffffff2a;border-radius:999px;padding:2px 8px;white-space:nowrap;max-width:118px;overflow:hidden;text-overflow:ellipsis}
+.seat .clm.none{color:var(--muted);font-weight:600}
+.seat .heat{position:absolute;right:-8px;top:-6px;background:var(--wolf);color:#fff;border-radius:999px;font-size:11px;font-weight:900;padding:1px 6px;box-shadow:0 0 0 2px #0a0d1f}
+.seat .talk{position:absolute;left:-6px;top:-6px;font-size:16px;display:none}.seat.speaking .talk{display:block}
+.seat.speaking .face{transform:scale(1.1)}
+.seat.pickable{cursor:pointer}.seat.pickable .face{box-shadow:0 0 0 5px var(--accent),0 0 30px var(--accent);animation:pulse 1.4s ease-in-out infinite}
+.seat.picked .face{box-shadow:0 0 0 5px #fff,0 0 28px #fff;animation:none}
+.seat.me .nm{color:var(--accent)}
+.seat.dead .face{filter:grayscale(1) brightness(.6)}.seat.dead .face::after{content:'✖';position:absolute;font-size:44px;color:var(--wolf);text-shadow:0 0 8px #000}
+.seat .rv{font-size:12px;font-weight:900;padding:2px 8px;border-radius:8px;background:#fff;color:#111;white-space:nowrap;display:none}
+.seat.revealed .rv{display:block}.seat .rv.w{background:var(--wolf);color:#fff}.seat .rv.d{background:#c58b3a;color:#fff}
+.seat .votes{font-size:11px;color:var(--moon);font-weight:800;display:none}.seat.revealed .votes{display:block}
+.center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;gap:8px}
+.ccard{width:44px;height:62px;border-radius:8px;background:repeating-linear-gradient(45deg,#3a2f7a,#3a2f7a 6px,#2c2462 6px,#2c2462 12px);border:2px solid #ffe9a855;display:flex;align-items:center;justify-content:center;font-weight:900;color:#ffe9a8;font-size:14px;cursor:default;padding:0;font-family:inherit;flex-direction:column;line-height:1.1}
+.ccard.pickable{cursor:pointer;border-color:var(--accent);box-shadow:0 0 16px var(--accent);animation:pulse 1.4s ease-in-out infinite}
+.ccard.picked{border-color:#fff;box-shadow:0 0 22px #fff;animation:none}
+.ccard.face{background:#fff;color:#111;font-size:20px}.ccard.face small{font-size:9px;font-weight:800}
+@keyframes pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.35)}}
+#notes{font-size:13.5px;line-height:1.45}#notes ul{margin:4px 0 0;padding-left:18px}#notes .myc{display:flex;gap:10px;align-items:center}
+.rolecard{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#2a2466,#1a1f48);border:2px solid var(--moon);border-radius:14px;padding:10px 12px;margin:6px 0}
+.rolecard .ri{font-size:44px}.rolecard b{font-size:20px;color:var(--moon)}.rolecard p{margin:2px 0 0;font-size:13.5px;color:#d9dcff;line-height:1.35}
+.rolecard.wolf{border-color:var(--wolf)}.rolecard.wolf b{color:var(--wolf)}
+#side{display:flex;flex-direction:column;gap:8px}
+#turnCard{border:2px solid #2f3770}#turnCard.mine{border-color:var(--accent)}
+#tTitle{font-weight:800;font-size:17px}
+#tHelp{font-size:14px;color:var(--muted);margin:4px 0 6px;line-height:1.4}#tHelp b{color:var(--ink)}
+.ctl{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:4px}
+#chatCard{display:flex;flex-direction:column}
+#chat{height:min(46vh,430px);overflow:auto;font-size:14px;line-height:1.38;display:flex;flex-direction:column;gap:6px;padding-right:4px}
+.msg{display:flex;gap:7px;align-items:flex-start}
+.msg .av{width:28px;height:28px;flex:0 0 28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--fc);border:2px solid #fff}
+.msg .bb{background:var(--panel2);border-radius:4px 12px 12px 12px;padding:6px 9px;max-width:88%}
+.msg .bb b{font-size:12.5px;color:var(--fc)}.msg .bb .ai{font-size:10px;color:var(--ai);margin-left:4px}
+.msg.me{flex-direction:row-reverse}.msg.me .bb{background:#3a3270;border-radius:12px 4px 12px 12px}
+.msg.nar{justify-content:center}.msg.nar .bb{background:none;color:var(--moon);font-style:italic;text-align:center;font-size:13.5px}
+.msg.priv .bb{background:#2a2a14;border:1px dashed var(--moon);color:#fff3c4;font-size:13.5px}
+#typing{font-size:12.5px;color:var(--muted);min-height:18px;margin-top:4px}
+#say{display:flex;gap:6px;margin-top:4px}
+#msg{flex:1;min-width:0;border-radius:10px;border:2px solid #3b4380;background:#0d1230;color:var(--ink);font:inherit;font-size:16px;padding:10px 12px}
+#msg:focus{outline:none;border-color:var(--ai)}
+#msg:disabled{opacity:.5}
+#chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+#chips button{appearance:none;border:1px solid #9b7bff66;background:#9b7bff1a;color:#e4dcff;border-radius:999px;padding:5px 10px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+#tip{display:none;margin-top:8px;background:linear-gradient(90deg,#9b7bff22,#ffe08a22);border:1px solid #9b7bff66;border-radius:12px;padding:8px 10px;font-size:13.5px;align-items:center;gap:8px}
+#tip.show{display:flex}#tip .tx{flex:1;line-height:1.35}#tip .btn{padding:6px 9px;font-size:12.5px}
+.modal{position:fixed;inset:0;background:#000b;display:none;align-items:flex-start;justify-content:center;z-index:20;overflow:auto;padding:16px 8px}
+.modal.show{display:flex}
+.mbox{background:var(--panel);border-radius:14px;padding:16px;max-width:760px;width:100%;box-shadow:0 10px 40px #000a}
+.mbox h2{margin:0 0 10px;color:var(--accent)}.mbox h4{margin:14px 0 4px;color:var(--ai)}
+.mbox p,.mbox li{line-height:1.45;font-size:14.5px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:7px 0}
+.lab2{min-width:120px;font-weight:700;font-size:14px}
+.opt{display:inline-flex;flex-wrap:wrap;border-radius:10px;overflow:hidden;border:1px solid #3b4380}
+.opt button{appearance:none;border:0;background:#2f3770;color:var(--ink);font:inherit;font-weight:700;font-size:14px;padding:9px 12px;cursor:pointer}
+.opt button.on{background:var(--accent);color:#2a2000}
+.twnote{font-size:12.5px;color:var(--muted);flex-basis:100%;margin-left:128px}
+.seatRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--panel2);border-radius:10px;padding:6px 8px;margin:5px 0}
+.seatRow .tk{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;border:2px solid #fff}
+.seatRow b{min-width:78px}.seatRow .sd{font-size:12.5px;color:var(--muted);flex:1;min-width:150px}
+.roles{display:flex;flex-wrap:wrap;gap:6px}
+.rchip{appearance:none;border:2px solid #3b4380;background:#1b2148;color:var(--muted);border-radius:10px;padding:6px 9px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;opacity:.6}
+.rchip.on{border-color:var(--moon);color:var(--ink);background:#2a2a5e;opacity:1}
+#deckNote{font-size:13px;margin-top:6px}#deckNote.bad{color:var(--bad);font-weight:700}#deckNote.good{color:var(--ok)}
+.field{display:flex;flex-direction:column;gap:3px;flex:1;min-width:200px}.field label{font-size:12px;color:var(--muted);font-weight:700}
+.field input{border-radius:8px;border:1px solid #3b4380;background:#0d1230;color:var(--ink);font:inherit;font-size:15px;padding:8px 10px}
+table.res{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}table.res th{text-align:left;color:var(--muted);font-size:12px;padding:4px}table.res td{padding:5px 4px;border-top:1px solid #ffffff14}
+table.res tr.win td:first-child{color:var(--accent);font-weight:800}table.res tr.dead td{opacity:.75}
+#replay{font-size:13.5px;line-height:1.5;margin:6px 0 0;padding-left:18px}
+#cardImg{width:100%;border-radius:12px;display:block;margin:6px 0;box-shadow:0 6px 22px #000a}
+.badge2{display:inline-block;background:#ffe08a22;border:1px solid #ffe08a77;border-radius:999px;padding:3px 10px;margin:2px;font-size:13px;font-weight:800}
+.screen{position:fixed;inset:0;z-index:15;overflow:auto;display:none;background:radial-gradient(700px 520px at 75% -5%,#3a357e 0%,transparent 65%),radial-gradient(700px 500px at 0% 100%,#4a1650 0%,transparent 60%),var(--bg)}
+.screen.show{display:block}
+.tWrap{max-width:720px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 16px 28px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;position:relative}
+.bigMoon{width:96px;height:96px;border-radius:50%;background:radial-gradient(circle at 38% 36%,#fff8dc,#ffe08a 55%,#d9a93a);box-shadow:0 0 50px #ffe08aaa,0 0 120px #ffe08a44;margin-top:6px;position:relative}
+.bigMoon::after{content:'🐺';position:absolute;right:-30px;bottom:-14px;font-size:46px;filter:drop-shadow(0 0 8px #000)}
+.logo{font-size:clamp(46px,13vw,88px);font-weight:900;line-height:1;margin:0;color:var(--accent);text-shadow:0 0 28px #ffe08a77,0 5px 0 #6a5000}
+.logo .ai{text-shadow:0 0 28px #9b7bffaa,0 5px 0 #3a2a80}.logo .h{display:block;font-size:.5em;letter-spacing:6px;text-transform:uppercase;text-shadow:0 3px 0 #000;margin-top:6px}
+.pitch{font-size:clamp(18px,4.6vw,24px);font-weight:800;max-width:580px;margin:0}.pitch em{color:var(--ai);font-style:normal}
+.bots{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;max-width:520px}
+.bot{background:#ffffff0d;border:2px solid #ffffff1a;border-radius:16px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bot .face{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;background:var(--fc);box-shadow:0 0 0 3px #ffffffaa,0 0 20px var(--fc)}
+.bot .bn{font-weight:900;font-size:17px}.bot .bl{font-size:12px;color:var(--muted)}.bot .bt{font-size:13px;font-style:italic;line-height:1.3}
+.bigPlay{font-size:26px!important;font-weight:900;padding:18px 54px!important;border-radius:999px!important;background:linear-gradient(180deg,#fff0b8,#ffc93d)!important;color:#2a1600!important;box-shadow:0 6px 0 #8a6a00,0 0 32px #ffe08a88;animation:pulse2 1.8s ease-in-out infinite}
+.bigPlay:active{transform:translateY(3px);box-shadow:0 3px 0 #8a6a00}
+@keyframes pulse2{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.sub{font-size:14px;color:var(--muted)}
+.statsRow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.stat{background:#ffffff10;border-radius:12px;padding:8px 12px;min-width:76px}.stat b{display:block;font-size:20px;color:var(--accent)}.stat span{font-size:11.5px;color:var(--muted)}
+.credit{font-size:13px;color:var(--muted)}.credit a{color:var(--muted)}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#5a3a8a;color:#fff;padding:10px 14px;border-radius:10px;font-weight:700;display:none;z-index:30;max-width:92vw;text-align:center}
+#toast.show{display:block}
+footer{margin:16px 0 18px;color:var(--muted);font-size:13px}footer a{color:var(--muted)}
+@media (max-width:900px){
+  main{grid-template-columns:1fr;grid-template-areas:"table" "side" "notes";padding:0 6px}
+  #modePill{display:none}
+  #tableWrap{aspect-ratio:1/0.92;max-height:none}
+  .seat{width:84px}.seat .face{width:42px;height:42px;font-size:23px}.seat .nm{font-size:12px}.seat .sty{display:none}.seat .clm{font-size:10.5px;padding:1px 6px;max-width:88px}
+  .ccard{width:34px;height:48px;font-size:12px}
+  #chat{height:44vh}
+  header{padding:6px 8px}h1 small{display:none}
+  .twnote{margin-left:0}.lab2{min-width:100%}
+  .btn{padding:9px 11px;font-size:14px}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>w<span class="ai">AI</span>rwolf <span class="h">hunt</span><small>by OmniXR</small></h1>
+  <div class="hbar"><span class="pill" id="modePill"></span><span class="pill" id="phasePill">🌙 Night</span><span id="timer"></span>
+    <button class="btn small" id="tipsBtn" title="Tips">💡</button><button class="btn small" id="rulesBtn" title="Rules">📖</button><button class="btn small" id="menuBtn" title="Menu">☰</button></div>
+</header>
+<main>
+  <section class="card" id="tableCard">
+    <div id="tableWrap"><div class="felt"></div><div class="moonD">🌕</div><div id="table"></div><div class="center" id="center"></div></div>
+  </section>
+  <section id="side">
+    <div class="card" id="turnCard"><div id="tTitle"></div><div id="tHelp"></div><div class="ctl" id="ctl"></div>
+      <div id="tip"><span>💡</span><span class="tx" id="tipText"></span><button class="btn" id="tipOk">Got it</button><button class="btn" id="tipOff">Tips off</button></div></div>
+    <div class="card" id="chatCard"><h3><span>Table talk</span><span id="aiPill"></span></h3>
+      <div id="chat" aria-live="polite"></div><div id="typing"></div>
+      <form id="say" autocomplete="off"><input id="msg" maxlength="300" placeholder="Talk to the table…" enterkeyhint="send"><button class="btn primary" id="sendBtn" type="submit">Send</button></form>
+      <div id="chips"></div></div>
+  </section>
+  <section class="card" id="notes"></section>
+</main>
+<footer>wAIrwolf hunt · by OmniXR · <a href="https://myomnixr.com" target="_blank" rel="noopener">myomnixr.com</a></footer>
+
+<div class="modal" id="setup"><div class="mbox">
+  <h2>New game of w<span style="color:var(--ai)">AI</span>rwolf hunt</h2>
+  <div class="row"><label class="lab2">Bots</label><div class="opt" id="optN"></div></div>
+  <div id="seats"></div>
+  <div class="row"><label class="lab2">Difficulty</label><div class="opt" id="optDiff"><button data-v="easy">Easy</button><button data-v="medium">Medium</button><button data-v="hard">Hard</button></div><div class="twnote">Harder bots reason more carefully, keep tighter cover stories and vote with less guesswork.</div></div>
+  <div class="row"><label class="lab2">Who goes first</label><div class="opt" id="optFirst"><button data-v="me">Me</button><button data-v="random">Random</button></div><div class="twnote">Who speaks first in the morning.</div></div>
+  <div class="row"><label class="lab2">Talk time</label><div class="opt" id="optMin"></div></div>
+  <h4>Roles in the deck</h4>
+  <div class="roles" id="roleChips"></div>
+  <div id="deckNote"></div>
+  <div class="row"><button class="btn small" id="deckDefault">Use the default deck</button></div>
+  <h4>Talking to the bots</h4>
+  <div class="row"><label class="lab2">Chat</label><div class="opt" id="optAI"><button data-v="0">Offline</button><button data-v="1">AI connection</button></div>
+    <div class="twnote">Offline: bots read your message for names, role claims, accusations and questions, and answer in character. AI connection: replies come from a language model you connect below. If a call fails, the bots fall back to offline.</div></div>
+  <div id="aiBox">
+    <div class="row"><div class="field"><label for="aiUrl">Endpoint (OpenAI-compatible chat completions)</label><input id="aiUrl" spellcheck="false"></div></div>
+    <div class="row"><div class="field"><label for="aiModel">Model</label><input id="aiModel" spellcheck="false"></div><div class="field"><label for="aiKey">API key</label><input id="aiKey" type="password" spellcheck="false" autocomplete="off" placeholder="sk-…"></div></div>
+    <div class="row"><button class="btn small" id="aiClear">Forget key</button><span class="sub">Your key is stored only in this browser (localStorage) and is sent only to the endpoint above.</span></div>
+  </div>
+  <h4>Help</h4>
+  <div class="row"><label class="lab2">Tips during play</label><div class="opt" id="optTips"><button data-v="1">On</button><button data-v="0">Off</button></div><button class="btn small" id="tipsReset">Show tips again</button></div>
+  <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn" id="setupCancel">Cancel</button><button class="btn primary" id="startBtn">Start game</button></div>
+</div></div>
+
+<div class="modal" id="over"><div class="mbox"><h2 id="overTitle">Game over</h2>
+  <div id="overSub" class="sub"></div>
+  <img id="cardImg" alt="Result card">
+  <div id="endBadges"></div>
+  <div class="row"><button class="btn primary" id="saveCard">💾 Save image</button><button class="btn" id="shareX">𝕏 Share on X</button></div>
+  <table class="res" id="resTable"></table>
+  <h4>What happened in the night</h4><ol id="replay"></ol>
+  <div class="row" style="justify-content:flex-end"><button class="btn" id="overClose">Look at the table</button><button class="btn" id="overMenu">Menu</button><button class="btn primary" id="overAgain">Play again</button></div>
+  <div class="credit" style="text-align:center;margin-top:8px">wAIrwolf hunt · by OmniXR · myomnixr.com</div>
+</div></div>
+
+<div class="modal" id="rules"><div class="mbox">
+  <h2>How to play</h2>
+  <p>Everyone gets a secret card, and three more cards sit face-down in the center. At night some roles wake up to look at or move cards. In the morning you talk, then everyone votes at once.</p>
+  <ul>
+    <li><b>Teams:</b> 🐺 the Pack (Wolves and the Lackey), 🏡 the Village (everyone else) and 🎒 the Drifter on its own.</li>
+    <li><b>You are the card you hold at the end of the night</b>, not the one you started with. Cards can move while you sleep.</li>
+    <li><b>Voting:</b> the player with the most votes goes out (ties all go out). If nobody gets two or more votes, nobody goes out.</li>
+    <li><b>The Village wins</b> if at least one Wolf goes out. If no Wolf is among the players, the Village wins when no Village player goes out.</li>
+    <li><b>The Pack wins</b> if Wolves are among the players and none goes out (and the Drifter survives). If no Wolf is among the players, the Lackey wins when a Village player goes out.</li>
+    <li><b>The Drifter wins</b> by going out.</li>
+  </ul>
+  <h4>Roles, in the order they wake</h4>
+  <div id="rolesList"></div>
+  <h4>Talking</h4>
+  <p>Type anything. The bots understand names, role claims (“I’m the Moonseer, I saw FAIng is a Wolf”), accusations (“ShAIdow is lying”), defenses (“I trust LunAI”) and questions (“MAIsie, what’s your role?”, “Who are you voting?”). Tap a seat to mention that bot.</p>
+  <div class="row" style="justify-content:flex-end"><button class="btn primary" id="rulesClose">Close</button></div>
+</div></div>
+
+<div class="screen" id="title"><div class="tWrap">
+  <div class="bigMoon"></div>
+  <h1 class="logo">w<span class="ai">AI</span>rwolf<span class="h">hunt</span></h1>
+  <p class="pitch">Some of these bots are Wolves.<br><em>They will lie to your face.</em></p>
+  <div class="sub">Talk to them, catch the bluff, vote one out. About 5 minutes a game.</div>
+  <div class="bots" id="titleBots"></div>
+  <button class="btn bigPlay" id="playNow">▶ Play now</button>
+  <div class="sub" id="quickNote"></div>
+  <div class="statsRow" id="titleStats"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><button class="btn" id="resumeBtn" style="display:none">↩ Resume game</button><button class="btn" id="setupBtn">⚙ Setup</button><button class="btn" id="reroll">🔀 New rivals</button><button class="btn" id="titleRules">📖 Rules</button></div>
+  <div class="credit">wAIrwolf hunt · by OmniXR · <a href="https://myomnixr.com" target="_blank" rel="noopener">myomnixr.com</a></div>
+</div></div>
+<div id="toast"></div>
+<script>
+// wAIrwolf hunt engine: a hidden-role deduction game against bots that bluff, accuse and reason. Pure logic, no DOM.
+// by OmniXR · myomnixr.com
+(function (root) {
+'use strict';
+var E = {};
+
+/* ---------------- random ---------------- */
+function mkRng(seed) { var a = seed >>> 0; return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+E.mkRng = mkRng;
+function rnd(st) { st.rs = (st.rs + 0x6D2B79F5) >>> 0; var t = st.rs; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }
+function ri(st, n) { return Math.floor(rnd(st) * n); }
+function pick(st, a) { return a[ri(st, a.length)]; }
+function shuffleR(R, a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(R() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+
+/* ---------------- roles (our own names and wording) ---------------- */
+E.ROLES = {
+  mimic:       { n: 'Mimic',       i: '🎭', team: 'village', d: 'Wakes first and peeks at another player\u2019s card, then becomes that role for the rest of the game (and acts as it right away if it has a night move).' },
+  wolf:        { n: 'Wolf',        i: '🐺', team: 'wolf',    d: 'Opens its eyes with the rest of the Pack. A Wolf who wakes alone may peek at one center card.' },
+  lackey:      { n: 'Lackey',      i: '🦴', team: 'wolf',    d: 'Learns who the Wolves are (they don\u2019t learn you). Wins with the Pack, even if the Lackey is voted out.' },
+  twin:        { n: 'Twin',        i: '👯', team: 'village', d: 'Wakes to spot the other Twin. If nobody else wakes, the other Twin is in the center.' },
+  moonseer:    { n: 'Moonseer',    i: '🔮', team: 'village', d: 'Looks at one other player\u2019s card, or at two of the center cards.' },
+  pickpocket:  { n: 'Pickpocket',  i: '🧤', team: 'village', d: 'May trade cards with another player and look at the new card. You are now that role, on its team.' },
+  meddler:     { n: 'Meddler',     i: '🔀', team: 'village', d: 'May trade the cards of two other players without looking at them.' },
+  sleepwalker: { n: 'Sleepwalker', i: '😴', team: 'village', d: 'Must trade your card for a center card without looking. You end the night not knowing who you are.' },
+  nightowl:    { n: 'Night Owl',   i: '🦉', team: 'village', d: 'Wakes last of all to check your own card, so you know if it was moved.' },
+  townsfolk:   { n: 'Townsfolk',   i: '🧑‍🌾', team: 'village', d: 'No night move. Use your wits to find a Wolf.' },
+  trapper:     { n: 'Trapper',     i: '🪤', team: 'village', d: 'If you are voted out, the player you voted for goes out with you.' },
+  drifter:     { n: 'Drifter',     i: '🎒', team: 'drifter', d: 'Sick of village life. Wins only by getting voted out.' }
+};
+E.ROLE_KEYS = ['mimic', 'wolf', 'lackey', 'twin', 'moonseer', 'pickpocket', 'meddler', 'sleepwalker', 'nightowl', 'townsfolk', 'trapper', 'drifter'];
+// The 16 cards in the box, in the order they join the default deck as the table grows (players + 3 cards).
+E.SLOTS = ['wolf', 'wolf', 'moonseer', 'pickpocket', 'meddler', 'townsfolk', 'sleepwalker', 'nightowl', 'lackey', 'twin', 'twin', 'trapper', 'drifter', 'mimic', 'townsfolk', 'townsfolk'];
+E.MIN_BOTS = 3; E.MAX_BOTS = 9; E.CENTER = 3;
+E.defaultSlots = function (players) { var k = players + E.CENTER; return E.SLOTS.map(function (_, i) { return i < k; }); };
+E.deckFromSlots = function (on) { var d = []; E.SLOTS.forEach(function (r, i) { if (on[i]) d.push(r); }); return d; };
+E.checkDeck = function (deck, players) {
+  if (deck.length !== players + E.CENTER) return 'Pick exactly ' + (players + E.CENTER) + ' cards (players + 3 center). You have ' + deck.length + '.';
+  if (deck.indexOf('wolf') < 0) return 'Include at least one Wolf.';
+  return null;
+};
+var ACTIVE = { moonseer: 1, pickpocket: 1, meddler: 1, sleepwalker: 1 };
+function teamOf(r) { return r === 'wolf' || r === 'lackey' ? 'wolf' : r === 'drifter' ? 'drifter' : 'village'; }
+E.teamOf = teamOf;
+E.TEAMS = { village: { n: 'Village', i: '🏡' }, wolf: { n: 'Pack', i: '🐺' }, drifter: { n: 'Drifter', i: '🎒' } };
+
+/* ---------------- bot play styles ---------------- */
+// lieV: chance-ish that this style fibs while on the village side (others know the styles, so they weigh claims by it)
+E.STYLES = {
+  truth:     { n: 'Truth-teller', i: '😇', d: 'Says exactly what it saw, every time.', talk: .55, acc: .35, lieV: .03 },
+  bluffer:   { n: 'Bluffer',      i: '🃏', d: 'Claims big roles and bluffs, even when it\u2019s on your side.', talk: .7, acc: .3, lieV: .3 },
+  accuser:   { n: 'Accuser',      i: '👉', d: 'Points fingers early and often.', talk: .8, acc: .22, lieV: .06 },
+  quiet:     { n: 'Quiet One',    i: '🤫', d: 'Says little, keeps its claim back, then votes hard.', talk: .25, acc: .5, lieV: .06 },
+  detective: { n: 'Detective',    i: '🔍', d: 'Cross-checks every claim and calls out the holes.', talk: .7, acc: .38, lieV: .05 },
+  follower:  { n: 'Follower',     i: '🐑', d: 'Goes along with the loudest voice in the room.', talk: .45, acc: .45, lieV: .06 },
+  chaos:     { n: 'Chaos Agent',  i: '🌀', d: 'Stirs up trouble just to see who flinches.', talk: .75, acc: .2, lieV: .15 },
+  defender:  { n: 'Defender',     i: '🛡️', d: 'Vouches for whoever it trusts and shields them.', talk: .5, acc: .4, lieV: .05 }
+};
+E.STYLE_KEYS = ['truth', 'bluffer', 'accuser', 'quiet', 'detective', 'follower', 'chaos', 'defender'];
+E.DIFF = { easy: { n: 'Easy', samples: 300, noise: .3, smart: 0 }, medium: { n: 'Medium', samples: 2000, noise: .1, smart: .6 }, hard: { n: 'Hard', samples: 5000, noise: .02, smart: 1 } };
+E.BOT_NAMES = ['LunAI', 'FAIng', 'ShAIdow', 'HowAIrd', 'MAIsie', 'GrAIdy', 'VAIlerie', 'OrAIon', 'BAIlee'];
+E.BOT_ALIAS = [['luna', 'lunai'], ['fang', 'faing'], ['shadow', 'shaidow'], ['howard', 'howaird'], ['maisie'], ['grady', 'graidy'], ['valerie', 'vailerie'], ['orion', 'oraion'], ['bailee', 'bailey']];
+E.MASCOTS = ['🦊', '🦇', '🐻', '🐱', '🦝', '🦌', '🐸', '🐗', '🦔'];
+E.MY_TOKEN = '⭐';
+E.COLORS = ['#ffd23f', '#ff7a59', '#9b7bff', '#3ddbd9', '#ff5c8a', '#7ad17f', '#f5a3ff', '#5aa9ff', '#e8b923', '#ff9f43'];
+E.QUICK = { bots: 4, minutes: 3 };
+E.MINUTES = [2, 3, 5, 8];
+
+/* ---------------- the night ---------------- */
+var NSTEPS = ['mimic', 'wolf', 'lackey', 'twin', 'moonseer', 'pickpocket', 'meddler', 'sleepwalker', 'nightowl', 'mimicowl'];
+E.NSTEPS = NSTEPS;
+function nightInit(cards, n) {
+  var ns = { n: n, start: cards.slice(), cur: cards.slice(), mAs: null, ni: 0, sub: 0, obs: [], ch: [], log: [] };
+  for (var p = 0; p < n; p++) { ns.obs.push([{ k: 'start', r: cards[p] }]); ns.ch.push({}); }
+  return ns;
+}
+function startHolders(ns, r) { var o = []; for (var p = 0; p < ns.n; p++) if (ns.start[p] === r) o.push(p); return o; }
+function holders(ns, r) { var o = []; for (var p = 0; p < ns.n; p++) if (ns.start[p] === r || (ns.start[p] === 'mimic' && ns.mAs === r)) o.push(p); return o; }
+function nightPending(ns) {
+  while (ns.ni < NSTEPS.length) {
+    var s = NSTEPS[ns.ni], ps, p;
+    if (s === 'mimic') {
+      ps = startHolders(ns, 'mimic'); if (!ps.length) { ns.ni++; continue; }
+      if (ns.sub === 0) return { p: ps[0], kind: 'mimic' };
+      if (ns.sub === 1 && ACTIVE[ns.mAs]) return { p: ps[0], kind: ns.mAs, mimic: true };
+      ns.ni++; ns.sub = 0; continue;
+    }
+    if (s === 'wolf') {
+      ps = holders(ns, 'wolf'); if (!ps.length) { ns.ni++; continue; }
+      if (ns.sub === 0) { ps.forEach(function (q) { ns.obs[q].push({ k: 'wolves', l: ps.slice() }); }); ns.log.push({ s: 'wolf', l: ps.slice() }); ns.sub = 1; }
+      if (ns.sub === 1 && ps.length === 1) return { p: ps[0], kind: 'wolfpeek' };
+      ns.ni++; ns.sub = 0; continue;
+    }
+    if (s === 'lackey') {
+      ps = holders(ns, 'lackey'); var w = holders(ns, 'wolf');
+      ps.forEach(function (q) { ns.obs[q].push({ k: 'lackey', l: w.slice() }); if (true) ns.log.push({ s: 'lackey', p: q, l: w.slice() }); });
+      ns.ni++; continue;
+    }
+    if (s === 'twin') {
+      ps = holders(ns, 'twin');
+      ps.forEach(function (q) { ns.obs[q].push({ k: 'twins', l: ps.filter(function (x) { return x !== q; }) }); });
+      if (ps.length) ns.log.push({ s: 'twin', l: ps.slice() });
+      ns.ni++; continue;
+    }
+    if (ACTIVE[s]) {
+      ps = startHolders(ns, s);
+      if (!ps.length || ns.sub === 1) { ns.ni++; ns.sub = 0; continue; }
+      return { p: ps[0], kind: s };
+    }
+    if (s === 'nightowl') {
+      startHolders(ns, 'nightowl').forEach(function (q) { ns.obs[q].push({ k: 'owl', r: ns.cur[q] }); ns.log.push({ s: 'owl', p: q, r: ns.cur[q] }); });
+      ns.ni++; continue;
+    }
+    if (s === 'mimicowl') {
+      if (ns.mAs === 'nightowl') startHolders(ns, 'mimic').forEach(function (q) { ns.obs[q].push({ k: 'owl', r: ns.cur[q] }); ns.log.push({ s: 'owl', p: q, r: ns.cur[q], mimic: true }); });
+      ns.ni++; continue;
+    }
+    ns.ni++;
+  }
+  return null;
+}
+function okP(ns, x, p) { return typeof x === 'number' && x >= 0 && x < ns.n && x !== p && Math.floor(x) === x; }
+function okC(x) { return x === 0 || x === 1 || x === 2; }
+function nightApply(ns, c) {
+  var q = nightPending(ns); if (!q) return null;
+  var p = q.p, k = q.kind, n = ns.n, t, r;
+  if (k === 'mimic') {
+    t = okP(ns, c, p) ? c : (p + 1) % n; r = ns.cur[t]; ns.mAs = r; ns.ch[p].mimic = t;
+    ns.obs[p].push({ k: 'mimic', p: t, r: r }); ns.log.push({ s: 'mimic', p: p, t: t, r: r });
+    ns.sub = 1; return q;
+  }
+  if (k === 'wolfpeek') {
+    ns.ch[p].wolfpeek = okC(c) ? c : null;
+    if (okC(c)) { r = ns.cur[n + c]; ns.obs[p].push({ k: 'center', i: c, r: r }); ns.log.push({ s: 'peek', p: p, i: c, r: r }); }
+    ns.ni++; ns.sub = 0; return q;
+  }
+  if (k === 'moonseer') {
+    if (c && c.t === 'p' && okP(ns, c.p, p)) { r = ns.cur[c.p]; ns.obs[p].push({ k: 'saw', p: c.p, r: r }); ns.log.push({ s: 'look', p: p, t: c.p, r: r, m: q.mimic }); ns.ch[p].moonseer = { t: 'p', p: c.p }; }
+    else { var a = c && okC(c.a) ? c.a : 0, b = c && okC(c.b) && c.b !== a ? c.b : (a + 1) % 3; ns.obs[p].push({ k: 'center', i: a, r: ns.cur[n + a] }); ns.obs[p].push({ k: 'center', i: b, r: ns.cur[n + b] }); ns.log.push({ s: 'lookc', p: p, a: a, b: b, ra: ns.cur[n + a], rb: ns.cur[n + b], m: q.mimic }); ns.ch[p].moonseer = { t: 'c', a: a, b: b }; }
+  } else if (k === 'pickpocket') {
+    if (okP(ns, c, p)) { r = ns.cur[c]; ns.cur[c] = ns.cur[p]; ns.cur[p] = r; ns.obs[p].push({ k: 'took', p: c, r: r }); ns.log.push({ s: 'rob', p: p, t: c, r: r, m: q.mimic }); ns.ch[p].pickpocket = c; }
+    else { ns.ch[p].pickpocket = null; ns.log.push({ s: 'rob', p: p, t: null, m: q.mimic }); }
+  } else if (k === 'meddler') {
+    if (c && okP(ns, c[0], p) && okP(ns, c[1], p) && c[0] !== c[1]) { t = ns.cur[c[0]]; ns.cur[c[0]] = ns.cur[c[1]]; ns.cur[c[1]] = t; ns.obs[p].push({ k: 'swap', a: c[0], b: c[1] }); ns.log.push({ s: 'swap', p: p, a: c[0], b: c[1], m: q.mimic }); ns.ch[p].meddler = [c[0], c[1]]; }
+    else { ns.ch[p].meddler = null; ns.log.push({ s: 'swap', p: p, a: null, m: q.mimic }); }
+  } else if (k === 'sleepwalker') {
+    var i = okC(c) ? c : 0; t = ns.cur[n + i]; ns.cur[n + i] = ns.cur[p]; ns.cur[p] = t; ns.obs[p].push({ k: 'sleep', i: i }); ns.log.push({ s: 'sleep', p: p, i: i, m: q.mimic }); ns.ch[p].sleepwalker = i;
+  }
+  ns.ni++; ns.sub = 0; return q;
+}
+function randNightChoice(R, ns, q) {
+  var n = ns.n, p = q.p, others = []; for (var j = 0; j < n; j++) if (j !== p) others.push(j);
+  var o = function () { return others[Math.floor(R() * others.length)]; };
+  switch (q.kind) {
+    case 'mimic': return o();
+    case 'wolfpeek': return Math.floor(R() * 3);
+    case 'moonseer': if (R() < .65) return { t: 'p', p: o() }; var a = Math.floor(R() * 3); return { t: 'c', a: a, b: (a + 1 + Math.floor(R() * 2)) % 3 };
+    case 'pickpocket': return R() < .85 ? o() : null;
+    case 'meddler': if (others.length < 2 || R() < .12) return null; var x = o(), y; do { y = o(); } while (y === x); return [x, y];
+    case 'sleepwalker': return Math.floor(R() * 3);
+  }
+  return null;
+}
+function eff(ns, card) { return card === 'mimic' ? (ns.mAs || 'mimic') : card; }
+E.eff = function (st, card) { return eff(st.ns, card); };
+
+/* ---------------- game ---------------- */
+E.newGame = function (cfg) {
+  var st = { rs: (cfg.seed == null ? (Date.now() ^ (Math.random() * 1e9)) : cfg.seed) >>> 0, seed: cfg.seed || 1 };
+  st.players = cfg.players.map(function (p, i) {
+    var style = p.style && E.STYLES[p.style] ? p.style : null;
+    return { name: p.name || (p.human ? 'You' : E.BOT_NAMES[i - 1] || 'Bot' + i), human: !!p.human, style: style, mascot: p.mascot || (p.human ? E.MY_TOKEN : E.MASCOTS[(i - 1) % 9]), color: E.COLORS[i % 10] };
+  });
+  st.players.forEach(function (p) { if (!p.human && !p.style) p.style = pick(st, E.STYLE_KEYS); if (p.human) p.style = p.style || 'truth'; });
+  st.n = st.players.length;
+  st.diff = E.DIFF[cfg.diff] ? cfg.diff : 'medium';
+  st.minutes = cfg.minutes || 3;
+  st.deck = (cfg.deck && cfg.deck.length === st.n + 3) ? cfg.deck.slice() : E.deckFromSlots(E.defaultSlots(st.n));
+  var cards = st.deck.slice(); for (var i = cards.length - 1; i > 0; i--) { var j = ri(st, i + 1), t = cards[i]; cards[i] = cards[j]; cards[j] = t; }
+  if (cfg.cards) { cards = cfg.cards.slice(); st.deck = cfg.cards.slice(); }
+  st.ns = nightInit(cards, st.n);
+  st.phase = 'night';
+  var h = st.players.findIndex(function (p) { return p.human; });
+  var first = cfg.first === 'me' && h >= 0 ? h : ri(st, st.n);
+  st.order = []; for (i = 0; i < st.n; i++) st.order.push((first + i) % st.n);
+  st.claims = st.players.map(function () { return null; });
+  st.flips = st.players.map(function () { return 0; });
+  st.chat = []; st.saidConf = {}; st.askedAt = {}; st.acc = []; st.queue = []; st.ver = 1; st.cache = {}; st.lastBot = -1; st.opened = 0;
+  st.bm = st.players.map(function () { return { said: {}, claim: null, target: -1, hold: 0, spoke: 0, intent: -1 }; });
+  st.tf = 0; st.over = false;
+  return st;
+};
+E.human = function (st) { return st.players.findIndex(function (p) { return p.human; }); };
+E.nightPending = function (st) { var q = nightPending(st.ns); if (!q && st.phase === 'night') st.phase = 'day'; return q; };
+E.nightApply = function (st, c) { var q = nightApply(st.ns, c); E.nightPending(st); return q; };
+E.botNight = function (st, q) {
+  var R = function () { return rnd(st); }, ns = st.ns, n = st.n, p = q.p;
+  if (q.kind === 'moonseer') {
+    // look at someone not already known (wolves never look at a partner)
+    var known = {}; ns.obs[p].forEach(function (f) { if (f.l) f.l.forEach(function (x) { known[x] = 1; }); });
+    var c = []; for (var j = 0; j < n; j++) if (j !== p && !known[j]) c.push(j);
+    if (c.length && R() < .7) return { t: 'p', p: c[Math.floor(R() * c.length)] };
+  }
+  return randNightChoice(R, ns, q);
+};
+// Bots act; the human's step is returned so the UI can ask.
+E.runBotsUntilHuman = function (st) {
+  for (var g = 0; g < 50; g++) { var q = E.nightPending(st); if (!q) return null; if (st.players[q.p].human) return q; E.nightApply(st, E.botNight(st, q)); }
+  return null;
+};
+
+/* ---------------- claims ---------------- */
+// A claim: {r, see:{t:'p',p,r}|{t:'c',l:[{i?,r}]}, took:{p,r}|null, swap:[a,b]|null, sleep:1, owl:r, twins:[..], mimic:{p,r}}
+function claimFromObs(st, b) {
+  var o = st.ns.obs[b], c = { r: st.ns.start[b] }, cen = [];
+  o.forEach(function (f) {
+    if (f.k === 'saw') c.see = { t: 'p', p: f.p, r: f.r };
+    if (f.k === 'center' && (c.r === 'moonseer' || (c.r === 'mimic' && st.ns.mAs === 'moonseer'))) cen.push({ i: f.i, r: f.r });
+    if (f.k === 'took') c.took = { p: f.p, r: f.r };
+    if (f.k === 'swap') c.swap = [f.a, f.b];
+    if (f.k === 'sleep') c.sleep = 1;
+    if (f.k === 'owl') c.owl = f.r;
+    if (f.k === 'twins') c.twins = f.l.slice();
+    if (f.k === 'mimic') c.mimic = { p: f.p, r: f.r };
+  });
+  if (cen.length) c.see = { t: 'c', l: cen };
+  if (c.r === 'pickpocket' && !c.took) c.took = null;
+  if (c.r === 'meddler' && !c.swap) c.swap = null;
+  return c;
+}
+E.claimFromObs = claimFromObs;
+function claimChoice(c, kind, ns) {
+  if (!c) return undefined;
+  if (kind === 'moonseer' && c.see) {
+    if (c.see.t === 'p') return { t: 'p', p: c.see.p };
+    var l = c.see.l; if (l.length === 2 && l[0].i != null && l[1].i != null) return { t: 'c', a: l[0].i, b: l[1].i };
+    // indices unknown: pick a pair that shows the claimed cards if one exists
+    for (var a = 0; a < 3; a++) for (var b = a + 1; b < 3; b++) { var x = [eff(ns, ns.cur[ns.n + a]), eff(ns, ns.cur[ns.n + b])].sort().join(), y = l.map(function (e) { return e.r; }).sort().join(); if (x === y || (l.length === 1 && x.indexOf(l[0].r) >= 0)) return { t: 'c', a: a, b: b }; }
+    return undefined;
+  }
+  if (kind === 'pickpocket' && c.took !== undefined) return c.took ? c.took.p : null;
+  if (kind === 'meddler' && c.swap !== undefined) return c.swap ? c.swap.slice() : null;
+  if (kind === 'mimic' && c.mimic) return c.mimic.p;
+  return undefined;
+}
+function sameSet(a, b) { if (a.length !== b.length) return false; var x = a.slice().sort().join(), y = b.slice().sort().join(); return x === y; }
+function claimTrue(c, ns, h) {
+  var s = ns.start[h]; if (s !== c.r) return false;
+  var o = ns.obs[h], i, f;
+  if (c.see) {
+    if (c.see.t === 'p') { f = o.find(function (x) { return x.k === 'saw'; }); if (!f || f.p !== c.see.p || f.r !== c.see.r) return false; }
+    else { var seen = o.filter(function (x) { return x.k === 'center'; }).map(function (x) { return x.r; }); var cl = c.see.l.map(function (x) { return x.r; }); for (i = 0; i < cl.length; i++) { var k = seen.indexOf(cl[i]); if (k < 0) return false; seen.splice(k, 1); } }
+  }
+  if (c.took) { f = o.find(function (x) { return x.k === 'took'; }); if (!f || f.p !== c.took.p || (c.took.r && f.r !== c.took.r)) return false; }
+  if (c.took === null && o.some(function (x) { return x.k === 'took'; })) return false;
+  if (c.swap) { f = o.find(function (x) { return x.k === 'swap'; }); if (!f || !sameSet([f.a, f.b], c.swap)) return false; }
+  if (c.swap === null && o.some(function (x) { return x.k === 'swap'; })) return false;
+  if (c.owl) { f = o.find(function (x) { return x.k === 'owl'; }); if (!f || f.r !== c.owl) return false; }
+  if (c.twins) { f = o.find(function (x) { return x.k === 'twins'; }); if (!f || !sameSet(f.l, c.twins)) return false; }
+  if (c.mimic) { f = o.find(function (x) { return x.k === 'mimic'; }); if (!f || f.p !== c.mimic.p || (c.mimic.r && f.r !== c.mimic.r)) return false; }
+  return true;
+}
+var LIE_ROLE = { townsfolk: .3, moonseer: .2, sleepwalker: .12, meddler: .12, pickpocket: .1, nightowl: .07, trapper: .07, twin: .04, wolf: .05, mimic: .03, lackey: .02, drifter: .03 };
+function nVals(c) { var k = 0; if (c.see) k += c.see.t === 'p' ? 1 : c.see.l.length; if (c.took && c.took.r) k++; if (c.owl) k++; if (c.mimic && c.mimic.r) k++; return k; }
+function lieW(c) { var w = LIE_ROLE[c.r] || .02; w *= Math.pow(.3, nVals(c)); return w; }
+
+/* ---------------- inference: weighted possible worlds ---------------- */
+function obsKey(o) { return JSON.stringify(o); }
+function infer(st, b, M) {
+  var n = st.n, ns0 = st.ns, R = mkRng((st.seed * 7919 + (b + 2) * 104729) >>> 0); // same random stream each time: beliefs move only when the evidence does
+  var deck = st.deck, pins = {}, myKey = null, myCh = null;
+  if (b >= 0) {
+    myKey = obsKey(ns0.obs[b]); myCh = ns0.ch[b]; pins[b] = ns0.start[b];
+    var amMimic = ns0.start[b] === 'mimic';
+    ns0.obs[b].forEach(function (f) {
+      if (amMimic) { if (f.k === 'mimic') pins[f.p] = f.r; return; }
+      if (f.k === 'wolves' || f.k === 'lackey') f.l.forEach(function (q) { if (q !== b) pins[q] = 'wolf'; });
+      if (f.k === 'twins') f.l.forEach(function (q) { pins[q] = 'twin'; });
+      if (f.k === 'saw' || f.k === 'took') pins[f.p] = f.r;
+      if (f.k === 'center') pins[n + f.i] = f.r;
+    });
+  }
+  var lam = [];
+  for (var h = 0; h < n; h++) { var P = st.players[h]; lam.push(P.human ? .1 : E.STYLES[P.style].lieV); }
+  var res = { pw: new Array(n).fill(0), pv: new Array(n).fill(0), pd: new Array(n).fill(0), pl: new Array(n).fill(0), plie: new Array(n).fill(0), pnw: 0, W: 0, acc: 0 };
+  var claimed = []; for (h = 0; h < n; h++) if (h !== b && st.claims[h]) claimed.push(h);
+  function run(usePins) {
+    var tries = M * 6, acc = 0;
+    for (var t = 0; t < tries && acc < M; t++) {
+      var start = new Array(n + 3), pool = deck.slice(), bad = false;
+      if (usePins) for (var k in pins) { var ix = pool.indexOf(pins[k]); if (ix < 0) { bad = true; break; } start[k] = pins[k]; pool.splice(ix, 1); }
+      else if (b >= 0) { start[b] = pins[b]; pool.splice(pool.indexOf(pins[b]), 1); }
+      if (bad) return -1;
+      shuffleR(R, pool); var pi = 0; for (var x = 0; x < n + 3; x++) if (start[x] === undefined) start[x] = pool[pi++];
+      var ns = nightInit(start, n), q, guard = 0;
+      while ((q = nightPending(ns)) && guard++ < 20) {
+        var c;
+        if (q.p === b) c = myCh[q.kind];
+        else { var cl = st.claims[q.p]; c = undefined; if (cl && (cl.r === ns.start[q.p] || (q.kind !== 'mimic' && q.mimic && cl.r === q.kind))) c = claimChoice(cl, q.kind, ns); }
+        if (c === undefined) c = randNightChoice(R, ns, q);
+        nightApply(ns, c);
+      }
+      if (b >= 0 && obsKey(ns.obs[b]) !== myKey) continue;
+      acc++;
+      var w = 1;
+      for (var ci = 0; ci < claimed.length; ci++) {
+        var j = claimed[ci], cj = st.claims[j], sr = eff(ns, ns.start[j]), tm = teamOf(sr === 'mimic' ? 'townsfolk' : sr);
+        if (claimTrue(cj, ns, j)) w *= tm === 'village' ? (1 - lam[j]) : cj.r === 'wolf' ? .05 : .3; // a real Wolf rarely owns up
+        else w *= tm === 'drifter' && cj.r === 'wolf' ? .35 : (tm === 'village' ? lam[j] : 1) * lieW(cj); // “I’m a Wolf!” usually means Drifter
+        if (st.flips[j]) w *= Math.pow(tm === 'village' ? .6 : 1, st.flips[j]);
+      }
+      if (!(w > 0)) continue;
+      res.W += w; var anyW = false;
+      for (j = 0; j < n; j++) {
+        var f = eff(ns, ns.cur[j]), tf = teamOf(f === 'mimic' ? 'townsfolk' : f);
+        if (f === 'wolf') { res.pw[j] += w; anyW = true; }
+        if (f === 'lackey') res.pl[j] += w;
+        if (tf === 'village') res.pv[j] += w; if (tf === 'drifter') res.pd[j] += w;
+        if (st.claims[j] && j !== b && !claimTrue(st.claims[j], ns, j)) res.plie[j] += w;
+      }
+      if (!anyW) res.pnw += w;
+    }
+    return acc;
+  }
+  var a = run(true); if (a < 10) { res.W = 0; ['pw', 'pv', 'pd', 'pl', 'plie'].forEach(function (k) { res[k].fill(0); }); res.pnw = 0; a = run(false); }
+  res.acc = a;
+  var W = res.W || 1;
+  ['pw', 'pv', 'pd', 'pl', 'plie'].forEach(function (k) { res[k] = res[k].map(function (v) { return v / W; }); });
+  res.pnw /= W;
+  return res;
+}
+function think(st, b) {
+  var key = b, c = st.cache[key];
+  if (c && c.ver === st.ver) return c.res;
+  var M = b >= 0 ? E.DIFF[st.diff].samples : 1500;
+  var r = infer(st, b, M); st.cache[key] = { ver: st.ver, res: r }; return r;
+}
+E.think = think;
+// What team does bot b believe it ends the night on?
+function selfTeam(st, b) {
+  var I = think(st, b), w = I.pw[b] + I.pl[b];
+  return w > .5 ? 'wolf' : I.pd[b] > .5 ? 'drifter' : 'village';
+}
+E.selfTeam = selfTeam;
+function allies(st, b) { var I = think(st, b), o = []; for (var j = 0; j < st.n; j++) if (j !== b && I.pw[j] + I.pl[j] > .6) o.push(j); return o; }
+
+/* ---------------- talk: structured statements ---------------- */
+function deckCount(st, r) { return st.deck.filter(function (x) { return x === r; }).length; }
+function claimCount(st, r, except) { var k = 0; st.claims.forEach(function (c, j) { if (c && c.r === r && j !== except) k++; }); return k; }
+function heat(st) { // distinct latest accusers per target
+  var last = {}, h = new Array(st.n).fill(0);
+  st.acc.forEach(function (a) { last[a.from] = a.to; });
+  for (var k in last) if (last[k] >= 0) h[last[k]]++;
+  return h;
+}
+E.heat = heat;
+function fabricate(st, b, r) {
+  var c = { r: r }, n = st.n, al = allies(st, b), non = [];
+  for (var j = 0; j < n; j++) if (j !== b && al.indexOf(j) < 0) non.push(j);
+  var sty = st.players[b].style, P = think(st, -1);
+  if (r === 'moonseer') {
+    var aggressive = sty === 'bluffer' || sty === 'accuser' || sty === 'chaos' || rnd(st) < .35;
+    if (aggressive && non.length) {
+      // frame someone: the player the room already doubts, or someone with no claim
+      var tgt = non.slice().sort(function (x, y) { return P.pw[y] - P.pw[x] + (st.claims[x] ? .1 : 0) - (st.claims[y] ? .1 : 0); })[0];
+      c.see = { t: 'p', p: tgt, r: 'wolf' };
+    } else if (rnd(st) < .5 && non.some(function (j) { return st.claims[j]; })) {
+      var cl = non.filter(function (j) { return st.claims[j] && st.claims[j].r !== 'wolf'; }); var t2 = cl.length ? pick(st, cl) : pick(st, non);
+      c.see = { t: 'p', p: t2, r: st.claims[t2] ? st.claims[t2].r : 'townsfolk' };
+    } else {
+      var pool = st.deck.filter(function (x) { return x !== 'wolf' && x !== 'moonseer'; }), l = [];
+      var free = pool.filter(function (x) { return claimCount(st, x, b) < deckCount(st, x); });
+      var src = free.length >= 2 ? free : pool;
+      var a = pick(st, src); var rest = src.slice(); rest.splice(rest.indexOf(a), 1); var bb = pick(st, rest.length ? rest : src);
+      var i0 = ri(st, 3); l = [{ i: i0, r: a }, { i: (i0 + 1 + ri(st, 2)) % 3, r: bb }]; c.see = { t: 'c', l: l };
+    }
+  } else if (r === 'pickpocket') c.took = null;
+  else if (r === 'meddler') { if (non.length >= 2 && rnd(st) < .75) { var x = pick(st, non), y; do { y = pick(st, non); } while (y === x); c.swap = [x, y]; } else c.swap = null; }
+  else if (r === 'sleepwalker') c.sleep = 1;
+  else if (r === 'nightowl') c.owl = 'nightowl';
+  else if (r === 'twin') { var tw = []; st.claims.forEach(function (cc, j) { if (cc && cc.r === 'twin' && j !== b) tw.push(j); }); c.twins = tw.slice(0, 1); }
+  return c;
+}
+function chooseCover(st, b) {
+  var smart = E.DIFF[st.diff].smart, sty = st.players[b].style, opts = [];
+  var add = function (c, s) { opts.push({ c: c, s: s }); };
+  st.ns.obs[b].forEach(function (f) { if (f.k === 'center' && f.r !== 'wolf' && f.r !== 'lackey' && f.r !== 'drifter') add(fabricate(st, b, f.r === 'mimic' ? 'townsfolk' : f.r), 3); });
+  var base = { townsfolk: 1.6, sleepwalker: 1.3, meddler: 1.1, moonseer: sty === 'bluffer' ? 2.4 : .9, pickpocket: .6, nightowl: .7, trapper: .8, twin: .2 };
+  for (var r in base) {
+    if (!deckCount(st, r)) continue;
+    var s = base[r]; if (claimCount(st, r, b) >= deckCount(st, r)) s -= sty === 'bluffer' ? .6 : 2.5;
+    add(fabricate(st, b, r), s);
+  }
+  opts.forEach(function (o) { if (claimCount(st, o.c.r, b) >= deckCount(st, o.c.r) && o.s >= 3) o.s = .5; });
+  if (!opts.length) return { r: 'townsfolk' };
+  if (rnd(st) > smart * .9 + .1 && rnd(st) < .5) return pick(st, opts).c; // clumsy cover
+  var tot = 0; opts.forEach(function (o) { o.w = Math.exp(o.s * (1 + 2 * smart)); tot += o.w; });
+  var x = rnd(st) * tot; for (var i = 0; i < opts.length; i++) { x -= opts[i].w; if (x <= 0) return opts[i].c; }
+  return opts[0].c;
+}
+function botClaim(st, b) {
+  var m = st.bm[b]; if (m.claim) return m.claim;
+  var team = selfTeam(st, b), sty = st.players[b].style, start = st.ns.start[b], c;
+  if (team === 'drifter') {
+    var x = rnd(st);
+    if (x < .35) c = { r: 'wolf' };
+    else if (x < .65) { var taken = st.claims.map(function (cc) { return cc && cc.r; }).filter(function (r) { return r && r !== 'townsfolk' && r !== 'wolf'; }); c = taken.length ? fabricate(st, b, pick(st, taken)) : chooseCover(st, b); }
+    else c = chooseCover(st, b);
+  } else if (team === 'wolf') {
+    if (start === 'lackey' && rnd(st) < .15) c = { r: 'wolf' };
+    else c = chooseCover(st, b);
+  } else {
+    c = claimFromObs(st, b);
+    if (c.r === 'wolf' || c.r === 'lackey' || c.r === 'drifter') c = { r: 'townsfolk' }; // swapped onto the village side: plays it safe
+    var hasWolfInfo = c.see && c.see.t === 'p' && c.see.r === 'wolf';
+    if (rnd(st) < E.STYLES[sty].lieV * 1.5 && !hasWolfInfo && c.r !== 'townsfolk' && deckCount(st, 'townsfolk')) { m.real = c; c = { r: 'townsfolk' }; }
+  }
+  return c;
+}
+E.botClaim = botClaim;
+function setClaim(st, p, c) {
+  var old = st.claims[p];
+  if (old && JSON.stringify(old) === JSON.stringify(c)) return;
+  if (old && old.r !== c.r) st.flips[p]++;
+  st.claims[p] = c; st.ver++; if (!st.players[p].human) st.bm[p].claim = c;
+}
+E.setClaim = setClaim;
+function whyAgainst(st, b, j) {
+  var o = st.ns.obs[b], mc = st.claims[b], cj = st.claims[j], I = think(st, b);
+  if (o.some(function (f) { return (f.k === 'saw' || f.k === 'took') && f.p === j && f.r === 'wolf'; })) return 'seen';
+  if (mc && cj && mc.r === cj.r && deckCount(st, mc.r) === 1) return 'counter';
+  if (cj && I.plie[j] > .5) return 'story';
+  if (!cj) return 'quiet';
+  return 'gut';
+}
+function scapegoat(st, b) {
+  var P = think(st, -1), I = think(st, b), H = heat(st), al = allies(st, b), best = -1, bs = -9;
+  for (var j = 0; j < st.n; j++) { if (j === b || al.indexOf(j) >= 0) continue; var s = P.pw[j] + P.pl[j] * .3 + .12 * H[j] - 1.2 * I.pd[j] + (st.players[j].human ? .03 : 0); if (s > bs) { bs = s; best = j; } }
+  return best;
+}
+E.botVote = function (st, b) {
+  var I = think(st, b), team = selfTeam(st, b), n = st.n, D = E.DIFF[st.diff], sty = st.players[b].style, j;
+  var others = []; for (j = 0; j < n; j++) if (j !== b) others.push(j);
+  var noise = D.noise + (sty === 'chaos' ? .2 : 0);
+  if (team === 'drifter') return rnd(st) < .5 ? pick(st, others) : scapegoat(st, b);
+  if (team === 'wolf') { var al = allies(st, b), nonA = others.filter(function (x) { return al.indexOf(x) < 0; }); if (rnd(st) < noise * .5 && nonA.length) return pick(st, nonA); var sg = scapegoat(st, b); return sg >= 0 ? sg : pick(st, others); }
+  if (rnd(st) < noise) return pick(st, others);
+  if (I.pnw > .55 && sty !== 'chaos') return (b + 1) % n; // no Wolf among us: spread the votes
+  // Village: among the players I find nearly as suspicious as my top pick, go with the one the table is already piling on (votes only count together).
+  var H = heat(st), sc = {}, mx = -9;
+  others.forEach(function (x) { sc[x] = I.pw[x] - .9 * I.pd[x]; if (sc[x] > mx) mx = sc[x]; });
+  var band = sty === 'follower' ? .55 : sty === 'detective' || sty === 'truth' ? .8 : .7, best = others[0], bs = -9;
+  others.forEach(function (x) { if (sc[x] < mx * band) return; var s = sc[x] + .07 * H[x] + (sty === 'follower' ? .06 * H[x] : 0); if (s > bs) { bs = s; best = x; } });
+  return best;
+};
+function topSuspect(st, b) {
+  var team = selfTeam(st, b); if (team !== 'village') return scapegoat(st, b);
+  var I = think(st, b), best = -1, bs = -1; for (var j = 0; j < st.n; j++) if (j !== b && I.pw[j] - I.pd[j] > bs) { bs = I.pw[j] - I.pd[j]; best = j; }
+  return best;
+}
+function conflicts(st) {
+  var out = []; ['moonseer', 'pickpocket', 'meddler', 'sleepwalker', 'nightowl', 'trapper', 'drifter', 'lackey', 'mimic', 'twin', 'townsfolk'].forEach(function (r) {
+    var l = []; st.claims.forEach(function (c, j) { if (c && c.r === r) l.push(j); });
+    if (l.length > deckCount(st, r)) out.push({ r: r, l: l });
+  });
+  return out;
+}
+// One proactive line for bot b, or null.
+function proactive(st, b) {
+  var m = st.bm[b], P = st.players[b], S = E.STYLES[P.style], tf = st.tf;
+  if (!st.claims[b]) {
+    if (P.style === 'quiet' && tf < .45 && !m.asked) { if (!m.said.hold) { m.said.hold = 1; return { t: 'hold' }; } return null; }
+    return { t: 'claim', c: botClaim(st, b) };
+  }
+  var team = selfTeam(st, b), I = think(st, b), j;
+  if (m.real && (heat(st)[b] > 0 || tf > .5) && team === 'village') { var rc = m.real; m.real = null; return { t: 'claim', c: rc, reveal: 1 }; }
+  if (P.style === 'detective' || rnd(st) < .25) {
+    var cf = conflicts(st).filter(function (x) { return !st.saidConf['cf' + x.r + x.l.join()]; })[0];
+    if (cf && !st.saidConf['cf' + cf.r + cf.l.join()]) { m.said['cf' + cf.r + cf.l.join()] = 1; st.saidConf['cf' + cf.r + cf.l.join()] = 1; return { t: 'conflict', r: cf.r, l: cf.l }; }
+  }
+  var thr = S.acc * (P.style === 'quiet' && tf < .6 ? 1.6 : 1);
+  if (team === 'village') {
+    var t = topSuspect(st, b);
+    if (t >= 0 && I.pw[t] > thr && m.target !== t && !(I.pnw > .55) && (m.nacc || 0) < 3 && (m.target < 0 || I.pw[t] > I.pw[m.target] + .12)) { m.target = t; m.nacc = (m.nacc || 0) + 1; return { t: 'accuse', to: t, why: whyAgainst(st, b, t) }; }
+    if (I.pnw > .6 && !m.said.nowolf && tf > .3) { m.said.nowolf = 1; return { t: 'nowolf' }; }
+  } else if (team === 'wolf') {
+    var g = scapegoat(st, b);
+    if (g >= 0 && m.target !== g && (m.nacc || 0) < 3 && (tf > .2 || P.style === 'accuser' || P.style === 'chaos')) { m.target = g; m.nacc = (m.nacc || 0) + 1; return { t: 'accuse', to: g, why: st.claims[g] ? 'gut' : 'quiet' }; }
+  } else if (team === 'drifter' && !m.said.sus && tf > .3) { m.said.sus = 1; return { t: 'sus' }; }
+  var H = heat(st);
+  if (P.style === 'defender' || rnd(st) < .15) {
+    for (j = 0; j < st.n; j++) if (j !== b && H[j] > 0 && !m.said['df' + j] && (team === 'wolf' ? allies(st, b).indexOf(j) >= 0 && rnd(st) < .5 : I.pw[j] < .12 && st.claims[j])) { m.said['df' + j] = 1; return { t: 'defend', to: j }; }
+  }
+  if (tf > .15) for (j = 0; j < st.n; j++) if (j !== b && !st.claims[j] && !m.said['ask' + j] && (st.chat.length - (st.askedAt[j] || -99)) > 6 && rnd(st) < .6) { m.said['ask' + j] = 1; st.bm[j].asked = 1; st.askedAt[j] = st.chat.length; return { t: 'ask', to: j }; }
+  var accs = st.acc.filter(function (x) { return x.to >= 0; });
+  if (P.style === 'follower' && accs.length) { var la = accs[accs.length - 1]; if (la.from !== b && la.to !== b && !m.said['ag' + la.to] && (team !== 'village' || I.pw[la.to] > .1)) { m.said['ag' + la.to] = 1; m.target = la.to; return { t: 'agree', to: la.to, w: la.from }; } }
+  if (P.style === 'chaos' && rnd(st) < .25 && (m.nacc || 0) < 3) { m.nacc = (m.nacc || 0) + 1; var o = []; for (j = 0; j < st.n; j++) if (j !== b && j !== m.target) o.push(j); if (o.length) { m.target = pick(st, o); return { t: 'accuse', to: m.target, why: 'gut' }; } }
+  if (tf > .7 && !m.said.intent) { m.said.intent = 1; var v = E.botVote(st, b); m.intent = v; return { t: 'intent', to: v, circle: v === (b + 1) % st.n && I.pnw > .55 && team === 'village' }; }
+  return null;
+}
+E.proactive = proactive;
+// Apply a statement: record it, update claims and queue reactions from other bots.
+function record(st, p, s) {
+  if (s.t === 'claim') setClaim(st, p, s.c);
+  if (s.t === 'accuse' || s.t === 'agree') st.acc.push({ from: p, to: s.to });
+  if (s.t === 'intent' && !s.circle) st.acc.push({ from: p, to: s.to });
+  if (s.t === 'defend') st.acc.push({ from: p, to: -1 });
+}
+function q(st, b, s, pri) { if (st.players[b].human) return; if (st.queue.some(function (x) { return x.b === b && x.s.t === s.t && x.s.to === s.to; })) return; st.queue.push({ b: b, s: s, pri: pri || 1 }); }
+function reactTo(st, p, s) {
+  var n = st.n, j;
+  if (s.t === 'accuse' || s.t === 'agree') {
+    var t = s.to, hp = st.players[p].human; if (t >= 0 && !st.players[t].human && (hp || !st.bm[t].said['dn' + p]) && (hp || rnd(st) < .9)) { st.bm[t].said['dn' + p] = 1; q(st, t, { t: 'deny', to: p }, hp ? 3 : 2); }
+    for (j = 0; j < n; j++) if (j !== p && j !== t && !st.players[j].human && st.players[j].style === 'defender' && think(st, j).pw[t] < .12 && st.claims[t] && rnd(st) < .6 && selfTeam(st, j) === 'village') q(st, j, { t: 'defend', to: t }, 1);
+  }
+  if (s.t === 'claim') {
+    var c = s.c;
+    for (j = 0; j < n; j++) {
+      if (j === p || st.players[j].human) continue;
+      var cj = st.claims[j];
+      if (cj && cj.r === c.r && deckCount(st, c.r) === 1 && rnd(st) < .9) q(st, j, { t: 'counter', to: p, r: c.r }, 2);
+      if (c.see && c.see.t === 'p' && c.see.p === j) q(st, j, c.see.r === 'wolf' ? { t: 'deny', to: p } : { t: 'react', to: p, k: cj && cj.r === c.see.r ? 'confirm' : 'doubt' }, 2);
+      if (c.took && c.took.p === j) q(st, j, { t: 'react', to: p, k: 'robbed' }, 2);
+      if (c.swap && c.swap.indexOf(j) >= 0) q(st, j, { t: 'react', to: p, k: 'swapped' }, 1);
+    }
+    if (c.r === 'wolf' && !st.players[p].human) for (j = 0; j < n; j++) if (j !== p && !st.players[j].human && rnd(st) < .4) { q(st, j, { t: 'react', to: p, k: 'admit' }, 1); break; }
+  }
+  if (s.t === 'ask' && s.to >= 0 && !st.players[s.to].human) q(st, s.to, { t: 'answer', to: p, q: s.q || 'role' }, 3);
+}
+E.say = function (st, p, s) {
+  var text = E.text(st, p, s);
+  record(st, p, s);
+  st.chat.push({ p: p, s: s, text: text, tf: st.tf });
+  st.bm[p] && (st.bm[p].spoke++);
+  if (!st.players[p].human) st.lastBot = p;
+  reactTo(st, p, s);
+  return text;
+};
+// Turn a queued reaction into a concrete statement (some depend on fresh state).
+function realize(st, b, s) {
+  var m = st.bm[b];
+  if (s.t === 'answer') {
+    m.asked = 1;
+    if (s.q === 'role' || s.q === 'info' || s.q === 'general') { var had = !!st.claims[b]; return { t: 'claim', c: botClaim(st, b), answer: 1, again: had, to: s.to }; }
+    if (s.q === 'vote' || s.q === 'suspect') { var v = topSuspect(st, b); var I = think(st, b); return { t: 'suspect', to: (selfTeam(st, b) === 'village' && I.pw[v] < .15) ? -1 : v, asker: s.to }; }
+    if (s.q === 'why') { if (m.target < 0) return { t: 'nowhy' }; return { t: 'why', to: m.target, why: whyAgainst(st, b, m.target), asker: s.to }; }
+    if (s.q === 'whois') return st.claims[b] && st.claims[b].r === s.r ? { t: 'claim', c: st.claims[b], again: 1, answer: 1 } : null;
+  }
+  if (s.t === 'deny' || s.t === 'counter') {
+    if (!st.claims[b]) { var c = botClaim(st, b); return { t: s.t, to: s.to, c: c, r: s.r, team: selfTeam(st, b) }; }
+    return { t: s.t, to: s.to, r: s.r, team: selfTeam(st, b), back: selfTeam(st, b) !== 'village' || think(st, b).pw[s.to] > .25 };
+  }
+  return s;
+}
+E.popAnswer = function (st) { // a queued answer to the human, if any (used while openings are still going)
+  st.queue.sort(function (a, b) { return b.pri - a.pri; });
+  if (!st.queue.length || st.queue[0].pri < 3) return null;
+  var x = st.queue.shift(), s = realize(st, x.b, x.s); return s ? { p: x.b, s: s } : null;
+};
+E.nextLine = function (st) {
+  st.queue.sort(function (a, b) { return b.pri - a.pri; });
+  while (st.queue.length) { var x = st.queue.shift(); var s = realize(st, x.b, x.s); if (s) { if (s.c && !st.claims[x.b]) s = Object.assign({}, s); return { p: x.b, s: s }; } }
+  var bots = []; for (var j = 0; j < st.n; j++) if (!st.players[j].human) bots.push(j);
+  shuffleR(function () { return rnd(st); }, bots);
+  var recent = st.chat.slice(-2).map(function (c) { return c.p; });
+  for (var i = 0; i < bots.length; i++) {
+    var b = bots[i], m = st.bm[b], S = E.STYLES[st.players[b].style];
+    if (recent.indexOf(b) >= 0 && st.claims[b]) continue;
+    if (st.claims[b] && m.pro >= 2 + Math.round(S.talk * 6)) continue; // talk budget
+    if (rnd(st) > S.talk) continue;
+    var s2 = proactive(st, b); if (s2) { m.pro = (m.pro || 0) + 1; return { p: b, s: s2 }; }
+  }
+  return null;
+};
+// Speak a line (handles claims carried by deny/counter statements).
+E.speak = function (st, line) {
+  var s = line.s;
+  if ((s.t === 'deny' || s.t === 'counter') && s.c) setClaim(st, line.p, s.c);
+  return E.say(st, line.p, s);
+};
+E.opening = function (st, b) { // opening statement in speaking order (null if it already claimed)
+  var P = st.players[b]; if (st.claims[b]) return null;
+  if (P.style === 'quiet' && rnd(st) < .6) { st.bm[b].said.hold = 1; return { t: 'hold' }; }
+  return { t: 'claim', c: botClaim(st, b), open: 1 };
+};
+
+/* ---------------- votes and result ---------------- */
+E.resolve = function (st, votes) {
+  var n = st.n, cnt = new Array(n).fill(0), j;
+  votes.forEach(function (v, i) { if (v >= 0 && v !== i) cnt[v]++; });
+  var mx = Math.max.apply(null, cnt), dead = [];
+  if (mx >= 2) for (j = 0; j < n; j++) if (cnt[j] === mx) dead.push(j);
+  var fin = st.ns.cur.slice(0, n).map(function (c) { return eff(st.ns, c); });
+  var trapped = [];
+  for (var k = 0; k < dead.length; k++) { var d = dead[k]; if (fin[d] === 'trapper' && votes[d] >= 0 && dead.indexOf(votes[d]) < 0) { dead.push(votes[d]); trapped.push(votes[d]); } }
+  var team = fin.map(function (r) { return teamOf(r === 'mimic' ? 'townsfolk' : r); });
+  var wolves = []; for (j = 0; j < n; j++) if (fin[j] === 'wolf') wolves.push(j);
+  var deadWolf = dead.some(function (d) { return fin[d] === 'wolf'; }), deadDrifter = dead.some(function (d) { return fin[d] === 'drifter'; });
+  var won = { village: false, wolf: false, drifter: deadDrifter };
+  if (wolves.length) { won.village = deadWolf; won.wolf = !deadWolf && !deadDrifter; }
+  else { var deadVillage = dead.some(function (d) { return team[d] === 'village'; }); won.village = !deadVillage && !deadDrifter; won.wolf = deadVillage && fin.indexOf('lackey') >= 0 && dead.every(function (d) { return fin[d] !== 'lackey'; }); }
+  var winners = []; for (j = 0; j < n; j++) { if (team[j] === 'drifter' ? (won.drifter && dead.indexOf(j) >= 0) : won[team[j]]) winners.push(j); }
+  st.result = { votes: votes.slice(), cnt: cnt, dead: dead, trapped: trapped, fin: fin, team: team, wolves: wolves, won: won, winners: winners, center: st.ns.cur.slice(n).map(function (c) { return eff(st.ns, c); }) };
+  st.over = true; st.phase = 'over';
+  return st.result;
+};
+E.headline = function (st) {
+  var r = st.result, w = r.won;
+  if (w.village && w.drifter) return 'Village and Drifter win';
+  if (w.village) return r.wolves.length ? 'The Village wins' : 'The Village wins (no Wolf was among you)';
+  if (w.drifter) return 'The Drifter wins';
+  if (w.wolf) return r.wolves.length ? 'The Pack wins' : 'The Lackey wins';
+  return 'Nobody wins';
+};
+
+/* ---------------- words ---------------- */
+var RN = function (r) { return E.ROLES[r] ? E.ROLES[r].n : r; };
+function art(r) { if (r === 'wolf' || r === 'twin') return 'a ' + RN(r); if (r === 'townsfolk') return 'Townsfolk'; return 'the ' + RN(r); }
+E.art = art;
+function nm(st, j) { return st.players[j].human ? 'you' : st.players[j].name; }
+function poss(st, j) { return st.players[j].human ? 'your' : st.players[j].name + '\u2019s'; }
+function be(st, j) { return st.players[j].human ? 'are' : 'is'; }
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+function list(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
+E.claimText = function (st, p, c, short) {
+  var r = c.r, s = 'I\u2019m ' + art(r) + '.';
+  if (short) return s;
+  if (r === 'moonseer' && c.see) s += c.see.t === 'p' ? ' I looked at ' + poss(st, c.see.p) + ' card: ' + art(c.see.r) + '.' : ' I peeked at the center: ' + list(c.see.l.map(function (x) { return art(x.r); })) + '.';
+  if (r === 'pickpocket') s += c.took ? ' I took ' + poss(st, c.took.p) + ' card' + (c.took.r ? ', so now I\u2019m ' + art(c.took.r) + ' and ' + nm(st, c.took.p) + ' ' + be(st, c.took.p) + ' the Pickpocket.' : '.') : c.took === null ? ' I didn\u2019t take anyone\u2019s card.' : '';
+  if (r === 'meddler') s += c.swap ? ' I swapped ' + nm(st, c.swap[0]) + ' and ' + nm(st, c.swap[1]) + '.' : c.swap === null ? ' I left everyone\u2019s cards alone.' : '';
+  if (r === 'sleepwalker') s += ' I traded my card with the center, so I don\u2019t know what I am now.';
+  if (r === 'nightowl' && c.owl) s += c.owl === 'nightowl' ? ' I checked at the end: still the Night Owl.' : ' I checked at the end and woke up as ' + art(c.owl) + '!';
+  if (r === 'twin' && c.twins) s += c.twins.length ? ' ' + cap(nm(st, c.twins[0])) + ' ' + be(st, c.twins[0]) + ' my twin.' : ' Nobody else woke with me, so the other Twin is in the center.';
+  if (r === 'mimic' && c.mimic) s += ' I copied ' + poss(st, c.mimic.p) + ' card' + (c.mimic.r ? ' and became ' + art(c.mimic.r) : '') + '.';
+  if (r === 'trapper') s += ' Vote me out and I take my pick with me.';
+  if (r === 'townsfolk') s += ' Quiet night for me.';
+  if (r === 'drifter') s += ' Honestly? Vote me. I dare you.';
+  if (r === 'wolf') s = 'Fine. I\u2019m ' + art('wolf') + '. Come and get me.';
+  return s;
+};
+var FLAIR = {
+  truth: ['', 'Honestly: ', 'Plainly, '], bluffer: ['Trust me. ', 'Easy one: ', 'Look, '], accuser: ['Listen up! ', 'Wake up, people. ', ''],
+  quiet: ['', 'Fine. ', '\u2026 '], detective: ['Let\u2019s be precise. ', 'Facts first: ', 'Consider this. '], follower: ['', 'Same as everyone, ', 'Okay, '],
+  chaos: ['Ooh. ', 'Plot twist: ', 'Hehe. '], defender: ['Easy now. ', 'Calm down, everyone. ', '']
+};
+var WHY = {
+  seen: function (st, t) { return 'I saw ' + poss(st, t) + ' card with my own eyes. Wolf.'; },
+  counter: function (st, t, b) { return cap(nm(st, t)) + ' claimed my role. That\u2019s a lie, because I\u2019m ' + art(st.claims[b].r) + '.'; },
+  story: function (st, t) { return pick(st, [cap(poss(st, t)) + ' story doesn\u2019t fit with what everyone else says.', 'The claims don\u2019t add up, and ' + poss(st, t) + ' is the one that breaks.', 'Line the claims up and ' + poss(st, t) + ' is the odd one out.']); },
+  quiet: function (st, t) { return cap(nm(st, t)) + ' still hasn\u2019t told us a role. What are ' + (st.players[t].human ? 'you' : 'they') + ' hiding?'; },
+  gut: function (st, t) { return pick(st, ['Something about ' + nm(st, t) + ' feels off.', 'Call it a hunch: ' + nm(st, t) + '.', cap(nm(st, t)) + ' answered a little too fast.', cap(nm(st, t)) + ' ' + (st.players[t].human ? 'have' : 'has') + ' been steering the talk all game.']); }
+};
+E.text = function (st, p, s) {
+  var P = st.players[p], fl = P.human ? '' : pick(st, FLAIR[P.style] || ['']), t = s.to, x;
+  switch (s.t) {
+    case 'claim':
+      if (s.reveal) return 'Okay, I\u2019ll come clean. ' + E.claimText(st, p, s.c);
+      if (s.again) return pick(st, ['Like I said: ', 'Again: ', 'Still the same: ']) + E.claimText(st, p, s.c);
+      x = E.claimText(st, p, s.c);
+      if (s.c.see && s.c.see.t === 'p' && s.c.see.r === 'wolf' && s.c.r === 'moonseer') x += ' Vote ' + nm(st, s.c.see.p) + '!';
+      return fl + x;
+    case 'hold': return pick(st, ['I\u2019ll keep my role to myself for now.', 'Not yet. I want to hear from the rest of you first.', 'Pass. I\u2019m listening.']);
+    case 'accuse': return fl + (P.style === 'accuser' ? 'It\u2019s ' + nm(st, t) + '. ' : 'I think ' + nm(st, t) + ' ' + be(st, t) + ' a Wolf. ') + WHY[s.why](st, t, p);
+    case 'agree': return fl + 'I\u2019m with ' + nm(st, s.w) + '. ' + cap(nm(st, t)) + ' ' + be(st, t) + ' my pick too.';
+    case 'defend': return fl + (st.players[t].human ? pick(st, ['I believe you. Your story checks out to me.', 'I\u2019m with you on this one.']) : pick(st, ['Leave ' + nm(st, t) + ' alone. ' + cap(poss(st, t)) + ' story checks out to me.', 'I trust ' + nm(st, t) + '. Look somewhere else.']));
+    case 'ask': return st.players[t].human ? pick(st, ['And you? What\u2019s your role? You haven\u2019t said.', 'We haven\u2019t heard from you yet. What are you?']) : pick(st, [cap(nm(st, t)) + ', what\u2019s your role? You haven\u2019t said.', cap(nm(st, t)) + ', you\u2019re awfully quiet. What are you?']);
+    case 'conflict': return fl + cap(list(s.l.map(function (j) { return nm(st, j); }))) + (s.l.length === 2 ? ' both' : ' all') + ' claim ' + (s.r === 'townsfolk' ? 'to be Townsfolk' : 'to be ' + art(s.r)) + ', but the deck has ' + (deckCount(st, s.r) === 1 ? 'only one' : 'only ' + deckCount(st, s.r)) + '. Somebody is lying.';
+    case 'deny':
+      x = pick(st, ['Not me! ', 'Wrong. ', 'No way. ', 'Me? Really? ']);
+      if (s.team === 'drifter') return pick(st, ['Maybe I am, maybe I\u2019m not. Vote me and find out.', 'Sure, blame me. I don\u2019t mind.']);
+      x += st.claims[p] ? E.claimText(st, p, st.claims[p], P.style === 'quiet') : '';
+      if (s.back && t >= 0) x += ' If anyone\u2019s lying, it\u2019s ' + nm(st, t) + '.';
+      return x;
+    case 'counter': return 'That\u2019s a lie. ' + E.claimText(st, p, st.claims[p], true).replace('.', '') + ', not ' + nm(st, t) + '.' + (s.back ? ' ' + cap(nm(st, t)) + ' ' + be(st, t) + ' covering for the Pack.' : '');
+    case 'react':
+      if (s.k === 'confirm') return 'Yes, ' + nm(st, t) + ' got that right about me.';
+      if (s.k === 'doubt') return cap(nm(st, t)) + ' says I\u2019m ' + art(st.claims[t].see.r) + '? ' + (st.claims[p] ? 'No. ' + E.claimText(st, p, st.claims[p], true) : 'Hmm.');
+      if (s.k === 'robbed') return st.claims[p] ? 'Wait, ' + nm(st, t) + ' took my card? ' + (st.claims[t].took && st.claims[t].took.r && st.claims[p].r !== st.claims[t].took.r ? 'Then why say I was ' + art(st.claims[t].took.r) + '? I was ' + art(st.claims[p].r) + '.' : 'Then I guess I\u2019m the Pickpocket now.') : 'You took my card? Then I\u2019m the Pickpocket now, I suppose.';
+      if (s.k === 'swapped') return 'Swapped me? Great, now I don\u2019t even know whose side I\u2019m on.';
+      if (s.k === 'admit') return pick(st, ['Who admits to being a Wolf? That smells like a Drifter.', 'A Wolf would never say that. Drifter move.']);
+      return 'Hmm.';
+    case 'suspect': return t >= 0 ? pick(st, ['My vote is on ', 'I\u2019m looking at ', 'Right now: ']) + nm(st, t) + '.' : 'No strong read yet. I need more claims.';
+    case 'why': return t >= 0 ? WHY[s.why](st, t, p) : 'Just a feeling.';
+    case 'intent': return s.circle ? 'I don\u2019t think there\u2019s a Wolf among us. Spread the votes so nobody goes out: I\u2019m voting ' + nm(st, t) + '.' : pick(st, ['Final answer: I\u2019m voting ', 'My vote goes to ', 'I\u2019m voting ']) + nm(st, t) + '.';
+    case 'nowhy': return pick(st, ['Why what? I haven\u2019t pointed at anyone yet.', 'I\u2019m not accusing anybody. Yet.']);
+    case 'nowolf': return 'What if both Wolves are in the center? Every claim here hangs together.';
+    case 'sus': return pick(st, ['I\u2019m not saying I\u2019m a Wolf. I\u2019m not saying I\u2019m not.', 'You\u2019d all look great voting for me. Just saying.']);
+    case 'generic': return pick(st, ['Noted. So who\u2019s the Wolf?', 'Okay. Anyone want to claim the Moonseer?', 'Interesting. Keep talking.', 'Hmm. That doesn\u2019t tell me much.']);
+    case 'nobody': return s.you ? 'Only you have claimed ' + art(s.r) + ' so far. Nobody else is fighting you for it.' : 'Nobody has claimed ' + art(s.r) + ' yet. Suspicious, or it\u2019s in the center.';
+    case 'say': return s.text;
+  }
+  return '\u2026';
+};
+
+/* ---------------- reading what the human types ---------------- */
+// Words people use for roles (from other games too), written so the file never spells the trademarked names out.
+var ROLE_RX = {
+  wolf: 'w[o]lf|wolves|wer[e]\\s?wolf|w[a]irwolf|pack',
+  moonseer: 'moon\\s?s[e]er|s[e]er|psychic',
+  pickpocket: 'pick\\s?pocket|thief|r[o]bber|robbed|stole|steal',
+  meddler: 'meddler|swapper|tr[o]uble\\s?maker',
+  sleepwalker: 'sleep\\s?walker|dr[u]nk',
+  nightowl: 'night\\s?owl|owl|ins[o]mniac',
+  twin: 'twins?|m[a]son',
+  lackey: 'lackey|m[i]nion|henchman',
+  townsfolk: 'towns\\s?folk|towns\\s?person|vill[a]ger|plain|vanilla',
+  trapper: 'trapper|hun[t]er',
+  drifter: 'drifter|t[a]nner',
+  mimic: 'mimic|copycat|d[o]ppel\\w*'
+};
+var ROLE_RE = {}; for (var rk in ROLE_RX) ROLE_RE[rk] = new RegExp('\\b(' + ROLE_RX[rk] + ')\\b', 'g');
+function findRoles(s) { var out = []; for (var r in ROLE_RE) { ROLE_RE[r].lastIndex = 0; var m; while ((m = ROLE_RE[r].exec(s))) out.push({ r: r, at: m.index, end: m.index + m[0].length }); } return out.sort(function (a, b) { return a.at - b.at; }); }
+function findNames(st, s) {
+  var out = [];
+  st.players.forEach(function (P, j) {
+    if (P.human) return;
+    var al = [P.name.toLowerCase()].concat(E.BOT_ALIAS[E.BOT_NAMES.indexOf(P.name)] || []);
+    al.forEach(function (a) { var re = new RegExp('(^|[^a-z])@?' + a + '(?![a-z])', 'g'), m; while ((m = re.exec(s))) out.push({ p: j, at: m.index + m[1].length }); });
+  });
+  out.sort(function (a, b) { return a.at - b.at; });
+  var seen = {}; return out.filter(function (x) { if (seen[x.p + ':' + x.at]) return false; seen[x.p + ':' + x.at] = 1; return true; });
+}
+function uniqP(a) { var o = []; a.forEach(function (x) { if (o.indexOf(x.p) < 0) o.push(x.p); }); return o; }
+E.parse = function (st, text) {
+  var me = E.human(st), raw = String(text || '').slice(0, 600), s = raw.toLowerCase().replace(/[\u2018\u2019]/g, '\'');
+  var out = { claim: null, accuse: [], defend: [], ask: [], text: raw };
+  var names = findNames(st, s), roles = findRoles(s), pn = uniqP(names);
+  // self claim: "I'm the X", "I am X", "I was X", "my role is X", "I got X"
+  var cm = /\b(i\s*'?\s*m|i am|im|i was|my (?:role|card) (?:is|was)|i got|i'?ve got|i have|i (?:\w+ )?as)\b(?:\s+(?:the|a|an|actually|really|just|one of the|also))*\s+/g, mm, claimR = null, claimAt = -1;
+  while ((mm = cm.exec(s))) {
+    var after = mm.index + mm[0].length, between = s.slice(mm.index, after);
+    var r0 = roles.find(function (x) { return x.at === after; });
+    if (r0 && !/\bnot\b|n't/.test(between) && !(r0.r === 'pickpocket' && /stole|steal|robbed/.test(s.slice(r0.at, r0.end)))) { claimR = r0.r; claimAt = after; break; }
+  }
+  var isQ = /\?\s*$/.test(s) || /^(who|what|why|which|where|how|are|is|did|do|does|can|anyone|any)\b/.test(s.trim()) || /\b(who|what|why)\b[^.!]*\?/.test(s);
+  if (claimR) {
+    var c = { r: claimR }, restN = names.filter(function (x) { return x.at > claimAt - 2 || true; }), restR = roles.filter(function (x) { return x.at > claimAt && x.r !== claimR; });
+    var np = uniqP(restN);
+    if (claimR === 'moonseer') {
+      if (/\b(center|centre|middle)\b/.test(s)) { var cr = restR.map(function (x) { return { r: x.r }; }).slice(0, 2); if (cr.length) c.see = { t: 'c', l: cr }; }
+      else if (np.length && restR.length) c.see = { t: 'p', p: np[0], r: restR[0].r };
+    } else if (claimR === 'pickpocket') {
+      if (/\b(didn'?t|did not|nothing|no one|nobody|skipped|didnt)\b/.test(s)) c.took = null;
+      else if (np.length) { c.took = { p: np[0] }; var nr = restR.filter(function (x) { return x.r !== 'pickpocket'; }); if (nr.length) c.took.r = nr[nr.length - 1].r; }
+    } else if (claimR === 'meddler') {
+      if (/\b(didn'?t|did not|nothing|no one|nobody|skipped|didnt)\b/.test(s)) c.swap = null; else if (np.length >= 2) c.swap = [np[0], np[1]];
+    } else if (claimR === 'nightowl') {
+      if (/\bstill\b/.test(s)) c.owl = 'nightowl'; else if (restR.length) c.owl = restR[restR.length - 1].r;
+    } else if (claimR === 'twin') {
+      if (np.length) c.twins = [np[0]]; else if (/\b(alone|no other|nobody|no one|center|centre|middle)\b/.test(s)) c.twins = [];
+    } else if (claimR === 'mimic') {
+      if (np.length) { c.mimic = { p: np[0] }; if (restR.length) c.mimic.r = restR[0].r; }
+    } else if (claimR === 'sleepwalker') c.sleep = 1;
+    out.claim = c;
+  }
+  // per sentence: accusations, defenses and questions
+  var sents = s.split(/(?<=[.!?;\n])\s*/).filter(function (x) { return x.trim(); });
+  sents.forEach(function (se) {
+    var ns2 = uniqP(findNames(st, se)), rs = findRoles(se), q = /\?/.test(se) || /^(who|what|why|which|where|how|are|is|did|do|does|can|anyone|any)\b/.test(se.trim());
+    var neg = /\bnot\b|n't|\bnever\b|\binnocent\b/.test(se);
+    var selfClaimHere = claimR && /\b(i\s*'?\s*m|i am|im|i was|my (role|card))\b/.test(se);
+    if (!ns2.length && q && st.lastBot >= 0 && (/\b(you|u|your)\b/.test(se) && !/\b(you all|y'?all|everyone|anyone|guys)\b/.test(se) || se.trim().split(/\s+/).length <= 2)) ns2 = [st.lastBot];
+    if (q && ns2.length && /\b(lying|liar|lie|w[o]lf)\b/.test(se) && !/\bwho\b/.test(se)) { ns2.forEach(function (j) { out.accuse.push(j); }); return; }
+    if (q) {
+      var qt = /\bwhy\b/.test(se) ? 'why' : /\b(vote|voting|suspect|think is|who'?s the (w[o]lf|bad)|sus)\b/.test(se) || (rs.some(function (x) { return x.r === 'wolf'; }) && /\bwho\b/.test(se)) ? 'vote' : /\b(what did you|what happened|see|saw|look|swap|take|took)\b/.test(se) ? 'info' : 'role';
+      if (ns2.length) ns2.forEach(function (j) { out.ask.push({ to: j, q: qt }); });
+      else if (/\bwho\b/.test(se) && rs.length && rs[0].r !== 'wolf') out.ask.push({ to: -1, q: 'whois', r: rs[0].r });
+      else out.ask.push({ to: -1, q: qt === 'role' ? 'general' : qt });
+      return;
+    }
+    if (selfClaimHere) { if (ns2.length && c && c.see && c.see.r === 'wolf') out.accuse.push(c.see.p); return; }
+    if (!ns2.length) return;
+    var accuseW = rs.some(function (x) { return x.r === 'wolf' || x.r === 'lackey'; }) || /\b(lying|liar|lies|sus|suspicious|vote|voting|guilty|fishy|evil|bad guy|eliminate|kill|lynch|off|shady)\b/.test(se);
+    var defendW = /\b(trust|believe|innocent|clear|cleared|telling the truth|good guy|is fine|is good|safe|honest)\b/.test(se);
+    if (defendW || (accuseW && neg && !/\bnot (?:telling|being honest)/.test(se))) ns2.forEach(function (j) { out.defend.push(j); });
+    else if (accuseW) out.accuse.push(ns2[ns2.length > 1 && /\bvote\b/.test(se) ? ns2.length - 1 : 0]);
+  });
+  out.accuse = out.accuse.filter(function (x, i, a) { return a.indexOf(x) === i; });
+  return out;
+};
+// Record what the human said and queue the bots' answers. Returns the parse.
+E.humanSays = function (st, text) {
+  var me = E.human(st), P = E.parse(st, text);
+  st.chat.push({ p: me, s: { t: 'say', text: text }, text: text, tf: st.tf });
+  if (P.claim) { setClaim(st, me, P.claim); reactTo(st, me, { t: 'claim', c: P.claim }); }
+  P.accuse.forEach(function (j) { st.acc.push({ from: me, to: j }); reactTo(st, me, { t: 'accuse', to: j }); });
+  P.defend.forEach(function (j) { st.acc.push({ from: me, to: -1 }); });
+  P.ask.forEach(function (a) {
+    if (a.to >= 0) { q(st, a.to, { t: 'answer', to: me, q: a.q }, 3); return; }
+    if (a.q === 'whois') {
+      var who = []; st.claims.forEach(function (c, j) { if (c && c.r === a.r && j !== me) who.push(j); });
+      if (who.length) who.forEach(function (j) { q(st, j, { t: 'answer', to: me, q: 'whois', r: a.r }, 3); });
+      else { var b = randomBot(st); if (b >= 0) st.queue.push({ b: b, s: { t: 'nobody', r: a.r, you: !!(st.claims[me] && st.claims[me].r === a.r) }, pri: 3 }); }
+      return;
+    }
+    // open question to the table: two bots answer
+    var bs = []; for (var j = 0; j < st.n; j++) if (!st.players[j].human) bs.push(j);
+    shuffleR(function () { return rnd(st); }, bs);
+    bs.slice(0, 2).forEach(function (b2) { q(st, b2, { t: 'answer', to: me, q: a.q === 'general' && !st.claims[b2] ? 'role' : a.q === 'general' ? 'vote' : a.q }, 3); });
+  });
+  if (!P.claim && !P.accuse.length && !P.ask.length && !P.defend.length) { var b3 = st.lastBot >= 0 && rnd(st) < .6 ? st.lastBot : randomBot(st); if (b3 >= 0) st.queue.push({ b: b3, s: { t: 'generic' }, pri: 2 }); }
+  if (P.defend.length) { P.defend.forEach(function (j) { for (var k = 0; k < st.n; k++) if (k !== j && !st.players[k].human && think(st, k).pw[j] > .35) { st.queue.push({ b: k, s: { t: 'accuse', to: j, why: whyAgainst(st, k, j) }, pri: 2 }); break; } }); }
+  return P;
+};
+function randomBot(st) { var bs = []; for (var j = 0; j < st.n; j++) if (!st.players[j].human) bs.push(j); return bs.length ? pick(st, bs) : -1; }
+
+/* ---------------- private notes (for the UI and the AI prompt) ---------------- */
+E.notes = function (st, p) {
+  var n = st.n, out = [];
+  st.ns.obs[p].forEach(function (f) {
+    var N = function (j) { return j === p ? 'you' : st.players[j].name; };
+    if (f.k === 'start') out.push('Your card at the start: ' + E.ROLES[f.r].i + ' ' + RN(f.r) + '.');
+    if (f.k === 'mimic') out.push('You copied ' + N(f.p) + ': ' + RN(f.r) + '. You are now ' + art(f.r) + '.');
+    if (f.k === 'wolves') out.push(f.l.length > 1 ? 'The Pack: ' + list(f.l.map(N)) + '.' : 'You are the only Wolf among the players.');
+    if (f.k === 'lackey') out.push(f.l.length ? 'The Wolves are ' + list(f.l.map(N)) + '.' : 'No Wolf woke up. Both may be in the center.');
+    if (f.k === 'twins') out.push(f.l.length ? 'Your twin is ' + list(f.l.map(N)) + '.' : 'No twin woke with you. The other Twin is in the center (or not in play).');
+    if (f.k === 'center') out.push('Center card ' + (f.i + 1) + ' is ' + art(f.r) + '.');
+    if (f.k === 'saw') out.push(N(f.p) + '\u2019s card was ' + art(f.r) + '.');
+    if (f.k === 'took') out.push('You took ' + N(f.p) + '\u2019s card: you are now ' + art(f.r) + '. ' + N(f.p) + ' holds the Pickpocket.');
+    if (f.k === 'swap') out.push('You swapped the cards of ' + N(f.a) + ' and ' + N(f.b) + '.');
+    if (f.k === 'sleep') out.push('You traded your card for center card ' + (f.i + 1) + '. You don\u2019t know what it was.');
+    if (f.k === 'owl') out.push('At the end of the night your card is ' + art(f.r) + '.');
+  });
+  return out;
+};
+E.replay = function (st) {
+  var N = function (j) { return st.players[j].human ? 'You' : st.players[j].name; }, n = st.n;
+  return st.ns.log.map(function (e) {
+    var m = e.m ? ' (as Mimic)' : '';
+    switch (e.s) {
+      case 'mimic': return '🎭 ' + N(e.p) + ' (Mimic) copied ' + N(e.t) + ' and became ' + art(e.r) + '.';
+      case 'wolf': return '🐺 ' + (e.l.length > 1 ? list(e.l.map(N)) + ' woke as the Pack.' : N(e.l[0]) + ' woke as a lone Wolf.');
+      case 'peek': return '🐺 ' + N(e.p) + ' peeked at center card ' + (e.i + 1) + ': ' + art(e.r) + '.';
+      case 'lackey': return '🦴 ' + N(e.p) + ' (Lackey) saw ' + (e.l.length ? 'the Pack: ' + list(e.l.map(N)) : 'no Wolves') + '.';
+      case 'twin': return '👯 ' + (e.l.length > 1 ? list(e.l.map(N)) + ' woke as Twins.' : N(e.l[0]) + ' woke as a lone Twin.');
+      case 'look': return '🔮 ' + N(e.p) + m + ' looked at ' + N(e.t) + '\u2019s card: ' + art(e.r) + '.';
+      case 'lookc': return '🔮 ' + N(e.p) + m + ' looked at center cards ' + (e.a + 1) + ' and ' + (e.b + 1) + ': ' + art(e.ra) + ' and ' + art(e.rb) + '.';
+      case 'rob': return '🧤 ' + N(e.p) + m + (e.t == null ? ' did not take a card.' : ' took ' + N(e.t) + '\u2019s card and became ' + art(e.r === 'mimic' ? 'mimic' : e.r) + '.');
+      case 'swap': return '🔀 ' + N(e.p) + m + (e.a == null ? ' left the cards alone.' : ' swapped ' + N(e.a) + ' and ' + N(e.b) + '.');
+      case 'sleep': return '😴 ' + N(e.p) + m + ' traded with center card ' + (e.i + 1) + '.';
+      case 'owl': return '🦉 ' + N(e.p) + (e.mimic ? ' (as Mimic)' : '') + ' checked their card at dawn: ' + art(e.r) + '.';
+    }
+    return '';
+  }).filter(Boolean);
+};
+E.brief = function (st, b) { // private summary for the AI prompt
+  var team = selfTeam(st, b), I = think(st, b), sus = [];
+  for (var j = 0; j < st.n; j++) if (j !== b) sus.push({ j: j, p: I.pw[j] });
+  sus.sort(function (x, y) { return y.p - x.p; });
+  return {
+    notes: E.notes(st, b).map(function (x) { return x.replace(/\byou\b/g, 'you'); }),
+    team: team, claim: st.claims[b] ? E.claimText(st, b, st.claims[b]) : null,
+    suspects: sus.slice(0, 3).map(function (x) { return (st.players[x.j].human ? 'the human player' : st.players[x.j].name) + ' ' + Math.round(x.p * 100) + '%'; })
+  };
+};
+
+/* ---------------- headless day (tests and benchmarks) ---------------- */
+E.autoGame = function (st, lines) {
+  var q; while ((q = E.nightPending(st))) E.nightApply(st, E.botNight(st, q));
+  st.order.forEach(function (b) { if (!st.players[b].human) { var o = E.opening(st, b); if (o) E.say(st, b, o); } });
+  lines = lines || 4 * st.n;
+  for (var i = 0; i < lines; i++) { st.tf = i / lines; var l = E.nextLine(st); if (l) E.speak(st, l); }
+  st.tf = 1;
+  var votes = st.players.map(function (P, b) { return E.botVote(st, b); });
+  return E.resolve(st, votes);
+};
+
+if (typeof module !== 'undefined' && module.exports) module.exports = E; else root.WairwolfEngine = E;
+})(this);
+
+</script>
+<script>
+(function(){
+'use strict';
+var E=window.WairwolfEngine, $=function(id){return document.getElementById(id);};
+var PUBLIC_URL='https://yougitadmin.github.io/omnixr-games/wairwolf-hunt/';
+function lsGet(k,d){try{var v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function toast(m){var t=$('toast');t.textContent=m;t.className='show';clearTimeout(toast.t);toast.t=setTimeout(function(){t.className='';},2800);}
+// Words that must never reach the screen (trademarked names), written so this file never spells them out.
+var BANNED=new RegExp(['wer[e]\\s*wolf','one\\s*nig[h]t','ulti[m]ate','bezi[e]r','d[o]ppel','m[i]nion','m[a]son','\\bs[e]er\\b','r[o]bber','tr[o]uble\\s*maker','\\bdr[u]nk\\b','ins[o]mniac','vill[a]ger','\\bhun[t]er\\b','t[a]nner','best\\s+pra[c]tice'].join('|'),'i');
+var DEF_AI={url:'https://api.openai.com/v1/chat/completions',model:'gpt-4o-mini',key:''};
+var cfg=loadCfg(), ai=Object.assign({},DEF_AI,lsGet('wairwolfAI',{}));
+function loadCfg(){
+  var d={bots:4,diff:'medium',first:'me',minutes:3,slots:null,seats:E.BOT_NAMES.map(function(){return 'random';}),ai:0};
+  var c=lsGet('wairwolfSetup',null);
+  if(c){['bots','diff','first','minutes','ai'].forEach(function(k){if(c[k]!=null)d[k]=c[k];});
+    if(Array.isArray(c.slots)&&c.slots.length===16)d.slots=c.slots.map(Boolean);
+    if(Array.isArray(c.seats))c.seats.slice(0,9).forEach(function(s,i){if(s==='random'||E.STYLES[s])d.seats[i]=s;});}
+  d.bots=Math.max(E.MIN_BOTS,Math.min(E.MAX_BOTS,+d.bots||4));if(!E.DIFF[d.diff])d.diff='medium';if(E.MINUTES.indexOf(+d.minutes)<0)d.minutes=3;
+  if(!d.slots||E.deckFromSlots(d.slots).length!==d.bots+4)d.slots=E.defaultSlots(d.bots+1);
+  return d;
+}
+function saveCfg(){lsSet('wairwolfSetup',cfg);}
+function saveAI(){lsSet('wairwolfAI',ai);}
+
+var G=null, mode='custom', recorded=false;
+var ui={phase:'none',fast:false,talkMs:null,sel:[],pend:null,ann:0,obsSeen:1,openIdx:0,waitOpen:false,timerEnd:0,timerTotal:0,nextBot:0,botBusy:false,llmLeft:0,speaking:-1,myVote:-1,loop:null,gen:0,aiFailed:false,aiCalls:0,aiOk:0};
+function D(ms){return ui.fast?0:ms;}
+function later(fn,ms){var g=ui.gen;setTimeout(function(){if(g===ui.gen)fn();},D(ms));}
+function me(){return G?E.human(G):0;}
+function NAME(j){return G.players[j].human?'You':G.players[j].name;}
+var RN=function(r){return E.ROLES[r]?E.ROLES[r].n:r;};
+function roleTag(r){return E.ROLES[r]?E.ROLES[r].i+' '+RN(r):r;}
+function aiOn(){return !!(cfg.ai&&ai.key&&ai.url&&ai.model);}
+
+/* ---------------- table ---------------- */
+function render(){ if(!G)return; renderTable(); renderTurn(); renderNotes(); renderChips(); updateTip(); }
+function seatPos(k){var n=G.n,m=me(),a=Math.PI/2+(k-m)*2*Math.PI/n;return {x:50+41*Math.cos(a),y:50+38*Math.sin(a)};}
+function pickableSeat(j){
+  if(ui.phase==='vote')return j!==me();
+  if(ui.phase==='night'&&ui.pend){var k=ui.pend.kind;if(k==='mimic'||k==='pickpocket'||k==='meddler'||k==='moonseer')return j!==me();}
+  return false;
+}
+function pickableCenter(i){if(ui.phase!=='night'||!ui.pend)return false;var k=ui.pend.kind;return k==='wolfpeek'||k==='sleepwalker'||k==='moonseer';}
+function renderTable(){
+  var H=E.heat(G),h='',R=G.result;
+  for(var j=0;j<G.n;j++){
+    var P=G.players[j],pos=seatPos(j),c=G.claims[j],cls='seat';
+    if(P.human)cls+=' me';if(pickableSeat(j))cls+=' pickable';if(ui.sel.indexOf('p'+j)>=0)cls+=' picked';if(ui.speaking===j)cls+=' speaking';
+    if(R){cls+=' revealed';if(R.dead.indexOf(j)>=0)cls+=' dead';}
+    var S=E.STYLES[P.style];
+    var rv='';if(R){var f=R.fin[j];rv='<div class="rv'+(f==='wolf'||f==='lackey'?' w':f==='drifter'?' d':'')+'">'+roleTag(f)+'</div><div class="votes">'+R.cnt[j]+' vote'+(R.cnt[j]===1?'':'s')+(R.votes[j]>=0?' · voted '+esc(NAME(R.votes[j])):'')+'</div>';}
+    h+='<button class="'+cls+'" data-j="'+j+'" style="left:'+pos.x+'%;top:'+pos.y+'%"><div class="face" style="--fc:'+P.color+'">'+P.mascot+'<span class="talk">💬</span>'+(H[j]&&!R?'<span class="heat" title="players accusing">👉'+H[j]+'</span>':'')+'</div>'+
+      '<div class="nm">'+esc(P.human?'You':P.name)+'</div>'+(P.human?'':'<div class="sty">'+S.i+' '+S.n+'</div>')+
+      '<div class="clm'+(c?'':' none')+'">'+(c?roleTag(c.r):(P.human?'no claim yet':'…'))+'</div>'+rv+'</button>';
+  }
+  $('table').innerHTML=h;
+  var known={};if(G.ns.obs[me()])G.ns.obs[me()].forEach(function(f){if(f.k==='center')known[f.i]=f.r;});
+  var c='';for(var i=0;i<3;i++){var face=R?R.center[i]:null;var cl='ccard'+(pickableCenter(i)?' pickable':'')+(ui.sel.indexOf('c'+i)>=0?' picked':'')+(face?' face':'');
+    c+='<button class="'+cl+'" data-c="'+i+'" title="Center card '+(i+1)+'">'+(face?E.ROLES[face].i+'<small>'+RN(face)+'</small>':(known[i]&&!R?'<span style="font-size:18px">'+E.ROLES[known[i]].i+'</span><small style="font-size:9px">'+(i+1)+'</small>':(i+1)))+'</button>';}
+  $('center').innerHTML=c;
+}
+$('table').addEventListener('click',function(e){var b=e.target.closest('.seat');if(!b)return;tapSeat(+b.dataset.j);});
+$('center').addEventListener('click',function(e){var b=e.target.closest('.ccard');if(!b)return;tapCenter(+b.dataset.c);});
+function tapSeat(j){
+  if(!G)return;
+  if(ui.phase==='vote'){if(j===me())return;ui.sel=['p'+j];ui.myVote=j;render();return;}
+  if(ui.phase==='night'&&ui.pend&&pickableSeat(j)){
+    var k=ui.pend.kind,key='p'+j,i=ui.sel.indexOf(key);
+    if(i>=0)ui.sel.splice(i,1);
+    else if(k==='meddler'){ui.sel=ui.sel.filter(function(x){return x[0]==='p';});ui.sel.push(key);if(ui.sel.length>2)ui.sel.shift();}
+    else ui.sel=[key];
+    render();return;
+  }
+  if((ui.phase==='talk'||ui.phase==='open')&&j!==me()){var m=$('msg');m.value=(m.value?m.value.replace(/\s*$/,' '):'')+G.players[j].name+', ';m.focus();}
+}
+function tapCenter(i){
+  if(!pickableCenter(i))return;var k=ui.pend.kind,key='c'+i,x=ui.sel.indexOf(key);
+  if(x>=0)ui.sel.splice(x,1);
+  else if(k==='moonseer'){ui.sel=ui.sel.filter(function(s){return s[0]==='c';});ui.sel.push(key);if(ui.sel.length>2)ui.sel.shift();}
+  else ui.sel=[key];
+  render();
+}
+function renderNotes(){
+  var m=me(),r=G.ns.start[m],R=E.ROLES[r],team=E.teamOf(r);
+  var notes=E.notes(G,m).slice(1).slice(0,Math.max(0,ui.obsSeen-1));
+  var h='<h3><span>Your night notes</span><span class="sub">only you see these</span></h3><div class="rolecard'+(team==='wolf'?' wolf':'')+'"><div class="ri">'+R.i+'</div><div><b>'+R.n+'</b> <span class="sub">'+E.TEAMS[team].i+' '+E.TEAMS[team].n+'</span><p>'+esc(R.d)+'</p></div></div>';
+  if(notes.length)h+='<ul>'+notes.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>';
+  h+='<div class="sub" style="margin-top:6px">Deck: '+G.deck.map(function(x){return E.ROLES[x].i;}).join(' ')+' ('+G.n+' players + 3 center)</div>';
+  $('notes').innerHTML=h;
+}
+var KIND={
+  mimic:['🎭 You are the Mimic','Tap a player to copy their role.',false],
+  wolfpeek:['🐺 You are the only Wolf','You may peek at one center card. Tap one, or Skip.',true],
+  moonseer:['🔮 Moonseer','Tap one player to see their card, or two center cards.',false],
+  pickpocket:['🧤 Pickpocket','Tap a player to take their card (you\u2019ll see what you got), or Skip.',true],
+  meddler:['🔀 Meddler','Tap two other players to swap their cards, or Skip.',true],
+  sleepwalker:['😴 Sleepwalker','Tap a center card to trade yours for it. You won\u2019t see it.',false]
+};
+function choiceReady(){
+  var k=ui.pend.kind,p=ui.sel.filter(function(s){return s[0]==='p';}),c=ui.sel.filter(function(s){return s[0]==='c';});
+  if(k==='moonseer')return (p.length===1&&!c.length)||(c.length===2&&!p.length);
+  if(k==='meddler')return p.length===2;
+  if(k==='mimic'||k==='pickpocket')return p.length===1;
+  return c.length===1;
+}
+function buildChoice(){
+  var k=ui.pend.kind,p=ui.sel.filter(function(s){return s[0]==='p';}).map(function(s){return +s.slice(1);}),c=ui.sel.filter(function(s){return s[0]==='c';}).map(function(s){return +s.slice(1);});
+  if(k==='moonseer')return p.length?{t:'p',p:p[0]}:{t:'c',a:c[0],b:c[1]};
+  if(k==='meddler')return p;if(k==='mimic'||k==='pickpocket')return p[0];return c[0];
+}
+function renderTurn(){
+  var t='',hp='',ctl='',mine=false,ph={look:'🌙 Night',night:'🌙 Night',open:'☀️ Morning',talk:'💬 Discussion',vote:'🗳 Vote',over:'🏁 Result'}[ui.phase]||'';
+  $('phasePill').textContent=ph;
+  if(ui.phase==='look'){mine=true;var r=G.ns.start[me()];t='Your secret card';hp='You are <b>'+E.art(r).replace(/^the /,'the ')+'</b> '+E.ROLES[r].i+'. '+esc(E.ROLES[r].d)+(E.teamOf(r)==='wolf'?' <b>You are on the Pack.</b>':'');ctl='<button class="btn primary" id="sleepBtn">🌙 Close your eyes</button>';}
+  else if(ui.phase==='night'){
+    if(ui.pend){mine=true;var K=KIND[ui.pend.kind];t=K[0]+(ui.pend.mimic?' (as Mimic)':'');hp=K[1];ctl='<button class="btn primary" id="nightGo"'+(choiceReady()?'':' disabled')+'>Confirm</button>'+(K[2]?'<button class="btn" id="nightSkip">Skip</button>':'');}
+    else{t='🌙 Night';hp='Eyes closed. Roles are waking up one by one…';}
+  }else if(ui.phase==='open'){
+    if(ui.waitOpen){mine=true;t='Your turn to speak';hp='Tell the table your role and what you saw. Or bluff. Type below and press <b>Send</b>, or Pass to stay quiet for now.';ctl='<button class="btn" id="passBtn">Pass</button><button class="btn" id="claimBtn">✍ Write my real claim</button>';}
+    else{t='☀️ Morning';hp='Everyone opens with a claim, in turn. You can jump in any time.';}
+  }else if(ui.phase==='talk'){t='💬 Discussion';hp='Ask, accuse, defend. Bots answer you and argue with each other. When time runs out, everyone votes at once.';ctl='<button class="btn primary" id="voteNow">🗳 Vote now</button><button class="btn" id="moreTime">+1 min</button>';}
+  else if(ui.phase==='vote'){mine=true;t='🗳 Vote';hp='Tap the player you want out. The most votes goes out (ties all go). If nobody gets 2 or more, nobody goes out.';ctl='<button class="btn primary" id="voteGo"'+(ui.myVote>=0?'':' disabled')+'>Vote'+(ui.myVote>=0?' '+esc(G.players[ui.myVote].name):'')+'</button>';}
+  else if(ui.phase==='over'&&G.result){t=E.headline(G);hp=G.result.winners.indexOf(me())>=0?'<b>You win! 🏆</b>':'You lose this time.';ctl='<button class="btn primary" id="seeRes">See results</button><button class="btn" id="again2">Play again</button>';}
+  $('tTitle').textContent=t;$('tHelp').innerHTML=hp;$('ctl').innerHTML=ctl;$('turnCard').className='card'+(mine?' mine':'');
+  var day=ui.phase==='open'||ui.phase==='talk';$('msg').disabled=!day;$('sendBtn').disabled=!day;
+  $('msg').placeholder=day?'Talk to the table…':ui.phase==='vote'?'Voting time':'Shh… it\u2019s night';
+  bind('sleepBtn',beginNight);bind('nightGo',function(){if(choiceReady())humanNight(buildChoice());});bind('nightSkip',function(){humanNight(null);});
+  bind('passBtn',function(){addNar('You pass for now.');endMyOpening();});bind('claimBtn',fillClaim);
+  bind('voteNow',startVote);bind('moreTime',function(){ui.timerEnd+=60000;ui.timerTotal+=60000;toast('+1 minute');});
+  bind('voteGo',confirmVote);bind('seeRes',function(){$('over').className='modal show';});bind('again2',playAgain);
+}
+function bind(id,fn){var e=$(id);if(e)e.onclick=fn;}
+function renderChips(){
+  var day=ui.phase==='open'||ui.phase==='talk',h='';
+  if(day){var lb=G.lastBot>=0?G.players[G.lastBot].name:null;
+    var chips=[[myTeam()==='wolf'?'Bluff a claim':'My real claim','claim'],['Who\u2019s the Moonseer?','q1'],['Who are you voting for?','q2']];
+    if(lb)chips.push([lb+', what\u2019s your role?','q3']);if(lb)chips.push(['Why '+lb+'?','q4']);
+    h=chips.map(function(c){return '<button data-k="'+c[1]+'">'+esc(c[0])+'</button>';}).join('');}
+  $('chips').innerHTML=h;
+}
+$('chips').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var k=b.dataset.k,lb=G.lastBot>=0?G.players[G.lastBot].name:'';
+  if(k==='claim')return fillClaim();var t={q1:'Who is the Moonseer?',q2:'Who are you voting for?',q3:lb+', what is your role?',q4:lb+', why?'}[k];if(t)send(t);});
+function myTeam(){return E.teamOf(G.ns.start[me()]);}
+function fillClaim(){var m=me(),c=E.claimFromObs(G,m);if(E.teamOf(c.r)!=='village'||c.r==='drifter'){c=E.botClaim?{r:'townsfolk'}:{r:'townsfolk'};}
+  $('msg').value=E.claimText(G,m,c);$('msg').focus();}
+
+/* ---------------- chat ---------------- */
+function addMsg(p,text,opts){
+  opts=opts||{};var c=$('chat'),d=document.createElement('div'),P=p>=0?G.players[p]:null;
+  if(p<0){d.className='msg '+(opts.priv?'priv':'nar');d.innerHTML='<div class="bb">'+(opts.priv?'🔒 ':'')+esc(text)+'</div>';}
+  else{d.className='msg'+(P.human?' me':'');d.innerHTML='<div class="av" style="--fc:'+P.color+'">'+P.mascot+'</div><div class="bb" style="--fc:'+P.color+'"><b>'+esc(P.human?'You':P.name)+'</b>'+(opts.ai?'<span class="ai">AI</span>':'')+'<br>'+esc(text)+'</div>';}
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+function addNar(t){addMsg(-1,t);}
+function addPriv(t){addMsg(-1,t,{priv:1});}
+function typing(p){$('typing').textContent=p>=0?G.players[p].name+' is typing…':'';ui.speaking=p;renderTable();}
+$('say').addEventListener('submit',function(e){e.preventDefault();var v=$('msg').value.trim();if(!v)return;$('msg').value='';send(v);});
+function send(text){
+  if(!G||G.over)return;
+  if(!(ui.phase==='open'||ui.phase==='talk')){toast(ui.phase==='vote'?'Voting time. Tap a player.':'Shh\u2026 it\u2019s night. Talk in the morning.');return;}
+  text=String(text).slice(0,300);
+  E.humanSays(G,text);addMsg(me(),text);
+  ui.llmLeft=Math.min(2,G.queue.filter(function(x){return x.pri>=2;}).length);ui.lastHuman=text;
+  ui.nextBot=Math.min(ui.nextBot,Date.now()+D(700));
+  if(ui.waitOpen)endMyOpening();
+  if(ui.phase==='open'&&!ui.waitOpen)ui.nextBot=Date.now();
+  render();
+}
+
+/* ---------------- night ---------------- */
+var NAR={mimic:'🎭 Mimic, wake up and copy someone.',wolf:'🐺 Wolves, open your eyes and find each other.',lackey:'🦴 Lackey, see who the Wolves are.',twin:'👯 Twins, find each other.',moonseer:'🔮 Moonseer, look at a card.',pickpocket:'🧤 Pickpocket, you may take a card.',meddler:'🔀 Meddler, you may swap two cards.',sleepwalker:'😴 Sleepwalker, trade with the center.',nightowl:'🦉 Night Owl, check your card.'};
+function beginNight(){ui.phase='night';ui.ann=0;addNar('Night falls. Everyone, close your eyes.');render();later(nightTick,600);}
+function announce(upto){var S=E.NSTEPS;while(ui.ann<=upto&&ui.ann<S.length){var s=S[ui.ann];if(NAR[s]&&G.deck.indexOf(s)>=0)addNar(NAR[s]);ui.ann++;}}
+function showNewObs(){var notes=E.notes(G,me());for(var i=ui.obsSeen;i<notes.length;i++)addPriv(notes[i]);ui.obsSeen=notes.length;}
+function nightTick(){
+  if(!G||ui.phase!=='night')return;
+  var q=E.nightPending(G);
+  announce(q?G.ns.ni:E.NSTEPS.length);showNewObs();
+  if(!q){render();later(morning,700);return;}
+  if(G.players[q.p].human){ui.pend=q;ui.sel=[];render();return;}
+  ui.pend=null;render();
+  later(function(){E.nightApply(G,E.botNight(G,q));nightTick();},750);
+}
+function humanNight(c){if(!ui.pend)return;ui.pend=null;ui.sel=[];E.nightApply(G,c);showNewObs();render();later(nightTick,500);}
+
+/* ---------------- day ---------------- */
+function morning(){
+  G.phase='day';ui.phase='open';ui.openIdx=0;addNar('☀️ Morning! Open your eyes. '+(G.players[G.order[0]].human?'You speak':G.players[G.order[0]].name+' speaks')+' first.');
+  render();later(openingTick,500);
+}
+function openingTick(){
+  if(!G||ui.phase!=='open')return;
+  if(ui.openIdx>=G.order.length){startTalk();return;}
+  var p=G.order[ui.openIdx];
+  if(G.players[p].human){if(G.claims[p]){ui.openIdx++;openingTick();return;}ui.waitOpen=true;render();return;}
+  var ans=E.popAnswer(G);
+  if(ans){var at=E.speak(G,ans);typing(ans.p);later(function(){typing(-1);addMsg(ans.p,at);render();later(openingTick,500);},1100);return;}
+  var s=E.opening(G,p);if(!s){ui.openIdx++;openingTick();return;}
+  typing(p);
+  later(function(){var txt=E.say(G,p,s);typing(-1);addMsg(p,txt);ui.openIdx++;render();later(openingTick,600);},1300);
+}
+function endMyOpening(){if(!ui.waitOpen)return;ui.waitOpen=false;ui.openIdx++;render();later(openingTick,500);}
+function startTalk(){
+  ui.phase='talk';ui.timerTotal=ui.talkMs!=null?ui.talkMs:G.minutes*60000;ui.timerEnd=Date.now()+ui.timerTotal;ui.nextBot=Date.now()+D(1200);
+  addNar('💬 Open discussion: '+(ui.timerTotal>=60000?Math.round(ui.timerTotal/60000)+' minute'+(ui.timerTotal>=120000?'s':''):'a few seconds')+' on the clock.');
+  clearInterval(ui.loop);ui.loop=setInterval(talkLoop,ui.fast?20:250);render();
+}
+function fmtT(ms){ms=Math.max(0,ms);var s=Math.ceil(ms/1000);return Math.floor(s/60)+':'+('0'+s%60).slice(-2);}
+function talkLoop(){
+  if(!G||ui.phase!=='talk'){clearInterval(ui.loop);return;}
+  var now=Date.now(),left=ui.timerEnd-now;G.tf=Math.min(1,Math.max(0,1-left/ui.timerTotal));
+  $('timer').textContent=fmtT(left);$('timer').className=left<20000?'low':'';
+  if(left<=0&&!ui.botBusy){startVote();return;}
+  if(ui.botBusy||now<ui.nextBot)return;
+  var line=E.nextLine(G);
+  if(!line){ui.nextBot=now+D(2200+Math.random()*1800);return;}
+  speakBot(line);
+}
+function speakBot(line){
+  ui.botBusy=true;var p=line.p,useAI=aiOn()&&ui.llmLeft>0;if(useAI)ui.llmLeft--;
+  var text=E.speak(G,line);typing(p);render();
+  var t0=Date.now(),wait=D(Math.min(2400,700+text.length*14));
+  var done=function(final,isAI){later(function(){typing(-1);addMsg(p,final,{ai:isAI});ui.botBusy=false;ui.nextBot=Date.now()+D(G.queue.length?900:2400+Math.random()*2600);render();},Math.max(0,wait-(Date.now()-t0)));};
+  if(!useAI){done(text,false);return;}
+  llm(p,text,ui.lastHuman||'').then(function(t){done(t,true);},function(){if(!ui.aiFailed){ui.aiFailed=true;toast('AI connection failed. Bots are using offline chat.');}done(text,false);});
+}
+function startVote(){
+  if(ui.phase!=='talk'&&ui.phase!=='open')return;
+  ui.phase='vote';clearInterval(ui.loop);$('timer').textContent='';ui.sel=[];ui.myVote=-1;typing(-1);ui.waitOpen=false;
+  addNar('🗳 Time\u2019s up! Everyone votes at once. Tap who you want out.');render();
+}
+function confirmVote(){
+  if(ui.phase!=='vote'||ui.myVote<0)return;
+  var m=me(),votes=G.players.map(function(P,b){return P.human?ui.myVote:E.botVote(G,b);});
+  E.resolve(G,votes);ui.phase='over';ui.sel=[];
+  var R=G.result;
+  addNar('🗳 Votes: '+votes.map(function(v,b){return NAME(b)+' → '+NAME(v);}).join(', ')+'.');
+  addNar(R.dead.length?'Out: '+R.dead.map(function(d){return NAME(d)+' ('+roleTag(R.fin[d])+')';}).join(', ')+(R.trapped.length?'. The Trapper took '+R.trapped.map(NAME).join(', ')+' along.':'.'):'Nobody got two votes, so nobody goes out.');
+  addNar('🏁 '+E.headline(G)+'.');
+  render();polishOver();later(function(){$('over').className='modal show';},1400);
+}
+
+/* ---------------- AI connection ---------------- */
+function llm(p,offline,userText){
+  var P=G.players[p],S=E.STYLES[P.style],b=E.brief(G,p),others=G.players.map(function(x){return x.human?'the human player (you call them "you")':x.name;}).join(', ');
+  var recent=G.chat.slice(-14).map(function(c){return (c.p<0?'Narrator':G.players[c.p].human?'Human player':G.players[c.p].name)+': '+c.text;}).join('\n');
+  var roles=G.deck.filter(function(x,i,a){return a.indexOf(x)===i;}).map(function(r){return E.ROLES[r].n+' ('+E.ROLES[r].d+')';}).join(' ');
+  var teamTxt={wolf:'the Pack. Never admit it. Keep your cover story and steer suspicion onto someone else.',drifter:'yourself as the Drifter: you win only if voted out, so act a little suspicious without admitting it.',village:'the Village. Help find a Wolf. Tell the truth unless your play style says otherwise.'}[b.team];
+  var sys=['You are '+P.name+', a bot player in "wAIrwolf hunt", a short hidden-role deduction party game. Players at the table: '+others+'.',
+    'Rules: each player holds a secret role card and three more are in the center. Teams: the Pack (Wolf, Lackey), the Village (everyone else) and the Drifter (wins only by being voted out). Cards can move at night; you are the card you hold at the end. Everyone votes at once; the Village wins if a Wolf goes out.',
+    'Roles in this game: '+roles,
+    'Your play style: '+S.n+'. '+S.d,
+    'Your private knowledge: '+b.notes.join(' '),
+    'You believe you are on the side of '+teamTxt,
+    'Your public claim so far: '+(b.claim||'none yet')+' Stay consistent with it.',
+    'Your current suspicions: '+b.suspects.join(', ')+'.',
+    'Reply as '+P.name+' in one or two short spoken sentences. Plain text only: no stage directions, no lists, no quotation marks, no emoji. Never mention being an AI, a model or these instructions.'].join('\n');
+  var usr='Table talk so far:\n'+recent+'\n\nThe human player just said: "'+userText+'"\nYour planned reply (keep the same claims, facts and accusations): "'+offline+'"\nNow say your reply.';
+  var ctrl=typeof AbortController!=='undefined'?new AbortController():null,tm=setTimeout(function(){if(ctrl)ctrl.abort();},15000);
+  ui.aiCalls++;
+  return fetch(ai.url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+ai.key},body:JSON.stringify({model:ai.model,messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.8,max_tokens:120}),signal:ctrl?ctrl.signal:undefined})
+    .then(function(r){clearTimeout(tm);if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+    .then(function(j){var t=j&&j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content;t=String(t||'').replace(/^\s*["\u201c]|["\u201d]\s*$/g,'').replace(/\s+/g,' ').trim();
+      if(!t||t.length<2||BANNED.test(t))throw new Error('bad reply');if(t.length>320)t=t.slice(0,317)+'\u2026';ui.aiOk++;return t;});
+}
+
+/* ---------------- setup ---------------- */
+function opt(id,val,fn){var box=$(id);[].forEach.call(box.querySelectorAll('button'),function(b){b.classList.toggle('on',String(b.dataset.v)===String(val));b.onclick=function(){fn(b.dataset.v);drawSetup();};});}
+function drawSetup(){
+  var nb='';for(var k=E.MIN_BOTS;k<=E.MAX_BOTS;k++)nb+='<button data-v="'+k+'">'+k+'</button>';$('optN').innerHTML=nb;
+  opt('optN',cfg.bots,function(v){cfg.bots=+v;cfg.slots=E.defaultSlots(cfg.bots+1);saveCfg();});
+  var mn='';E.MINUTES.forEach(function(m){mn+='<button data-v="'+m+'">'+m+' min</button>';});$('optMin').innerHTML=mn;
+  opt('optMin',cfg.minutes,function(v){cfg.minutes=+v;saveCfg();});
+  opt('optDiff',cfg.diff,function(v){cfg.diff=v;saveCfg();});
+  opt('optFirst',cfg.first,function(v){cfg.first=v;saveCfg();});
+  opt('optAI',cfg.ai,function(v){cfg.ai=+v;saveCfg();});
+  opt('optTips',tipsOn?1:0,function(v){setTips(+v);});
+  $('aiBox').style.display=cfg.ai?'':'none';
+  $('aiUrl').value=ai.url;$('aiModel').value=ai.model;$('aiKey').value=ai.key;
+  var s='';for(var i=0;i<cfg.bots;i++){var st=cfg.seats[i],S=E.STYLES[st];
+    s+='<div class="seatRow"><div class="tk" style="background:'+E.COLORS[(i+1)%10]+'">'+E.MASCOTS[i]+'</div><b>'+E.BOT_NAMES[i]+'</b><select class="btn" data-i="'+i+'"><option value="random">🎲 Random</option>'+
+      E.STYLE_KEYS.map(function(k){return '<option value="'+k+'"'+(st===k?' selected':'')+'>'+E.STYLES[k].i+' '+E.STYLES[k].n+'</option>';}).join('')+'</select><div class="sd">'+(S?esc(S.d):'Gets a random play style each game.')+'</div></div>';}
+  $('seats').innerHTML=s;
+  [].forEach.call($('seats').querySelectorAll('select'),function(el){el.onchange=function(){cfg.seats[+el.dataset.i]=el.value;saveCfg();drawSetup();};});
+  var rc='';E.SLOTS.forEach(function(r,i){rc+='<button class="rchip'+(cfg.slots[i]?' on':'')+'" data-i="'+i+'" title="'+esc(E.ROLES[r].d)+'">'+E.ROLES[r].i+' '+E.ROLES[r].n+'</button>';});
+  $('roleChips').innerHTML=rc;
+  [].forEach.call($('roleChips').querySelectorAll('.rchip'),function(el){el.onclick=function(){cfg.slots[+el.dataset.i]=!cfg.slots[+el.dataset.i];saveCfg();drawSetup();};});
+  var err=E.checkDeck(E.deckFromSlots(cfg.slots),cfg.bots+1);
+  $('deckNote').textContent=err||('✓ '+(cfg.bots+4)+' cards: '+(cfg.bots+1)+' players + 3 in the center.');$('deckNote').className=err?'bad':'good';
+  $('startBtn').disabled=!!err;
+}
+['aiUrl','aiModel','aiKey'].forEach(function(id){$(id).addEventListener('input',function(){ai.url=$('aiUrl').value.trim()||DEF_AI.url;ai.model=$('aiModel').value.trim()||DEF_AI.model;ai.key=$('aiKey').value.trim();saveAI();updateAIPill();});});
+$('aiClear').onclick=function(){ai.key='';saveAI();drawSetup();updateAIPill();toast('Key removed from this browser');};
+$('deckDefault').onclick=function(){cfg.slots=E.defaultSlots(cfg.bots+1);saveCfg();drawSetup();};
+function openSetup(){drawSetup();$('setup').className='modal show';}
+$('setupCancel').onclick=function(){$('setup').className='modal';if(!G)showTitle();};
+$('startBtn').onclick=function(){startGame();};
+function updateAIPill(){$('aiPill').textContent=aiOn()?'🤖 AI chat':'⚡ offline chat';}
+function startGame(){
+  var deck=E.deckFromSlots(cfg.slots);if(E.checkDeck(deck,cfg.bots+1)){openSetup();return;}
+  var players=[{name:'You',human:true}];for(var i=0;i<cfg.bots;i++)players.push({name:E.BOT_NAMES[i],mascot:E.MASCOTS[i],style:cfg.seats[i]==='random'?null:cfg.seats[i]});
+  mode='custom';launch(E.newGame({players:players,deck:deck,diff:cfg.diff,first:cfg.first,minutes:cfg.minutes}));
+}
+
+/* ---------------- polish: title, quick mode, tips, result card, stats ---------------- */
+var TAUNT={truth:'I only say what I saw. Can you say the same?',bluffer:'I\u2019m the Moonseer. Probably.',accuser:'It\u2019s you. It\u2019s always you.',quiet:'\u2026I\u2019m watching.',detective:'Your story has a hole. I\u2019ll find it.',follower:'Whoever you vote for, I vote for. Baa.',chaos:'Let\u2019s swap everything and see who screams.',defender:'Nobody touches my friends. Unless they\u2019re Wolves.'};
+var WINQ={truth:'The truth always comes out.',bluffer:'You believed me? Adorable.',accuser:'Told you it was them.',quiet:'\u2026Called it.',detective:'Case closed.',follower:'I just went with the crowd. And won!',chaos:'Pure chaos. Pure victory.',defender:'I had my friends\u2019 backs.'};
+var LOSEQ={truth:'I told you the truth. You didn\u2019t listen.',bluffer:'My bluff was perfect. You were lucky.',accuser:'I still say it was you.',quiet:'\u2026Rematch.',detective:'I missed a clue. It won\u2019t happen twice.',follower:'Everyone else was wrong first!',chaos:'I meant to lose. Obviously.',defender:'I trusted the wrong one.'};
+var rivals=pickRivals();
+function pickRivals(){var k=E.STYLE_KEYS.slice(),idx=[0,1,2,3,4,5,6,7,8],r=[];while(r.length<E.QUICK.bots){var a=Math.floor(Math.random()*k.length),b=Math.floor(Math.random()*idx.length);r.push({s:k.splice(a,1)[0],b:idx.splice(b,1)[0]});}return r;}
+function getStats(){return Object.assign({played:0,wins:0,streak:0,bestStreak:0,wolfWins:0,caught:0,quick:0},lsGet('wairwolfStats',{}));}
+function drawTitle(){
+  var h='';rivals.forEach(function(rv,i){var S=E.STYLES[rv.s];h+='<div class="bot" style="--fc:'+E.COLORS[(rv.b+1)%10]+'"><div class="face">'+E.MASCOTS[rv.b]+'</div><div class="bn">'+E.BOT_NAMES[rv.b]+'</div><div class="bl">'+S.i+' '+S.n+'</div><div class="bt">\u201c'+TAUNT[rv.s]+'\u201d</div></div>';});
+  $('titleBots').innerHTML=h;
+  $('quickNote').textContent='Quick game: you + '+E.QUICK.bots+' bots, '+E.QUICK.minutes+' minutes of talk, 2 Wolves in the deck.';
+  var st=getStats();
+  $('titleStats').innerHTML=st.played?['<div class="stat"><b>'+st.played+'</b><span>played</span></div>','<div class="stat"><b>'+st.wins+'</b><span>won</span></div>','<div class="stat"><b>'+st.caught+'</b><span>Wolves caught</span></div>','<div class="stat"><b>'+st.wolfWins+'</b><span>wins as Wolf</span></div>','<div class="stat"><b>'+st.bestStreak+'</b><span>best streak</span></div>'].join(''):'';
+  $('resumeBtn').style.display=G&&!G.over?'':'none';
+}
+function showTitle(){drawTitle();$('title').className='screen show';$('over').className='modal';$('setup').className='modal';}
+function hideTitle(){$('title').className='screen';}
+function playNow(){
+  var players=[{name:'You',human:true}];rivals.forEach(function(rv){players.push({name:E.BOT_NAMES[rv.b],mascot:E.MASCOTS[rv.b],style:rv.s});});
+  mode='quick';launch(E.newGame({players:players,diff:'medium',first:'me',minutes:E.QUICK.minutes,deck:E.deckFromSlots(E.defaultSlots(E.QUICK.bots+1))}));
+}
+function launch(g){
+  ui.gen++;clearInterval(ui.loop);G=g;recorded=false;
+  Object.assign(ui,{phase:'look',sel:[],pend:null,ann:0,obsSeen:1,openIdx:0,waitOpen:false,botBusy:false,llmLeft:0,speaking:-1,myVote:-1,aiFailed:false,lastHuman:''});
+  $('setup').className='modal';$('over').className='modal';$('rules').className='modal';hideTitle();
+  $('chat').innerHTML='';$('typing').textContent='';$('timer').textContent='';
+  $('modePill').textContent=(mode==='quick'?'⚡ Quick · ':'')+(G.n-1)+' bots · '+E.DIFF[G.diff].n;
+  updateAIPill();
+  addNar('You look at your card\u2026');render();
+}
+function playAgain(){if(mode==='quick'){rivals=pickRivals();playNow();}else startGame();}
+/* tips */
+var tipsOn=lsGet('wairwolfTips',1)!==0,tipSeen=lsGet('wairwolfTipsSeen',{}),curTip=null;
+var TIPS=[
+  ['look',function(){return ui.phase==='look';},function(){return 'This card is secret. Wolves win if no Wolf is voted out; the Village wins if one is. Cards can move at night, so you might not end as what you started.';}],
+  ['night',function(){return ui.phase==='night'&&ui.pend;},function(){return 'Only you see what you learn tonight. It goes into Your night notes under the table.';}],
+  ['packday',function(){return (ui.phase==='open'||ui.phase==='talk')&&myTeam()==='wolf';},function(){return 'You\u2019re on the Pack. Claim a role nobody else has (Townsfolk and Sleepwalker are hard to disprove), keep your story straight, and push the vote onto someone else.';}],
+  ['talk',function(){return ui.phase==='open'||ui.phase==='talk';},function(){var b=G.players.find(function(p){return !p.human;}).name;return 'Type anything. Try \u201cI\u2019m the Moonseer, I saw '+b+' is a Wolf\u201d or \u201c'+b+', what\u2019s your role?\u201d Tap a seat to mention that bot.';}],
+  ['claims',function(){return ui.phase==='talk'&&G.claims.filter(Boolean).length>=3;},function(){return 'The badge under each seat is what that player claims. Two claims of a one-of-a-kind role means somebody is lying. 👉 shows how many players accuse them.';}],
+  ['vote',function(){return ui.phase==='vote';},function(){return 'Most votes goes out, ties all go. If nobody gets 2 or more votes, nobody goes out, which is a win for the Village only when no Wolf is among you.';}]
+];
+function updateTip(){
+  var box=$('tip');curTip=null;
+  if(G&&tipsOn&&ui.phase!=='over')for(var i=0;i<TIPS.length;i++){var t=TIPS[i];if(!tipSeen[t[0]]&&t[1]()){curTip=t[0];$('tipText').textContent=t[2]();break;}}
+  box.className=curTip?'show':'';$('tipsBtn').style.opacity=tipsOn?'1':'.45';
+}
+function setTips(on){tipsOn=!!on;lsSet('wairwolfTips',on?1:0);updateTip();}
+$('tipOk').onclick=function(){if(curTip){tipSeen[curTip]=1;lsSet('wairwolfTipsSeen',tipSeen);}updateTip();};
+$('tipOff').onclick=function(){setTips(0);toast('Tips off. Tap 💡 to turn them back on.');};
+$('tipsBtn').onclick=function(){setTips(!tipsOn);toast(tipsOn?'Tips on':'Tips off');};
+$('tipsReset').onclick=function(){tipSeen={};lsSet('wairwolfTipsSeen',{});setTips(1);drawSetup();toast('Tips will show again');};
+/* result */
+var lastCard='',lastShare='';
+function recordResult(){
+  if(recorded)return [];recorded=true;
+  var m=me(),R=G.result,won=R.winners.indexOf(m)>=0,st=getStats(),badges=[];
+  st.played++;if(mode==='quick')st.quick++;
+  if(won){st.wins++;st.streak++;if(st.streak>st.bestStreak)st.bestStreak=st.streak;if(st.streak>1)badges.push('🔥 '+st.streak+'-win streak');}else st.streak=0;
+  if(won&&R.team[m]==='wolf'){st.wolfWins++;badges.push('🐺 Fooled the bots');}
+  if(R.team[m]==='village'&&R.dead.some(function(d){return R.fin[d]==='wolf';})){st.caught++;badges.push('🔍 Wolf caught');}
+  if(st.wins===1&&won)badges.push('🏅 First win');
+  lsSet('wairwolfStats',st);return badges;
+}
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath();}
+function drawCard(){
+  var c=document.createElement('canvas');c.width=1200;c.height=630;var x=c.getContext('2d'),R=G.result,m=me(),won=R.winners.indexOf(m)>=0;
+  var g=x.createLinearGradient(0,0,1200,630);g.addColorStop(0,'#26205e');g.addColorStop(.6,'#0a0d1f');g.addColorStop(1,'#4a1650');x.fillStyle=g;x.fillRect(0,0,1200,630);
+  var rng=E.mkRng(G.seed||7);x.fillStyle='#fff';for(var i=0;i<90;i++){x.globalAlpha=.2+rng()*.6;x.fillRect(rng()*1200,rng()*330,2,2);}x.globalAlpha=1;
+  var mg=x.createRadialGradient(1040,120,10,1040,120,90);mg.addColorStop(0,'#fff8dc');mg.addColorStop(1,'#ffc93d');x.fillStyle=mg;x.beginPath();x.arc(1040,120,72,0,7);x.fill();
+  x.font='900 74px system-ui,sans-serif';var parts=[['w','#ffe08a'],['AI','#9b7bff'],['rwolf ','#ffe08a'],['hunt','#eef0ff']],px=60;parts.forEach(function(p){x.fillStyle=p[1];x.fillText(p[0],px,108);px+=x.measureText(p[0]).width;});
+  x.font='900 50px system-ui,sans-serif';x.fillStyle='#fff';
+  var head=won?(R.team[m]==='wolf'?'I fooled the bots! 🐺':R.team[m]==='drifter'?'Voted out on purpose! 🎒':'I caught the Wolf! 🔍'):'The bots got me';x.fillText(head,60,190);
+  x.font='700 25px system-ui,sans-serif';x.fillStyle='#a6acd6';
+  x.fillText('Started as '+RN(G.ns.start[m])+', ended as '+RN(R.fin[m])+' · '+E.headline(G)+' · '+(G.n-1)+' bots',60,232);
+  var n=G.n,w=Math.min(180,1080/n);
+  for(var j=0;j<n;j++){var P=G.players[j],cx=60+w*j+w/2,cy=330,f=R.fin[j],dead=R.dead.indexOf(j)>=0;
+    x.fillStyle=P.color;x.beginPath();x.arc(cx,cy,Math.min(40,w*.38),0,7);x.fill();x.lineWidth=4;x.strokeStyle=R.winners.indexOf(j)>=0?'#ffe08a':'#fff';x.stroke();
+    x.font=Math.round(Math.min(40,w*.38))+'px system-ui,sans-serif';x.textAlign='center';x.fillText(P.mascot,cx,cy+14);
+    if(dead){x.strokeStyle='#ff5c6c';x.lineWidth=7;x.beginPath();x.moveTo(cx-26,cy-26);x.lineTo(cx+26,cy+26);x.moveTo(cx+26,cy-26);x.lineTo(cx-26,cy+26);x.stroke();}
+    x.font='800 '+(w<90?15:18)+'px system-ui,sans-serif';x.fillStyle='#fff';x.fillText(P.human?'Me':P.name,cx,cy+66);
+    x.font='700 '+(w<90?14:16)+'px system-ui,sans-serif';x.fillStyle=f==='wolf'||f==='lackey'?'#ff8a95':'#ffe08a';x.fillText(E.ROLES[f].i+' '+RN(f),cx,cy+90);x.textAlign='left';}
+  var bots=G.players.map(function(P,j){return j;}).filter(function(j){return !G.players[j].human;}),bq=bots.find(function(j){return R.winners.indexOf(j)>=0;});if(bq==null)bq=bots[0];
+  var B=G.players[bq],q='\u201c'+(R.winners.indexOf(bq)>=0?WINQ:LOSEQ)[B.style]+'\u201d \u2014 '+B.name;
+  x.font='italic 600 26px system-ui,sans-serif';x.fillStyle='#ffe08a';x.fillText(q,60,500);
+  x.font='600 22px system-ui,sans-serif';x.fillStyle='#cfd2ff';x.fillText('by OmniXR · myomnixr.com',60,595);
+  x.textAlign='right';x.fillStyle='#9b7bff';x.fillText(PUBLIC_URL.replace(/^https?:\/\//,''),1140,595);x.textAlign='left';
+  return c.toDataURL('image/png');
+}
+function shareText(){var m=me(),R=G.result,won=R.winners.indexOf(m)>=0,k=G.n-1;
+  if(won&&R.team[m]==='wolf')return 'I was the Wolf and talked my way past '+k+' AI bots in wAIrwolf hunt 🐺 Think you could catch me?';
+  if(won&&R.team[m]==='drifter')return 'I got myself voted out on purpose and won wAIrwolf hunt 🎒 The bots never saw it coming.';
+  if(won)return 'I sniffed out the Wolf among '+k+' lying AI bots in wAIrwolf hunt 🔍🌕 Can you?';
+  return 'The AI bots out-talked me in wAIrwolf hunt ('+E.headline(G)+'). Can you catch the Wolf?';}
+function polishOver(){
+  var m=me(),R=G.result,won=R.winners.indexOf(m)>=0,badges=recordResult();
+  $('overTitle').textContent=(won?'You win! 🏆 ':'You lose. ')+E.headline(G)+'.';
+  $('overSub').textContent='You started as '+RN(G.ns.start[m])+' and ended as '+RN(R.fin[m])+'. '+(R.dead.length?'Voted out: '+R.dead.map(NAME).join(', ')+'.':'Nobody was voted out.');
+  lastCard=drawCard();$('cardImg').src=lastCard;
+  $('endBadges').innerHTML=badges.map(function(b){return '<span class="badge2">'+b+'</span>';}).join('');
+  var t='<tr><th>Player</th><th>Started</th><th>Ended</th><th>Votes got (their vote)</th><th>Result</th></tr>';
+  for(var j=0;j<G.n;j++){var w=R.winners.indexOf(j)>=0,d=R.dead.indexOf(j)>=0;t+='<tr class="'+(w?'win':'')+(d?' dead':'')+'"><td>'+G.players[j].mascot+' '+esc(NAME(j))+'</td><td>'+roleTag(G.ns.start[j])+'</td><td>'+roleTag(R.fin[j])+'</td><td>'+R.cnt[j]+(R.votes[j]>=0?' (→ '+esc(NAME(R.votes[j]))+')':'')+'</td><td>'+(d?'✖ out · ':'')+(w?'🏆 won':'lost')+'</td></tr>';}
+  t+='<tr><td>🂠 Center</td><td colspan="4">'+R.center.map(roleTag).join(' · ')+'</td></tr>';
+  $('resTable').innerHTML=t;
+  $('replay').innerHTML=E.replay(G).map(function(l){return '<li>'+esc(l)+'</li>';}).join('')||'<li>Nobody had a night move.</li>';
+  lastShare='https://x.com/intent/post?text='+encodeURIComponent(shareText()+' '+PUBLIC_URL);
+}
+$('saveCard').onclick=function(){var a=document.createElement('a');a.href=lastCard;a.download='wairwolf-hunt-result.png';document.body.appendChild(a);a.click();a.remove();};
+$('shareX').onclick=function(){window.open(lastShare,'_blank','noopener');};
+$('overClose').onclick=function(){$('over').className='modal';};
+$('overMenu').onclick=showTitle;$('menuBtn').onclick=showTitle;$('overAgain').onclick=playAgain;
+$('playNow').onclick=playNow;$('setupBtn').onclick=openSetup;$('resumeBtn').onclick=hideTitle;
+$('reroll').onclick=function(){rivals=pickRivals();drawTitle();};
+$('titleRules').onclick=$('rulesBtn').onclick=function(){$('rules').className='modal show';};$('rulesClose').onclick=function(){$('rules').className='modal';};
+$('rolesList').innerHTML='<ul>'+['mimic','wolf','lackey','twin','moonseer','pickpocket','meddler','sleepwalker','nightowl','townsfolk','trapper','drifter'].map(function(r){var R=E.ROLES[r];return '<li><b>'+R.i+' '+R.n+'</b> ('+E.TEAMS[E.teamOf(r)].n+'): '+esc(R.d)+'</li>';}).join('')+'</ul>';
+/* test and automation hooks */
+function autoStep(){ // plays my part with simple choices (used by tests)
+  if(!G||G.over)return;
+  if(ui.phase==='look')return beginNight();
+  if(ui.phase==='night'&&ui.pend){var q=ui.pend;return humanNight(E.botNight(G,q));}
+  if(ui.phase==='open'&&ui.waitOpen){var c=E.claimFromObs(G,me());if(E.teamOf(c.r)!=='village')c={r:'townsfolk'};return send(E.claimText(G,me(),c));}
+  if(ui.phase==='vote'){ui.myVote=E.botVote(G,me());return confirmVote();}
+}
+window.__result=function(){return G&&G.over?{won:G.result.winners.indexOf(me())>=0,headline:E.headline(G),dead:G.result.dead.slice(),mode:mode,card:lastCard.length,team:G.result.team[me()]}:null;};
+window.__shareUrl=function(){return lastShare;};window.__stats=getStats;window.__tip=function(){return curTip;};window.__rivals=function(){return rivals.slice();};
+window.__game=function(){return G;};window.__E=E;window.__cfg=function(){return cfg;};window.__ai=function(){return {calls:ui.aiCalls,ok:ui.aiOk,failed:ui.aiFailed,on:aiOn()};};
+window.__ui={ui:ui,render:render,start:startGame,playNow:playNow,setCfg:function(c){Object.assign(cfg,c);saveCfg();},setAI:function(a){Object.assign(ai,a);saveAI();updateAIPill();},
+  fast:function(on,talkMs){ui.fast=on!==false;ui.talkMs=talkMs==null?null:talkMs;},auto:autoStep,send:send,voteNow:startVote,phase:function(){return ui.phase;},launch:function(g){mode='custom';launch(g);}};
+function boot(){var h=location.hash;
+  if(h==='#setup'){hideTitle();openSetup();}
+  else if(/^#autostart=quick/.test(h))playNow();
+  else showTitle();}
+window.addEventListener('hashchange',boot);
+updateAIPill();boot();
+})();
+
+</script>
+</body>
+</html>
