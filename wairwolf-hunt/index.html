@@ -1168,42 +1168,116 @@ function loadVoices(){
   var en=all.filter(function(v){return /^en/i.test(v.lang||'');});vc.voices=en.length?en:all;assignVoices();
 }
 function assignVoices(){
-  vc.map={};var pool=vc.voices.slice(),used={};if(!pool.length)return;
+  vc.map={};var pool=vc.voices.filter(function(v){return !vc.bad[v.name];}),used={};if(!pool.length)return;
   var who=E.BOT_NAMES.concat(['_nar']);
   who.forEach(function(name){var pr=name==='_nar'?NARR:VPROF[name];
-    var score=function(v){return (used[v.name]?0:100)+(vGender(v)===pr.g?20:vGender(v)==='?'?5:0)+(vAccent(v)===pr.a?10:0)+(v.localService?2:0);};
+    var score=function(v){return (used[v.name]?0:100)+(vGender(v)===pr.g?20:vGender(v)==='?'?5:0)+(vAccent(v)===pr.a?10:0)+(v.localService?15:0);};
     var best=null,bs=-1;pool.forEach(function(v){var x=score(v);if(x>bs){bs=x;best=v;}});
     if(best){vc.map[name]=best;used[best.name]=(used[best.name]||0)+1;}});
 }
 function voiceFor(name){var pr=VPROF[name]||NARR;return {voice:vc.map[VPROF[name]?name:'_nar']||null,pitch:pr.pitch,rate:Math.max(0.5,Math.min(2,pr.rate*vc.speed))};}
 function cleanSpeech(t){return String(t).replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}\u{20E3}\u{2190}-\u{21FF}\u{2300}-\u{23FF}]/gu,'').replace(/\bAI\b/g,'A.I.').replace(/\s+/g,' ').trim();}
 function voiceActive(){return vc.on&&!!SS();}
-function speakLine(name,text){
-  if(!voiceActive())return;var t=cleanSpeech(text);if(!t)return;
-  vc.q.push({name:name,text:t});pumpSpeech();
-}
-function pumpSpeech(){
+function speakLine(name,text){if(!voiceActive())return;var t=cleanSpeech(text);if(!t)return;vSay(name,t);}
+function vHookStart(){}
+function vHookEnd(){}
+function vDrain(){var w=vc.waiters;vc.waiters=[];w.forEach(function(f){f();});}
+function VTEST(){return E.BOT_NAMES.concat(['_nar']);}
+function vTestLine(n){return n==='_nar'?'And I am the narrator. Night will fall soon.':'Hi, I am '+n+'. I am definitely not a wolf.';}
+/* ---- robust speech core (shared by the OmniXR voice games) ----
+   Why it is built this way:
+   - Chrome only lets a page speak after a real user gesture (click / touchend / keydown; touchstart and a touch pointerdown do NOT count),
+     so the first speak() happens synchronously inside such a gesture.
+   - Chrome's engine can be left paused or wedged: cancel() before the first speak, resume() before every speak and while speaking,
+     and pause()+resume() on desktop for lines longer than ~10 s (Chrome cuts them at ~15 s).
+   - Utterances are kept in vc.keep so they are not garbage-collected before onend fires.
+   - Some engines never fire onend/onerror, or (in-app previews / Android WebView) say nothing at all: every line has a
+     length-based timeout, after which the engine is cancelled and the queue moves on. If nothing has ever started we tell the player.
+   - Never wait for voiceschanged: speak with the default voice when getVoices() is empty, and never set .voice to null.
+   - A voice that errors (network voices offline, missing voice data) is dropped and the line is retried with the default voice. */
+var VIS_ANDROID=/Android/i.test((navigator&&navigator.userAgent)||'');
+vc.keep=[];vc.started=0;vc.silent=0;vc.lastCancel=0;vc.bad={};vc.pumpT=0;vc.warn='';vc.lastErr='';vc.testing=false;
+var VMISSING='Voices need a browser like Chrome or Edge. This one (often an in-app preview) can\u2019t speak, so the bots stay silent here.';
+var VSILENT='No sound from this browser\u2019s speech. Voices need a browser like Chrome or Edge: open the game there (not an in-app preview) and check your volume.';
+function vDur(t,r){return Math.min(20000,2500+t.length*95/(r||1));}
+function vCancel(s){try{s.cancel();}catch(e){}vc.lastCancel=Date.now();}
+function vSay(name,text){vc.q.push({name:name,text:text});vPump();}
+function vPump(){
   var s=SS();if(!s||vc.busy)return;
-  if(!vc.q.length){var w=vc.waiters;vc.waiters=[];w.forEach(function(f){f();});return;}
+  if(!vc.q.length){vDrain();return;}
+  var gap=Date.now()-vc.lastCancel;
+  if(gap<120){if(!vc.pumpT)vc.pumpT=setTimeout(function(){vc.pumpT=0;vPump();},120-gap);return;} // Chrome can drop a speak() issued right after cancel()
   var it=vc.q.shift(),u=new SpeechSynthesisUtterance(it.text),p=voiceFor(it.name);
-  if(p.voice){u.voice=p.voice;u.lang=p.voice.lang;}else u.lang='en-US';
-  u.pitch=p.pitch;u.rate=p.rate;u.volume=1;
-  vc.busy=true;vc.cur=u;vc.log.push({name:it.name,text:it.text,voice:p.voice?p.voice.name:'',pitch:u.pitch,rate:u.rate});if(vc.log.length>200)vc.log.shift();
-  var fin=function(){if(vc.cur!==u)return;clearTimeout(u._t);vc.cur=null;vc.busy=false;pumpSpeech();};
-  u.onend=fin;u.onerror=fin;
-  // Safety net: some engines never fire onend. Allow ~ the time the line should take, plus slack.
-  u._t=setTimeout(fin,ui.fast?60:Math.min(20000,1500+it.text.length*95/u.rate));
-  try{s.speak(u);}catch(e){fin();}
+  if(p.voice&&!it.plain&&!vc.bad[p.voice.name])u.voice=p.voice;
+  u.lang=(u.voice&&u.voice.lang)||'en-US';u.pitch=p.pitch;u.rate=p.rate;u.volume=1;
+  vc.busy=true;vc.cur=u;vc.keep.push(u);if(vc.keep.length>12)vc.keep.shift();
+  vc.log.push({name:it.name,text:it.text,voice:u.voice?u.voice.name:'',pitch:u.pitch,rate:u.rate});if(vc.log.length>300)vc.log.shift();
+  var started=false;
+  var fin=function(why){if(vc.cur!==u)return;clearTimeout(u._t);vc.cur=null;vc.busy=false;
+    if(why==='timeout'){if(!started)vSilent('no-start');vCancel(s);} // wedged engine: clear it so the next line can play
+    vHookEnd(it);vPump();};
+  u.onstart=function(){started=true;u._st=u._pr=Date.now();vc.started++;vOk();};
+  u.onend=function(){fin('end');};
+  u.onerror=function(e){var er=(e&&e.error)||'error';vc.lastErr=er;
+    if(er!=='interrupted'&&er!=='canceled'){
+      if(u.voice&&!it.plain&&/voice-unavailable|network|synthesis-failed|language-unavailable/.test(er)){vc.bad[u.voice.name]=1;assignVoices();vc.q.unshift({name:it.name,text:it.text,plain:true});}
+      else if(er==='not-allowed'){vc.unlocked=false;vSilent(er);} // no gesture yet: the next tap unlocks
+      else vSilent(er);}
+    fin('error');};
+  u._t=setTimeout(function(){fin('timeout');},ui.fast?60:vDur(it.text,u.rate));
+  vHookStart(it);
+  try{if(s.paused)s.resume();}catch(e){}
+  try{s.speak(u);}catch(e){vSilent('throw');fin('error');return;}
+  try{if(s.paused)s.resume();}catch(e){}
 }
-function stopSpeech(){var s=SS();vc.q=[];vc.cur=null;vc.busy=false;if(s)try{s.cancel();}catch(e){}var w=vc.waiters;vc.waiters=[];w.forEach(function(f){f();});}
+function vStop(){var s=SS();vc.q=[];var was=vc.busy;vc.cur=null;vc.busy=false;clearTimeout(vc.pumpT);vc.pumpT=0;
+  if(s){var act=was;try{act=act||s.speaking||s.pending;}catch(e){}if(act)vCancel(s);}
+  vHookEnd(null);}
+function vSilent(r){vc.silent++;if(vc.started)return; // it has spoken before: a one-off glitch, not a dead engine
+  if(r==='not-allowed'){vWarn('Tap anywhere to turn the voices on.');return;}
+  if(vc.silent>=2||!vc.voices.length||/synthesis-unavailable|audio-hardware|throw/.test(r))vWarn(VSILENT);}
+function vOk(){if(vc.warn){vc.warn='';vRefreshWarn();}}
+function vWarn(t){if(vc.warn===t)return;var first=!vc.warn;vc.warn=t;vRefreshWarn();if(first&&typeof toast==='function')try{toast(t);}catch(e){}}
+function vRefreshWarn(){var w=$('voiceWarn');if(!w)return;var t=!SS()?VMISSING:vc.on?vc.warn:'';w.textContent=t?'\uD83D\uDD07 '+t:'';w.style.display=t?'block':'none';}
+// The first real gesture: cancel any stale engine state, resume, and speak (silently) inside the gesture so Chrome lets the page talk.
+function unlockSpeech(){if(vc.unlocked)return;var s=SS();if(!s)return;vc.unlocked=true;
+  if(!vc.busy){try{s.cancel();}catch(e){}}
+  try{s.resume();}catch(e){}
+  try{var u=new SpeechSynthesisUtterance('');u.volume=0;u.lang='en-US';vc.keep.push(u);s.speak(u);}catch(e){}
+  loadVoices();if(vc.q.length&&!vc.busy)vPump();}
+['pointerup','touchend','click','keydown'].forEach(function(ev){window.addEventListener(ev,unlockSpeech,{capture:true,passive:true});});
+(function(){var s=SS();if(!s)return;loadVoices();
+  try{if(s.addEventListener)s.addEventListener('voiceschanged',loadVoices);else s.onvoiceschanged=loadVoices;}catch(e){}
+  [250,800,2000,4500,9000].forEach(function(t){setTimeout(function(){if(!vc.voices.length)loadVoices();},t);}); // voiceschanged may never fire
+  setInterval(function(){if(!vc.busy)return;try{if(s.paused)s.resume();else if(!VIS_ANDROID&&vc.cur&&vc.cur._pr&&Date.now()-vc.cur._pr>10000&&s.speaking){vc.cur._pr=Date.now();s.pause();s.resume();}}catch(e){}},2000);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)try{s.resume();}catch(e){}});})();
+// Test voices: one line per bot plus the narrator. Runs inside the tap, so the first line starts right away.
+function testVoices(){
+  if(!SS()){vRefreshWarn();if(typeof toast==='function')toast(VMISSING);vTestNote(VMISSING);return;}
+  if(!vc.on)setVoice(true);
+  unlockSpeech();stopSpeech();vc.testing=true;
+  var c0=vc.started,names=VTEST();
+  names.forEach(function(n){vc.q.push({name:n,text:vTestLine(n)});});
+  vTestNote('Playing one line from each of the '+names.length+' voices\u2026');vPump();
+  var g=Date.now();setTimeout(function(){vc.testing=false;
+    if(vc.started>c0)vTestNote('Speech is working. If you still hear nothing, turn up the volume (and switch off silent mode on a phone).');
+    else{vWarn(VSILENT);vTestNote(VSILENT);}},ui.fast?400:6000);}
+function vTestNote(t){var n=$('voiceTestNote');if(n)n.textContent=t;}
+function vUI(){
+  var css=document.createElement('style');css.textContent='.vwarn{display:none;margin:10px auto 0;max-width:440px;padding:9px 12px;border-radius:10px;background:#5a2330;color:#fff;font-size:14px;line-height:1.35;text-align:center}.vtestRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}.vtestRow span{font-size:13px;opacity:.85;flex:1;min-width:160px}';document.head.appendChild(css);
+  var pn=$('playNow');if(pn&&!$('voiceWarn')){var w=document.createElement('div');w.id='voiceWarn';w.className='vwarn';w.setAttribute('role','status');pn.parentNode.insertBefore(w,pn.nextSibling);}
+  var vb=$('voiceBtn');if(vb&&!$('voiceTestTop')){var b=document.createElement('button');b.id='voiceTestTop';b.type='button';b.className=vb.className;b.title='Test voices';b.setAttribute('aria-label','Test voices');b.textContent='\uD83D\uDDE3';b.onclick=testVoices;vb.parentNode.insertBefore(b,vb.nextSibling);}
+  var vn=$('voiceNote');if(vn&&!$('voiceTest')){var r=document.createElement('div');r.className='vtestRow';r.innerHTML='<button class="btn small sm" type="button" id="voiceTest">\uD83D\uDDE3 Test voices</button><span id="voiceTestNote"></span>';vn.parentNode.insertBefore(r,vn.nextSibling);$('voiceTest').onclick=testVoices;}
+  vRefreshWarn();}
+window.__vcore={state:function(){return {unlocked:vc.unlocked,started:vc.started,silent:vc.silent,warn:vc.warn,keep:vc.keep.length,busy:vc.busy,queued:vc.q.length,lastErr:vc.lastErr,voices:vc.voices.length,bad:Object.keys(vc.bad)};},test:testVoices,names:function(){return VTEST();},
+  warnText:function(){var w=$('voiceWarn');return w&&w.style.display!=='none'?w.textContent:'';}};
+function stopSpeech(){vStop();vDrain();}
+function pumpSpeech(){vPump();}
 // Runs fn once every queued line has been spoken (right away when voices are off).
 function afterSpeech(fn){var g=ui.gen;var go=function(){if(g===ui.gen)fn();};if(!voiceActive()||(!vc.busy&&!vc.q.length))go();else vc.waiters.push(go);}
-function unlockSpeech(){if(vc.unlocked)return;vc.unlocked=true;var s=SS();if(!s)return;try{var u=new SpeechSynthesisUtterance(' ');u.volume=0;s.speak(u);}catch(e){}loadVoices();}
-['pointerdown','touchstart','keydown'].forEach(function(ev){window.addEventListener(ev,unlockSpeech,{capture:true,passive:true});});
-(function(){var s=SS();if(!s)return;loadVoices();if(s.addEventListener)s.addEventListener('voiceschanged',loadVoices);else s.onvoiceschanged=loadVoices;setTimeout(loadVoices,800);})();
 function setVoice(on){vc.on=!!on;lsSet('wairwolfVoice',on?1:0);if(!on)stopSpeech();updateVoiceBtn();}
-function updateVoiceBtn(){var b=$('voiceBtn');if(!b)return;b.textContent=vc.on?'\uD83D\uDD0A':'\uD83D\uDD07';b.title=vc.on?'Voices on (tap to mute)':'Voices off (tap to unmute)';b.setAttribute('aria-pressed',vc.on?'true':'false');}
-$('voiceBtn').onclick=function(){setVoice(!vc.on);toast(vc.on?(SS()?'Voices on':'This browser can\u2019t speak'):'Voices muted');};
+function updateVoiceBtn(){var b=$('voiceBtn');if(!b)return;b.textContent=vc.on?'\uD83D\uDD0A':'\uD83D\uDD07';b.title=vc.on?'Voices on (tap to mute)':'Voices off (tap to unmute)';b.setAttribute('aria-pressed',vc.on?'true':'false');vRefreshWarn();}
+$('voiceBtn').onclick=function(){setVoice(!vc.on);if(!SS()){toast(VMISSING);return;}toast(vc.on?'Voices on':'Voices muted');if(vc.on){unlockSpeech();speakLine('_nar','Voices on.',2);}};
 function narrate(t){speakLine('_nar',t);}
 
 /* ---------------- table ---------------- */
@@ -1452,7 +1526,7 @@ function drawSetup(){
   opt('optTips',tipsOn?1:0,function(v){setTips(+v);});
   opt('optVoice',vc.on?1:0,function(v){setVoice(+v);});
   opt('optSpeed',vc.speed,function(v){vc.speed=+v;lsSet('wairwolfVoiceSpeed',vc.speed);});
-  $('voiceNote').textContent=SS()?(vc.voices.length?vc.voices.length+' English voice'+(vc.voices.length===1?'':'s')+' found on this device. Each bot also gets its own pitch and pace.':'Voices are still loading. Each bot gets its own pitch and pace.'):'This browser has no speech, so the bots stay silent.';
+  $('voiceNote').textContent=SS()?(vc.voices.length?vc.voices.length+' English voice'+(vc.voices.length===1?'':'s')+' found on this device. Each bot also gets its own pitch and pace.':'Voices are still loading. Each bot gets its own pitch and pace.'):VMISSING;
   $('aiBox').style.display=cfg.ai?'':'none';
   $('aiUrl').value=ai.url;$('aiModel').value=ai.model;$('aiKey').value=ai.key;
   var s='';for(var i=0;i<cfg.bots;i++){var st=cfg.seats[i],S=E.STYLES[st];
@@ -1613,7 +1687,7 @@ function boot(){var h=location.hash;
   else if(/^#autostart=quick/.test(h))playNow();
   else showTitle();}
 window.addEventListener('hashchange',boot);
-updateAIPill();updateVoiceBtn();boot();
+vUI();updateAIPill();updateVoiceBtn();boot();
 })();
 
 </script>
