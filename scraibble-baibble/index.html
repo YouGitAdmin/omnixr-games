@@ -154,7 +154,7 @@ footer a{color:var(--muted)}
     <div class="card"><h2>Move log</h2><div id="log"></div></div>
     <div class="card" style="font-size:13px;color:var(--muted)"><h2>How to play</h2>
       Drag tiles from your rack onto the board, or tap a tile then tap a square. Tap a tile you placed to take it back.
-      The score preview shows above your rack. Words are checked against the ENABLE word list with 135 slang words removed, plus DA, EE, EW, FE, GI, JA, KI, OI, QI and TE (172,698 words in all). Quick game: 4 rounds each, highest score wins, no penalty for tiles left. Letter values come from Joshua Lewis’s Valett method run on this game’s own word list (Z is 7, W is 3).</div>
+      The score preview shows above your rack. Words are checked against the ENABLE word list with 135 slang words removed, plus DA, EE, EW, FE, GI, JA, KI, OI, QI and TE (172,698 words in all). Premium squares move to new spots every game, mirrored the same way on all four sides; the ★ start square stays in the centre. Quick game: 4 rounds each, highest score wins, no penalty for tiles left. Letter values come from Joshua Lewis’s Valett method run on this game’s own word list (Z is 7, W is 3).</div>
   </aside>
 </main>
 <footer>by OmniXR · <a href="https://myomnixr.com" target="_blank" rel="noopener">myomnixr.com</a></footer>
@@ -199,15 +199,46 @@ footer a{color:var(--muted)}
   var DIST = { a:[9,1], b:[2,3], c:[2,2], d:[4,2], e:[12,1], f:[2,3], g:[3,3], h:[2,2], i:[9,1], j:[1,6], k:[1,4], l:[4,2], m:[2,2],
     n:[6,1], o:[8,1], p:[2,2], q:[1,10], r:[6,1], s:[4,1], t:[6,1], u:[4,2], v:[2,5], w:[2,3], x:[1,5], y:[2,3], z:[1,7], '?':[2,0] };
   var VAL = {}; Object.keys(DIST).forEach(function (k) { VAL[k] = DIST[k][1]; });
-  // T = triple word, D = double word, t = triple letter, d = double letter, * = centre star (double word)
-  var HALF = ['T..d...T...d..T', '.D...t...t...D.', '..D...d.d...D..', 'd..D...d...D..d', '....D.....D....',
-    '.t...t...t...t.', '..d...d.d...d..', 'T..d...*...d..T'];
-  var ROWS = HALF.concat(HALF.slice(0, 7).reverse());
-  var PREM = []; // per cell: [letterMult, wordMult, code]
-  for (var r = 0; r < N; r++) for (var c = 0; c < N; c++) {
-    var ch = ROWS[r][c];
-    PREM.push(ch === 'T' ? [1, 3, 'TW'] : ch === 'D' || ch === '*' ? [1, 2, ch === '*' ? 'ST' : 'DW'] : ch === 't' ? [3, 1, 'TL'] : ch === 'd' ? [2, 1, 'DL'] : [1, 1, '']);
+  // ---------- Premium squares: a fresh random layout for every game ----------
+  // Rules (see premiumLayout): the centre star is always a double-word start square. The other premiums keep
+  // the usual totals (8 triple word, 16 double word, 12 triple letter, 24 double letter) but land on new squares each game.
+  // Fairness: the layout has full 8-way symmetry (mirror across both middle lines and both diagonals), so every
+  // side and corner of the board is the same; no two premium squares touch side by side; triple-word squares sit in
+  // the outer two rings and double-word squares 2 to 6 rings out, and neither sits on the middle row or column within reach
+  // of the opening word (only the far edge squares of those lines may be triple word), so the first play doubles once at most.
+  var PREMIUM_COUNTS = { TW: 8, DW: 16, TL: 12, DL: 24 };
+  var CELL = { TW: [1, 3, 'TW'], DW: [1, 2, 'DW'], TL: [3, 1, 'TL'], DL: [2, 1, 'DL'], ST: [1, 2, 'ST'], '': [1, 1, ''] };
+  function ring(i) { return Math.max(Math.abs(Math.floor(i / N) - 7), Math.abs(i % N - 7)); }
+  function orbit(r, c) { // the up-to-8 cells that mirror (r, c)
+    var out = {}, a = r - 7, b = c - 7;
+    [[a, b], [b, a], [-a, b], [b, -a], [a, -b], [-b, a], [-a, -b], [-b, -a]].forEach(function (q) { out[(q[0] + 7) * N + q[1] + 7] = 1; });
+    return Object.keys(out).map(Number);
   }
+  function plainLayout() { var P = []; for (var i = 0; i < SIZE; i++) P.push(CELL[i === CENTER ? 'ST' : '']); return P; }
+  function premiumLayout(seed) {
+    var R = rng((seed >>> 0) ^ 0x5bd1e995), base = [];
+    for (var r = 0; r < 8; r++) for (var c = r; c < 8; c++) if (!(r === 7 && c === 7)) base.push(orbit(r, c));
+    var zone = { TW: function (d) { return d >= 6; }, DW: function (d) { return d >= 2 && d <= 6; }, TL: function (d) { return d >= 2; }, DL: function (d) { return d >= 1; } };
+    for (var attempt = 0; attempt < 500; attempt++) {
+      var code = new Array(SIZE).fill(''), ok = true; code[CENTER] = 'ST';
+      var free = function (cells, t) {
+        return cells.every(function (k) {
+          var r0 = Math.floor(k / N), c0 = k % N;
+          if (code[k] || !zone[t](ring(k))) return false;
+          if ((t === 'TW' || t === 'DW') && (r0 === 7 || c0 === 7) && ring(k) < 7) return false; // the opening word can only reach the star
+          return [[1, 0], [-1, 0], [0, 1], [0, -1]].every(function (d) { var r1 = r0 + d[0], c1 = c0 + d[1]; return r1 < 0 || r1 >= N || c1 < 0 || c1 >= N || !code[r1 * N + c1]; });
+        });
+      };
+      ['TW', 'DW', 'TL', 'DL'].forEach(function (t) {
+        if (!ok) return; var need = PREMIUM_COUNTS[t], pool = shuffle(base.slice(), R);
+        for (var j = 0; j < pool.length && need > 0; j++) { var o = pool[j]; if (o.length <= need && free(o, t)) { o.forEach(function (k) { code[k] = t; }); need -= o.length; } }
+        if (need) ok = false;
+      });
+      if (ok) return code.map(function (t) { return CELL[t]; });
+    }
+    throw new Error('could not lay out premium squares');
+  }
+  function layoutSeedFor(seed) { var h = Math.imul((seed >>> 0) ^ 0x9e3779b9, 0x85ebca6b); h ^= h >>> 13; return h >>> 0; }
 
   // ---------- Dictionary trie ----------
   function Trie(cap) {
@@ -265,8 +296,9 @@ footer a{color:var(--muted)}
   function trieFromWords(words) { var t = new Trie(); words.forEach(function (w) { if (/^[a-z]+$/.test(w)) t.add(w); }); return t; }
 
   // ---------- Board helpers ----------
-  function emptyBoard() { return { L: new Array(SIZE).fill(''), B: new Uint8Array(SIZE) }; }
-  function cloneBoard(b) { return { L: b.L.slice(), B: new Uint8Array(b.B) }; }
+  // P = the premium layout for this board (premiumLayout(seed)); with no layout the board has only the centre star.
+  function emptyBoard(P) { return { L: new Array(SIZE).fill(''), B: new Uint8Array(SIZE), P: P || plainLayout() }; }
+  function cloneBoard(b) { return { L: b.L.slice(), B: new Uint8Array(b.B), P: b.P }; }
   function boardEmpty(b) { for (var i = 0; i < SIZE; i++) if (b.L[i]) return false; return true; }
   function rc(i) { return [Math.floor(i / N), i % N]; }
 
@@ -317,11 +349,12 @@ footer a{color:var(--muted)}
       }
       if (!touch) return { ok: false, error: 'Your word must connect to tiles already on the board.' };
     }
+    var P = board.P || plainLayout();
     function scoreWord(cells) {
       var sum = 0, wm = 1, w = '', disp = '';
       cells.forEach(function (k) {
         var l = letter(k), v = isBlank(k) ? 0 : VAL[l];
-        if (at[k]) { sum += v * PREM[k][0]; wm *= PREM[k][1]; } else sum += v;
+        if (at[k]) { sum += v * P[k][0]; wm *= P[k][1]; } else sum += v;
         w += l; disp += isBlank(k) ? l : l.toUpperCase();
       });
       return { word: w, display: disp, score: sum * wm };
@@ -430,9 +463,11 @@ footer a{color:var(--muted)}
 
   // opts.first: 'me' (seat 0 starts, the default) or 'random' (any seat, uniformly; announced in the log)
   // opts.maxRounds: quick game. The game ends after every player has had that many turns (normal end rules still apply earlier).
+  // opts.layoutSeed: replay a known premium layout (by default it is derived from the game seed, so the same seed gives the same board).
   function newGame(players, seed, opts) {
-    var R = rng(seed == null ? (Date.now() ^ (Math.random() * 1e9)) : seed);
-    var g = { board: emptyBoard(), bag: shuffle(fullBag(), R), R: R, players: players.map(function (p) { return { name: p.name, bot: p.bot || null, human: !p.bot, rack: [], score: 0 }; }),
+    if (seed == null) seed = (Date.now() ^ (Math.random() * 1e9)) >>> 0;
+    var R = rng(seed), ls = opts && opts.layoutSeed != null ? opts.layoutSeed >>> 0 : layoutSeedFor(seed);
+    var g = { seed: seed >>> 0, layoutSeed: ls, board: emptyBoard(premiumLayout(ls)), bag: shuffle(fullBag(), R), R: R, players: players.map(function (p) { return { name: p.name, bot: p.bot || null, human: !p.bot, rack: [], score: 0 }; }),
       turn: 0, scoreless: 0, over: false, endReason: '', log: [], lastTiles: [], turnNo: 0 };
     g.players.forEach(function (p) { draw(g, p, 7); });
     if (opts && opts.first === 'random') {
@@ -555,7 +590,7 @@ footer a{color:var(--muted)}
     pass(g); return c;
   }
 
-  var API = { N: N, SIZE: SIZE, CENTER: CENTER, DIST: DIST, VAL: VAL, PREM: PREM, Trie: Trie, encodeFrontCoded: encodeFrontCoded,
+  var API = { N: N, SIZE: SIZE, CENTER: CENTER, DIST: DIST, VAL: VAL, premiumLayout: premiumLayout, plainLayout: plainLayout, layoutSeedFor: layoutSeedFor, PREMIUM_COUNTS: PREMIUM_COUNTS, Trie: Trie, encodeFrontCoded: encodeFrontCoded,
     trieFromFrontCoded: trieFromFrontCoded, trieFromWords: trieFromWords, emptyBoard: emptyBoard, cloneBoard: cloneBoard, scoreMove: scoreMove,
     generateMoves: generateMoves, newGame: newGame, play: play, exchange: exchange, pass: pass, tileCount: tileCount, rackValue: rackValue,
     chooseBotMove: chooseBotMove, botTurn: botTurn, BOTS: BOTS, QUICK_ROUNDS: 4, fullBag: fullBag, rng: rng, shuffle: shuffle };
@@ -612,11 +647,11 @@ var cells=[];
 function buildBoard(){
   var b=$('board');b.innerHTML='';cells=[];
   var labels={TW:'TW',DW:'DW',TL:'TL',DL:'DL',ST:''};
-  for(var i=0;i<E.SIZE;i++){var p=E.PREM[i][2];var c=el('div','cell'+(p?' '+p:''),p?labels[p]:'');c.dataset.idx=i;cells.push(c);b.appendChild(c);}
+  for(var i=0;i<E.SIZE;i++){var p=G?G.board.P[i][2]:(i===E.CENTER?'ST':'');var c=el('div','cell'+(p?' '+p:''),p?labels[p]:'');c.dataset.idx=i;cells.push(c);b.appendChild(c);}
 }
 function renderBoard(){
   for(var i=0;i<E.SIZE;i++){
-    var c=cells[i],p=E.PREM[i][2];
+    var c=cells[i],p=G.board.P[i][2];
     c.innerHTML='';c.className='cell'+(p?' '+p:'')+(G.board.L[i]||pending[i]?' filled':'');
     if(G.board.L[i]){c.appendChild(tileEl(G.board.L[i],G.board.B[i],G.lastTiles.indexOf(i)>=0?'last':''));}
     else if(pending[i]){var pt=pending[i];var t=tileEl(pt.b?(pt.letter||'?'):pt.l,pt.b,'pending');t.dataset.pidx=i;c.appendChild(t);}
@@ -875,7 +910,7 @@ var TIPS=[
   {id:'star',when:function(){return isEmptyBoard();},text:'Your first word must cover the ★ in the middle. Drag tiles from your rack, or tap a tile and then tap a square.'},
   {id:'preview',when:function(){return Object.keys(pending).length>0;},text:'The live score shows above your rack. Green means the play is valid, so press Play word.'},
   {id:'connect',when:function(){return !isEmptyBoard();},text:'New words must join tiles already on the board, and every word you make has to be real.'},
-  {id:'premium',when:function(){return !isEmptyBoard()&&myTurns()>=1;},text:'Coloured squares multiply. DL and TL double or triple one letter. DW and TW double or triple the whole word.'},
+  {id:'premium',when:function(){return !isEmptyBoard()&&myTurns()>=1;},text:'Coloured squares multiply. DL and TL double or triple one letter. DW and TW double or triple the whole word. They move to new spots every game.'},
   {id:'blank',when:function(){return G.players[0].rack.indexOf('?')>=0;},text:'The blank tile can stand for any letter, but it scores 0.'},
   {id:'badrack',when:function(){var r=G.players[0].rack,v=r.filter(function(l){return 'aeiou'.indexOf(l)>=0;}).length;return G.bag.length>=7&&(v>=5||v===0);},text:'Stuck with a tricky rack? Exchange swaps tiles, but it costs your turn.'},
   {id:'bingo',when:function(){return myTurns()>=2;},text:'Play all 7 tiles in one go for a 50-point bingo bonus.'},
