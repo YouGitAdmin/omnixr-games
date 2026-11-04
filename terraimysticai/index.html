@@ -1,0 +1,1787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08130e">
+<title>TerrAImysticAI</title>
+<meta name="description" content="Reshape the land and out-build two AI rivals in about 8 minutes. A free realm-building strategy game in your browser, no sign-up.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="OmniXR Games">
+<meta property="og:title" content="TerrAImysticAI: out-build the AI realms">
+<meta property="og:description" content="Reshape the land and out-build two AI rivals in about 8 minutes. Free, offline, no sign-up.">
+<meta property="og:url" content="https://yougitadmin.github.io/omnixr-games/terraimysticai/">
+<meta property="og:image" content="https://yougitadmin.github.io/omnixr-games/terraimysticai/cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="TerrAImysticAI: a realm-building strategy game against AI rivals">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="TerrAImysticAI: out-build the AI realms">
+<meta name="twitter:description" content="Reshape the land and out-build two AI rivals in about 8 minutes. Free, offline, no sign-up.">
+<meta name="twitter:image" content="https://yougitadmin.github.io/omnixr-games/terraimysticai/cover.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23082016'/%3E%3Cpath d='M32 8l20 12v24L32 56 12 44V20z' fill='%2332d17a' stroke='%23ffb627' stroke-width='4'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#08130e;--panel:#13241b;--panel2:#1c3326;--ink:#f2f8ee;--muted:#a8c4b0;--accent:#ffb627;--ai:#4dffb8;--bad:#ff6b5a;--ok:#8fd17f;--magma:#ff5a36}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Roboto,system-ui,-apple-system,Arial,sans-serif}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;background:radial-gradient(900px 600px at 10% -5%,#0f6b3e 0%,transparent 60%),radial-gradient(800px 600px at 105% 105%,#7a2410 0%,transparent 60%),var(--bg);background-attachment:fixed}
+header{width:100%;max-width:1560px;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;gap:8px;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(22px,5vw,32px);color:var(--accent);font-weight:900;letter-spacing:.5px;white-space:nowrap}
+h1 .ai{color:var(--ai);text-shadow:0 0 14px #4dffb899}h1{text-shadow:0 0 16px #ffb62766}
+h1 small{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:0;margin-left:8px}
+.hbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.btn{appearance:none;border:0;border-radius:10px;padding:10px 14px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;background:#25463a;color:var(--ink);touch-action:manipulation;text-align:left}
+.btn:hover{filter:brightness(1.15)}.btn:disabled{opacity:.38;cursor:not-allowed;filter:none}
+.btn.primary{background:var(--accent);color:#2a1d00}.btn.small{padding:7px 10px;font-size:13px}.btn.on{background:#2f7a52}
+.btn.warn{background:#7a3a30}.btn.opt2{display:block;width:100%;margin:4px 0;font-weight:600;font-size:14px}
+select.btn{padding:7px 8px;font-size:13px}
+main{width:100%;max-width:1560px;display:grid;grid-template-columns:minmax(0,1fr) 420px;grid-template-areas:"map turn" "map side" "low side";gap:10px;padding:0 10px;align-items:start}
+#mapCard{grid-area:map}#turn{grid-area:turn}#side{grid-area:side;display:flex;flex-direction:column;gap:8px}#low{grid-area:low;display:flex;flex-direction:column;gap:8px}
+.card{background:var(--panel);border-radius:14px;padding:10px 12px;box-shadow:0 2px 14px #0006,inset 0 0 0 1px #4dffb826}
+.card h3{margin:0 0 6px;font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+svg{display:block;user-select:none;-webkit-user-select:none}
+#mapWrap{overflow:auto;-webkit-overflow-scrolling:touch}
+#map{width:100%;height:auto}
+.hex{cursor:default}.hex.hl{cursor:pointer}
+.hex.hl .hb{stroke:#fff3a0;stroke-width:4.5;animation:pulse 1.1s ease-in-out infinite}
+.hex.sel .hb{stroke:var(--ai);stroke-width:5.5}
+@keyframes pulse{50%{stroke:#ffffff}}
+.brs{cursor:pointer}.brs line{animation:pulse2 1.1s ease-in-out infinite}
+@keyframes pulse2{50%{stroke:#fff}}
+.lbl{font-weight:800;text-anchor:middle;fill:#fff;paint-order:stroke;stroke:#000b;stroke-width:3px;pointer-events:none}
+#turnCard{border:2px solid #4a3d2a}#turnCard.mine{border-color:var(--accent)}
+#tTitle{font-weight:800;font-size:17px}
+#tHelp{font-size:14px;color:var(--muted);margin:4px 0 8px;line-height:1.4}
+#tHelp b{color:var(--ink)}
+.ctl{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.lab{font-size:12px;color:var(--muted);font-weight:700;width:100%;margin-top:6px}
+#sub{margin-top:6px}
+#hint{margin-top:8px;font-size:13.5px;color:var(--ai);display:none}#hint.show{display:block}
+.pl{display:flex;gap:8px;padding:7px 8px;border-radius:10px;margin-bottom:5px;background:var(--panel2);border:2px solid transparent}
+.pl.cur{border-color:var(--accent)}
+.dot{width:16px;height:16px;border-radius:50%;flex:0 0 16px;margin-top:3px;border:2px solid #fff9}
+.pn{font-weight:800}.tag{font-size:11px;background:#0006;border-radius:6px;padding:1px 6px;margin-left:4px;color:var(--muted);font-weight:700}
+.strat{font-size:12.5px;margin-top:2px}.strat i{color:var(--muted);font-style:normal}
+.stats{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.55}.stats b{color:var(--ink)}
+.pools{display:inline-flex;gap:3px;vertical-align:middle}.pools span{display:inline-block;min-width:22px;text-align:center;border-radius:6px;background:#5b2f86;color:#fff;font-weight:800;font-size:12px;padding:0 4px}
+.pools span:nth-child(2){background:#7a43b3}.pools span:nth-child(3){background:#b26cff}
+details{font-size:12.5px;color:var(--muted);margin-top:3px}details summary{cursor:pointer;color:var(--ai)}
+.chip{display:inline-block;background:#3c3224;border-radius:6px;padding:0 5px;margin:2px 3px 0 0;font-size:11.5px;color:var(--ink)}
+#cultSvg{width:100%;height:auto}
+.tiles{display:flex;gap:5px;flex-wrap:wrap}
+.tile{flex:1 1 120px;background:#2e271d;border-radius:9px;padding:5px 7px;font-size:12px;line-height:1.3;border:2px solid transparent}
+.tile.now{border-color:var(--accent)}.tile.done{opacity:.4}
+.tile b{font-size:12.5px}
+.bon{flex:1 1 130px;background:#2e271d;border-radius:9px;padding:5px 7px;font-size:12px;line-height:1.3}
+.coin{color:var(--accent);font-weight:800}
+.pact{display:flex;gap:5px;flex-wrap:wrap}.pact span{background:#5b2f86;border-radius:8px;padding:3px 7px;font-size:12px;font-weight:700}.pact span.taken{background:#3a3326;color:#776;text-decoration:line-through}
+#log{max-height:240px;overflow:auto;font-size:13px;line-height:1.35}
+#log div{padding:2px 0;border-bottom:1px solid #ffffff10}
+#log .win{color:var(--accent);font-weight:800}#log .good{color:var(--ok)}#log .turn{color:#ffe2a8;font-weight:700}#log .dim{color:#a0927a}
+.modal{position:fixed;inset:0;background:#000b;display:none;align-items:flex-start;justify-content:center;z-index:20;overflow:auto;padding:16px 8px}
+.modal.show{display:flex}
+.mbox{background:var(--panel);border-radius:14px;padding:16px;max-width:760px;width:100%;box-shadow:0 10px 40px #000a}
+.mbox h2{margin:0 0 10px;color:var(--accent)}
+.mbox h4{margin:14px 0 4px;color:var(--ai)}
+.mbox p,.mbox li{line-height:1.45;font-size:14.5px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.row>label.lab2{min-width:120px;color:var(--muted);font-size:14px;font-weight:700}
+.opt{display:inline-flex;border-radius:10px;overflow:hidden;flex-wrap:wrap}
+.opt button{appearance:none;border:0;background:#4a3d2a;color:var(--ink);font:inherit;font-weight:700;font-size:14px;padding:9px 12px;cursor:pointer}
+.opt button.on{background:var(--accent);color:#2a1d00}
+.seat{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;align-items:center;background:var(--panel2);padding:7px 8px;border-radius:10px;margin-bottom:6px}
+.seat .sn{grid-column:1/4;font-weight:800;font-size:14px}
+.seat .sd{font-size:12px;color:var(--muted);grid-column:1/4}
+.seat select{background:#4a3d2a;color:var(--ink);border:0;border-radius:8px;padding:8px 6px;font:inherit;font-size:13px;width:100%;min-width:0}
+.twnote{font-size:12px;color:var(--muted);flex-basis:100%;margin:-2px 0 2px 0}
+table.sc{border-collapse:collapse;width:100%;font-size:14px}table.sc td,table.sc th{padding:4px 6px;border-bottom:1px solid #ffffff18;text-align:right}table.sc td:first-child,table.sc th:first-child{text-align:left}
+table.sc tr.tot td{font-weight:800;color:var(--accent)}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#8a3a34;color:#fff;padding:10px 14px;border-radius:10px;font-weight:700;display:none;z-index:30;max-width:92vw;text-align:center}
+#toast.show{display:block}
+#tip{display:none;margin-top:8px;background:linear-gradient(90deg,#4dffb822,#ffb62722);border:1px solid #4dffb866;border-radius:12px;padding:8px 10px;font-size:13.5px;align-items:center;gap:8px}
+#tip.show{display:flex}#tip .tx{flex:1;line-height:1.35}#tip .btn{padding:6px 9px;font-size:12.5px}
+.pill{font-size:12px;font-weight:800;background:#4dffb81f;color:#9dffd8;border:1px solid #4dffb866;border-radius:999px;padding:4px 10px;white-space:nowrap}
+.screen{position:fixed;inset:0;z-index:15;overflow:auto;display:none;background:radial-gradient(800px 520px at 50% -5%,#0f6b3e 0%,transparent 65%),radial-gradient(700px 500px at 100% 100%,#7a2410 0%,transparent 60%),var(--bg)}
+.screen.show{display:block}
+.tWrap{max-width:720px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 16px 28px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
+.hexes{display:flex;gap:6px;margin-top:6px}.hexes i{width:34px;height:38px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);display:block;animation:bob 3s ease-in-out infinite}
+.hexes i:nth-child(2n){animation-delay:.4s;transform:translateY(8px)}@keyframes bob{50%{translate:0 -6px}}
+.logo{font-size:clamp(46px,13vw,96px);font-weight:900;line-height:1;margin:0;color:var(--accent);text-shadow:0 0 28px #ffb62788,0 5px 0 #7a4a00;white-space:nowrap}
+.logo .ai{color:var(--ai);text-shadow:0 0 28px #4dffb8aa,0 5px 0 #0b5a3c}
+.pitch{font-size:clamp(18px,4.6vw,24px);font-weight:800;max-width:560px;margin:0}.pitch em{color:var(--ai);font-style:normal}
+.bots{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;max-width:520px}
+.bot{background:#ffffff0d;border:2px solid #ffffff1a;border-radius:16px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bot .face{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;background:var(--fc);box-shadow:0 0 0 3px #ffffffaa,0 0 20px var(--fc)}
+.bot .bn{font-weight:900;font-size:17px}.bot .bl{font-size:12px;color:var(--muted)}.bot .bt{font-size:13px;font-style:italic;line-height:1.3}
+.bigPlay{font-size:26px!important;font-weight:900;padding:18px 54px!important;border-radius:999px!important;background:linear-gradient(180deg,#ffd27a,#ff8a1f)!important;color:#2a1600!important;box-shadow:0 6px 0 #8a4a00,0 0 32px #ffb62788;animation:pulse2 1.8s ease-in-out infinite;text-align:center!important}
+.bigPlay:active{transform:translateY(4px);box-shadow:0 2px 0 #8a4a00}
+@keyframes pulse2{50%{box-shadow:0 6px 0 #8a4a00,0 0 48px #ffb627cc}}
+@media (prefers-reduced-motion:reduce){.bigPlay,.hexes i{animation:none}}
+.sub{color:var(--muted);font-size:14px}
+.statsRow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.stat{background:#ffffff10;border-radius:12px;padding:8px 14px;min-width:96px}.stat b{display:block;font-size:22px;color:var(--accent)}.stat span{font-size:12px;color:var(--muted)}
+.credit{color:var(--muted);font-size:13px}.credit a{color:var(--ai);text-decoration:none}
+#cardImg{width:100%;border-radius:12px;box-shadow:0 6px 24px #000a;display:block;margin:6px 0 10px}
+.badge2{display:inline-block;background:var(--accent);color:#2a1600;font-weight:900;border-radius:999px;padding:3px 10px;font-size:13px;margin:2px}
+@media (max-width:480px){.bot .face{width:52px;height:52px;font-size:30px}.bot .bt{font-size:12px}.bigPlay{font-size:24px!important;padding:16px 44px!important}.spdLab,h1 small{display:none}}
+footer{margin:16px 0 18px;color:var(--muted);font-size:13px}
+footer a{color:var(--muted)}
+@media (max-width:1100px){main{grid-template-columns:minmax(0,1fr);grid-template-areas:"turn" "map" "side" "low"}header{padding:6px 8px}main{padding:0 6px}.card{padding:8px}#log{max-height:200px}}
+@media (max-width:700px){#map{min-width:640px}.seat{grid-template-columns:1fr}.seat .sn,.seat .sd{grid-column:1}.btn{padding:9px 11px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Terr<span class="ai">AI</span>mystic<span class="ai">AI</span><small>reshape · build · rise</small></h1>
+  <div class="hbar">
+    <span class="pill" id="modePill"></span>
+    <button class="btn small" id="tipsBtn" title="Tips on or off">💡</button>
+    <button class="btn small" id="menuBtn">Menu</button>
+    <button class="btn primary small" id="newBtn">New game</button>
+    <button class="btn small" id="rulesBtn">Rules</button>
+    <label for="speedSel" class="spdLab" style="font-size:13px;color:var(--muted)">Bot speed</label>
+    <select id="speedSel" class="btn small"><option value="slow">Slow</option><option value="normal">Normal</option><option value="fast">Fast</option><option value="instant">Instant</option></select>
+  </div>
+</header>
+<main>
+  <section id="turn">
+    <div class="card" id="turnCard">
+      <div id="tTitle">TerrAImysticAI</div>
+      <div id="tHelp"></div>
+      <div id="ctl" class="ctl"></div>
+      <div id="sub"></div>
+      <div id="hint"></div>
+      <div id="tip" role="status"><span>💡</span><span class="tx" id="tipText"></span><button class="btn" id="tipOk">Got it</button><button class="btn" id="tipOff">Tips off</button></div>
+    </div>
+    <div class="card" style="margin-top:8px"><h3><span>My realm</span><span id="myFac"></span></h3><div id="mine"></div></div>
+  </section>
+  <section class="card" id="mapCard"><h3><span id="mapTitle">The Shifting Lands</span><span id="roundLbl"></span></h3><div id="mapWrap"><svg id="map" xmlns="http://www.w3.org/2000/svg"></svg></div><div id="mapNote" style="font-size:12px;color:var(--muted);margin-top:4px">Tap a glowing space to see what you can do there.</div></section>
+  <section id="side">
+    <div class="card"><h3>Players</h3><div id="players"></div></div>
+    <div class="card"><h3><span>Circles</span><span style="text-transform:none;letter-spacing:0">sage slots below</span></h3><svg id="cultSvg" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  </section>
+  <section id="low">
+    <div class="card"><h3>Rounds</h3><div class="tiles" id="tiles"></div></div>
+    <div class="card"><h3><span>Boons</span><span>unclaimed ones gain a coin each round</span></h3><div class="tiles" id="bonus"></div></div>
+    <div class="card"><h3>Power actions · Blessings · charters</h3><div class="pact" id="pact"></div><div id="favs" style="margin-top:6px"></div><div id="towns" style="margin-top:4px"></div></div>
+    <div class="card"><h3>Log</h3><div id="log"></div></div>
+  </section>
+</main>
+<footer>TerrAImysticAI · by OmniXR · <a href="https://myomnixr.com" target="_blank" rel="noopener">myomnixr.com</a></footer>
+
+<div class="modal" id="setup"><div class="mbox">
+  <h2>New game of Terr<span style="color:var(--ai)">AI</span>mystic<span style="color:var(--ai)">AI</span></h2>
+  <div class="row"><label class="lab2">Players</label><div class="opt" id="optN"><button data-v="2">Me + 1 bot</button><button data-v="3">Me + 2</button><button data-v="4">Me + 3</button><button data-v="5">Me + 4</button></div></div>
+  <div class="row"><label class="lab2">Who goes first</label><div class="opt" id="optFirst"><button data-v="me">Me</button><button data-v="random">Random</button></div></div>
+  <div class="row"><label class="lab2">My faction</label><select id="myFacSel" class="btn small" style="max-width:100%"></select><div class="twnote" id="myFacNote"></div></div>
+  <div id="seats"></div>
+  <h4>Twists</h4>
+  <div class="row"><label class="lab2">Map</label><div class="opt" id="optMap"><button data-v="random">Random map</button><button data-v="standard">Fixed map</button></div><div class="twnote">Random map (the default) draws new rivers and terrain every game. Fixed map is the same layout every time.</div></div>
+  <div class="row"><label class="lab2">Game length</label><div class="opt" id="optQuick"><button data-v="1">Quick · 4 rounds</button><button data-v="0">Full · 6 rounds</button></div></div>
+  <div class="row"><label class="lab2">Round tiles</label><div class="opt" id="optTiles"><button data-v="starter">Starter set</button><button data-v="random">Random draw</button></div><div class="twnote">Random draw shuffles which round tiles and Boons appear.</div></div>
+  <div class="row"><label class="lab2">Starting VP</label><div class="opt" id="optVP"><button data-v="faction">By faction</button><button data-v="even">Everyone 20</button></div><div class="twnote">By faction gives the weaker factions a head start (15 to 30 VP).</div></div>
+  <div class="row"><label class="lab2">Show hints</label><div class="opt" id="optHints"><button data-v="0">Off</button><button data-v="1">On</button></div><div class="twnote">Hints suggest the move a Hard bot would make in your seat.</div></div>
+  <div class="row"><label class="lab2">Tips during play</label><div class="opt" id="optTips"><button data-v="1">On</button><button data-v="0">Off</button></div><button class="btn small" id="tipsReset">Show tips again</button></div>
+  <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn" id="setupCancel">Cancel</button><button class="btn primary" id="startBtn">Start game</button></div>
+</div></div>
+
+<div class="modal" id="over"><div class="mbox"><h2 id="overTitle">Game over</h2>
+  <img id="cardImg" alt="Result card"><div id="endBadges"></div>
+  <div class="row" style="justify-content:center"><button class="btn" id="saveCard">⬇ Save image</button><button class="btn" id="shareX">Share on 𝕏</button></div>
+  <div id="overBody"></div><div class="row" style="justify-content:flex-end"><button class="btn" id="overClose">Look at the board</button><button class="btn primary" id="overNew">New game</button><button class="btn" id="overMenu">Menu</button><button class="btn primary" id="overAgain">Play again</button></div>
+  <div class="credit" style="text-align:center">by OmniXR · <a href="https://myomnixr.com" target="_blank" rel="noopener">myomnixr.com</a></div></div></div>
+<div class="screen" id="title"><div class="tWrap">
+  <div class="hexes" aria-hidden="true"><i style="background:#c9a25a"></i><i style="background:#3a9a4d"></i><i style="background:#3b7bd4"></i><i style="background:#ff5a36"></i><i style="background:#e5c45a"></i></div>
+  <h1 class="logo">Terr<span class="ai">AI</span>mystic<span class="ai">AI</span></h1>
+  <p class="pitch">Reshape the land, raise a realm. <em>Out-build two AI rivals in about 8 minutes.</em></p>
+  <div class="bots" id="titleBots"></div>
+  <button class="btn bigPlay" id="playNow">▶ Play now</button>
+  <div class="sub">Quick game · 4 rounds · random map · you vs 2 bots</div>
+  <div class="statsRow" id="titleStats"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><button class="btn" id="resumeBtn" style="display:none">↩ Resume game</button><button class="btn" id="setupBtn">⚙ Setup</button><button class="btn" id="reroll">🔀 New rivals</button><button class="btn" id="titleRules">📖 Rules</button></div>
+  <div class="credit">by OmniXR · <a href="https://myomnixr.com" target="_blank" rel="noopener">myomnixr.com</a></div>
+</div></div>
+
+<div class="modal" id="rules"><div class="mbox">
+  <h2>How to play TerrAImysticAI</h2>
+  <p>You lead a faction that can only live on one <b>home terrain</b>. Reshape the land around you into that terrain, settle it, grow your settlements into bigger buildings and rise through four <b>Circles</b>. The game lasts <b>6 rounds</b> (<b>4</b> in a Quick game, which is what Play now starts). Whoever has the most VP at the end wins.</p>
+  <h4>Each round</h4>
+  <ul><li><b>Income first.</b> Huts pay workers, Markets pay coins and power, Shrines and the Sanctum pay sages. Your Boon and Blessings can add more.</li>
+  <li><b>Then take turns,</b> one action each, going around the table until everyone has passed. Whoever passes first leads the next round.</li>
+  <li><b>When the round ends,</b> the round tile rewards your Circle progress (except in the final round), and each Boon nobody took gets an extra coin on it.</li></ul>
+  <h4>What you can do on your turn</h4>
+  <ul><li><b>Reshape and settle:</b> pick a space you can reach and dig it toward your home terrain. Every step around the terrain wheel costs one <b>shovel</b>, and a shovel costs 3 workers until you improve your Digging. Once it is your terrain you may put a <b>Hut</b> on it (usually 1 worker and 2 coins).</li>
+  <li><b>Reach:</b> you can reach spaces next to your buildings, plus spaces across rivers up to your <b>Sailing</b> level. A bridge you build links both banks for you.</li>
+  <li><b>Grow a building:</b> Hut → Market (cheaper if a rival lives next door) → either your <b>Citadel</b> (switches on your faction's big ability) or a <b>Shrine</b> → <b>Sanctum</b>. Each Shrine and the Sanctum earn you a <b>Blessing</b>.</li>
+  <li><b>Improve Sailing</b> (1 sage + 4 coins) or <b>Digging</b> (2 workers + 5 coins + 1 sage). Both stay with you and score VP.</li>
+  <li><b>Send a sage to a Circle:</b> park it on a free slot for +3 or +2 (the sage stays put), or take a single step and keep the sage.</li>
+  <li><b>Power actions,</b> each usable once per round by whoever gets there first: Bridge 3⚡, 1 Sage 3⚡, 2 Workers 4⚡, 7 Coins 4⚡, 1 Shovel 4⚡, 2 Shovels 6⚡.</li>
+  <li><b>Special actions</b> from Boons, Blessings and Citadels work once per round each. <b>Passing</b> scores your Boon, then you trade it in for a fresh one.</li></ul>
+  <h4>Power</h4>
+  <p>Your power tokens flow through three pools. Gaining power first moves tokens from pool I into pool II, then from II into III. Only tokens in pool III can be spent, and spent tokens go back to pool I. In a pinch, sacrifice 2 tokens in pool II to push 1 into pool III (the other is gone for good). Exchange rates: 1⚡ → 1 coin, 3⚡ → 1 worker, 5⚡ → 1 sage, and you can trade a sage for a worker or a worker for a coin. If you come up short when paying, the game makes the exchange for you and says so.</p>
+  <p>When someone builds next to your buildings, you may <b>draw power</b> equal to the power value of your buildings that touch it (Hut 1, Market or Shrine 2, Citadel or Sanctum 3). It costs you VP equal to that amount minus 1.</p>
+  <h4>Circles, Towns and keys</h4>
+  <ul><li>Climbing a Circle to space 3, 5, 7 or 10 pays 1, 2, 2 or 3 power. Space 10 needs a <b>key</b>, and only one player per Circle can get there.</li>
+  <li>When 4 or more of your buildings form one connected group (3 if the Sanctum is in it) with a combined power value of 7 or more, you found a <b>Town</b>. Pick a <b>charter</b> (VP plus a reward) and gain a key.</li></ul>
+  <h4>Final scoring</h4>
+  <ul><li>Biggest connected realm (Sailing reach counts): 18 / 12 / 6 VP.</li><li>Each Circle: 8 / 4 / 2 VP for the leaders (ties share, and nobody scores from space 0).</li><li>1 VP for every 3 coins you have left (workers, sages and power in pool III count as coins).</li></ul>
+  <h4>Factions</h4>
+  <div id="facList"></div>
+  <h4>Controls</h4>
+  <p>Tap a glowing space on the map to see what you can build or reshape there. Other actions are buttons on the turn panel. Bot speed changes how fast bots play.</p>
+  <p style="color:var(--muted);font-size:13px">TerrAImysticAI is an original game by OmniXR. Its map, faction names, terms, text and art are our own.</p>
+  <div class="row" style="justify-content:flex-end"><button class="btn primary" id="rulesClose">Close</button></div>
+</div></div>
+<div id="toast"></div>
+
+<script>
+// TerrAImysticAI rules engine + bots. Pure JS, no DOM. Works in node (module.exports) and the browser (window.TerraEngine).
+(function (root) {
+'use strict';
+
+/* ---------------- random ---------------- */
+function mkRng(seed) { let a = (seed >>> 0) || 1; return function () { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+function shuffle(arr, R) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(R() * (i + 1)); const t = arr[i]; arr[i] = arr[j]; arr[j] = t; } return arr; }
+function rint(st, n) { st.rs = (Math.imul(st.rs, 1103515245) + 12345) >>> 0; return Math.floor((st.rs / 4294967296) * n); }
+
+/* ---------------- static data ---------------- */
+// Transformation cycle (neighbours on the cycle are 1 spade apart).
+const TERR = [
+  { n: 'Meadow', c: '#b8874f', ink: '#fff' }, { n: 'Mire', c: '#4b4560', ink: '#fff' }, { n: 'Lagoon', c: '#3b7bd4', ink: '#fff' },
+  { n: 'Grove', c: '#3a9a4d', ink: '#fff' }, { n: 'Peaks', c: '#9b9ba8', ink: '#111' }, { n: 'Ashland', c: '#c9473a', ink: '#fff' },
+  { n: 'Dunes', c: '#e5c45a', ink: '#111' }
+];
+const RIVER = -1;
+const CULTS = [{ n: 'Ember', i: '🔥', c: '#e2563b' }, { n: 'Tide', i: '💧', c: '#3b8fe2' }, { n: 'Stone', i: '⛰️', c: '#9a7448' }, { n: 'Gale', i: '🌬️', c: '#c9d3e6' }];
+const BNAME = ['', 'Hut', 'Market', 'Shrine', 'Citadel', 'Sanctum'];
+const BSHORT = ['', 'H', 'M', 'S', 'C', 'SN'];
+const PWV = [0, 1, 2, 2, 3, 3];
+const SUPPLY = [0, 8, 4, 3, 1, 1];
+const ORDER_SLOTS = [3, 2, 2, 2];
+const CULT_PW = { 3: 1, 5: 2, 7: 2, 10: 3 };
+function cyc(a, b) { const d = Math.abs(a - b); return Math.min(d, 7 - d); }
+
+const DEF = {
+  cost: { 1: { w: 1, c: 2 }, 2: { w: 2, c: 6, cn: 3 }, 3: { w: 2, c: 5 }, 4: { w: 4, c: 6 }, 5: { w: 4, c: 6 } },
+  inc: { D: [1, 2, 3, 4, 5, 6, 7, 8, 8], THc: [0, 2, 4, 6, 8], THpw: [0, 1, 2, 4, 6], TEp: [0, 1, 2, 3], TEpw: [0, 0, 0, 0], SH: { pw: 2 }, SA: { p: 1 } },
+  dig: { w: 2, c: 5, p: 1, max: 2 }, ship: { start: 0, max: 3 }
+};
+// 14 factions, two per home terrain. Names and wording are TerrAImysticAI's own.
+const FAC = {
+  furrow: { n: 'Furrowfolk', t: 0, i: '🌾', vp: 20, start: { w: 3, c: 15 }, pw: [3, 9], cult: [0, 0, 1, 1], dig: { w: 2, c: 1, p: 1, max: 2 }, sh: { w: 4, c: 8 },
+    a1: 'Patient tillers: every shovel you use scores +1 VP, wherever it comes from. Your Digging upgrades cost less (2 workers, 1 coin, 1 sage).',
+    a2: 'Citadel (once): Great Furrow. Take 3 shovels to use on spaces you can reach, and you may put a Hut on one space they finish.' },
+  chant: { n: 'Chanters', t: 0, i: '🎐', vp: 15, start: { w: 3, c: 15 }, pw: [5, 7], cult: [1, 0, 1, 0], sh: { w: 4, c: 8 }, sa: { w: 4, c: 8 },
+    a1: 'Echoing hymn: whenever a rival draws power from your buildings, climb 1 step on a circle you choose. If every rival declines, take 1 power instead.',
+    a2: 'Citadel (once): score 7 VP.' },
+  gild: { n: 'Gilders', t: 1, i: '⚗️', vp: 25, start: { w: 3, c: 15 }, pw: [5, 7], cult: [1, 1, 0, 0], shInc: { c: 6 },
+    a1: 'Gold from fumes: on your turn, swap 1 VP for 1 coin or 2 coins for 1 VP as often as you like. At the end, spare coins score 1 VP per 2.',
+    a2: 'Citadel: take 12 power right away, then 2 power for every shovel you use from then on.' },
+  bog: { n: 'Bogwardens', t: 1, i: '🕯️', vp: 15, start: { w: 1, c: 15, p: 1 }, pw: [5, 7], cult: [0, 1, 1, 0], dig: null, sa: { w: 4, c: 10 }, saInc: { p: 2 },
+    a1: 'Sage diggers: you pay for shovels with sages (1 each) instead of workers and score 2 VP per shovel. You have no Digging track.',
+    a2: 'Citadel (once): Ordination. Trade up to 3 workers for sages.' },
+  tide: { n: 'Tidecallers', t: 2, i: '🐚', vp: 20, start: { w: 3, c: 15 }, pw: [3, 9], cult: [0, 2, 0, 0], ship: { start: 1, max: 5 }, sa: { w: 4, c: 8 },
+    a1: 'River-born: you begin at Sailing 1 and can reach Sailing 5. Your Towns may link across one river space.',
+    a2: 'Citadel (once): climb 1 Sailing level for free and score its VP.' },
+  shoal: { n: 'Shoalkin', t: 2, i: '🐟', vp: 20, start: { w: 8, c: 20 }, pw: [3, 9], cult: [1, 1, 1, 1],
+    cost: { 1: { w: 2, c: 3 }, 2: { w: 3, c: 8, cn: 4 }, 3: { w: 3, c: 6 }, 4: { w: 5, c: 8 }, 5: { w: 5, c: 8 } },
+    inc: { D: [2, 3, 4, 5, 6, 7, 8, 9, 9], THc: [0, 2, 4, 6, 9], THpw: [0, 2, 4, 6, 8] }, shInc: { pw: 4 }, saInc: { p: 2 },
+    a1: 'Swarm crews: every building costs a little more, but your income is bigger, and each Town you found adds 3 workers.',
+    a2: 'Citadel: once a round, upgrade a Hut to a Market for free.' },
+  coven: { n: 'Broomcoven', t: 3, i: '🧹', vp: 20, start: { w: 3, c: 15 }, pw: [5, 7], cult: [0, 0, 0, 2],
+    a1: 'Gathering: score 5 VP every time you found a Town.',
+    a2: 'Citadel: once a round, Broom Flight. Put a free Hut on any empty Grove space on the map.' },
+  veil: { n: 'Veilwood', t: 3, i: '🌫️', vp: 25, start: { w: 3, c: 15 }, pw: [5, 7], cult: [0, 1, 0, 1], sa: { w: 4, c: 8 },
+    a1: 'Hidden strength: no starting perk, but you begin with more VP and lean on your Citadel.',
+    a2: 'Citadel: take a Blessing right away, then once a round climb 2 steps on any circle.' },
+  delve: { n: 'Deepdelvers', t: 4, i: '⛏️', vp: 20, start: { w: 3, c: 15 }, pw: [5, 7], cult: [0, 0, 2, 0], ship: null,
+    a1: 'Tunnels: you have no Sailing. When reshaping, you may skip one space (land or river) for 2 extra workers and score 4 VP. Final realm size counts tunnel reach.',
+    a2: 'Citadel: tunnels need only 1 extra worker.' },
+  span: { n: 'Spanwrights', t: 4, i: '🌉', vp: 15, start: { w: 2, c: 10 }, pw: [3, 9], cult: [0, 0, 0, 0],
+    cost: { 1: { w: 1, c: 1 }, 2: { w: 1, c: 4, cn: 2 }, 3: { w: 1, c: 4 }, 4: { w: 3, c: 6 }, 5: { w: 3, c: 6 } },
+    inc: { D: [1, 2, 3, 3, 4, 5, 5, 6, 7], TEp: [0, 1, 1, 2], TEpw: [0, 0, 5, 5] },
+    a1: 'Cheap builders: lower building costs, plus a Bridge action for 2 workers that you can repeat in a round. Lower worker income, and your 2nd Shrine gives 5 power instead of a sage.',
+    a2: 'Citadel: when you pass, score 3 VP for each of your bridges with your buildings at both ends.' },
+  titan: { n: 'Ashtitans', t: 5, i: '🗿', vp: 25, start: { w: 3, c: 15 }, pw: [5, 7], cult: [1, 0, 0, 1], shInc: { pw: 4 },
+    a1: 'Heavy hands: turning any terrain into Ashland always takes exactly 2 shovels. A single bonus shovel from a circle is wasted.',
+    a2: 'Citadel: once a round, 2 free shovels to turn a space you can reach into Ashland; you may put a Hut there.' },
+  rift: { n: 'Riftweavers', t: 5, i: '🌀', vp: 20, start: { w: 4, c: 15 }, pw: [5, 7], cult: [2, 0, 0, 0], sh: { w: 4, c: 4 }, sa: { w: 4, c: 8 }, shInc: { w: 2 },
+    a1: 'Lone rift: you start with just 1 Hut, placed last. Each Shrine and your Sanctum bring 2 Blessings instead of 1.',
+    a2: 'Citadel: once a round, Time Rift. Take two actions back to back.' },
+  glide: { n: 'Dunegliders', t: 6, i: '🪁', vp: 30, start: { w: 3, c: 15 }, pw: [7, 5], cult: [1, 0, 0, 1], ship: null, sh: { w: 4, c: 10 }, shInc: { p: 1 }, dig: { w: 2, c: 5, p: 1, max: 1 },
+    a1: 'Glide: you have no Sailing. When reshaping, you may skip one space for 1 sage and score 4 VP. Only one Digging upgrade. Final realm size counts glide reach.',
+    a2: 'Citadel: glides may skip 2 spaces.' },
+  sand: { n: 'Sandriders', t: 6, i: '🐎', vp: 20, start: { w: 2, c: 15 }, pw: [5, 7], cult: [1, 0, 1, 0], sh: { w: 4, c: 8 },
+    a1: 'Caravan: you start with 3 Huts (the third goes down after everyone\u2019s second).',
+    a2: 'Citadel: once a round, Dune Surge. Turn a land space next to your buildings into Dunes with no shovels; you may put a Hut there.' }
+};
+const FAC_KEYS = Object.keys(FAC);
+for (const k of FAC_KEYS) {
+  const F = FAC[k]; F.id = k;
+  F.cost = Object.assign({}, DEF.cost, F.cost || {});
+  if (F.sh) F.cost[4] = F.sh; if (F.sa) F.cost[5] = F.sa;
+  F.inc = Object.assign({}, DEF.inc, F.inc || {});
+  if (F.shInc) F.inc.SH = F.shInc; if (F.saInc) F.inc.SA = F.saInc;
+  if (F.dig === undefined) F.dig = DEF.dig;
+  if (F.ship === undefined) F.ship = DEF.ship;
+  F.start = Object.assign({ w: 0, c: 0, p: 0 }, F.start);
+}
+
+// Scoring tiles: action-phase VP + end-of-round cult bonus.
+const SCORE = [
+  { id: 0, n: 'Groundbreak', act: 'spade', v: 2, cult: 2, req: 1, rw: { c: 1 } },
+  { id: 1, n: 'Founders\u2019 Feast', act: 'town', v: 5, cult: 2, req: 4, rw: { spade: 1 } },
+  { id: 2, n: 'Homestead Rush', act: 'D', v: 2, cult: 1, req: 4, rw: { p: 1 } },
+  { id: 3, n: 'Citadel of Embers', act: 'SHSA', v: 5, cult: 0, req: 2, rw: { w: 1 } },
+  { id: 4, n: 'Hearth Boom', act: 'D', v: 2, cult: 0, req: 4, rw: { pw: 4 } },
+  { id: 5, n: 'Tidal Bazaar', act: 'TH', v: 3, cult: 1, req: 4, rw: { spade: 1 } },
+  { id: 6, n: 'Citadel of Winds', act: 'SHSA', v: 5, cult: 3, req: 2, rw: { w: 1 } },
+  { id: 7, n: 'Breeze Bazaar', act: 'TH', v: 3, cult: 3, req: 4, rw: { spade: 1 } },
+  { id: 8, n: 'Shrine Song', act: 'TE', v: 4, cult: -1, req: 1, rw: { c: 2 } }
+];
+// Round bonus scrolls.
+const BONUS = [
+  { id: 0, n: 'Digger\u2019s Boon', inc: { c: 2 }, sp: 'spade', i: '⛏️' },
+  { id: 1, n: 'Seeker\u2019s Boon', inc: { c: 4 }, sp: 'cult', i: '🛐' },
+  { id: 2, n: 'Coffer Boon', inc: { c: 6 }, i: '💰' },
+  { id: 3, n: 'Oar Boon', inc: { pw: 3 }, ship: 1, i: '⛵' },
+  { id: 4, n: 'Toil Boon', inc: { w: 1, pw: 3 }, i: '🔨' },
+  { id: 5, n: 'Citadel Boon', inc: { w: 2 }, pass: 'SHSA', i: '🏰' },
+  { id: 6, n: 'Bazaar Boon', inc: { w: 1 }, pass: 'TH', i: '🏪' },
+  { id: 7, n: 'Novice Boon', inc: { p: 1 }, i: '🙏' },
+  { id: 8, n: 'Cottage Boon', inc: { c: 2 }, pass: 'D', i: '🏠' },
+  { id: 9, n: 'Anchor Boon', inc: { pw: 3 }, pass: 'ship', i: '⚓' }
+];
+// Favor tiles (one of each type per player).
+const FAVOR = [
+  { id: 0, n: 'Ember Vow', cult: 0, s: 3, cnt: 1 }, { id: 1, n: 'Tide Vow', cult: 1, s: 3, cnt: 1 },
+  { id: 2, n: 'Stone Vow', cult: 2, s: 3, cnt: 1 }, { id: 3, n: 'Gale Vow', cult: 3, s: 3, cnt: 1 },
+  { id: 4, n: 'Kinfire', cult: 0, s: 2, cnt: 3, town6: 1, d: 'Towns need only 6 power' },
+  { id: 5, n: 'Wellspring', cult: 1, s: 2, cnt: 3, sp: 'cult', d: 'Special action: 1 circle step each round' },
+  { id: 6, n: 'Rootstock', cult: 2, s: 2, cnt: 3, inc: { w: 1, pw: 1 }, d: 'Income +1 worker +1 power' },
+  { id: 7, n: 'Stormcell', cult: 3, s: 2, cnt: 3, inc: { pw: 4 }, d: 'Income +4 power' },
+  { id: 8, n: 'Coalpurse', cult: 0, s: 1, cnt: 3, inc: { c: 3 }, d: 'Income +3 coins' },
+  { id: 9, n: 'Dockside Deal', cult: 1, s: 1, cnt: 3, bth: 3, d: '+3 VP per Market you build' },
+  { id: 10, n: 'Cornerstone', cult: 2, s: 1, cnt: 3, bd: 2, d: '+2 VP per Hut you build' },
+  { id: 11, n: 'Caravan Route', cult: 3, s: 1, cnt: 3, pth: 1, d: 'On passing: 2/3/3/4 VP for 1/2/3/4 Markets' }
+];
+// Town charters.
+const TOWN = [
+  { id: 0, n: 'Coin Charter', vp: 5, g: { c: 6 }, cnt: 2 }, { id: 1, n: 'Guild Charter', vp: 7, g: { w: 2 }, cnt: 2 },
+  { id: 2, n: 'Shrine Charter', vp: 9, g: { p: 1 }, cnt: 2 }, { id: 3, n: 'Beacon Charter', vp: 6, g: { pw: 8 }, cnt: 2 },
+  { id: 4, n: 'Council Charter', vp: 8, g: { cult: 1 }, cnt: 2 }, { id: 5, n: 'Pilgrim Charter', vp: 2, g: { cult: 2 }, keys: 2, cnt: 1 },
+  { id: 6, n: 'Navigator Charter', vp: 4, g: { ship: 1 }, cnt: 2 }, { id: 7, n: 'Crown Charter', vp: 11, g: {}, cnt: 1 }
+];
+// Power actions on the board.
+const PACT = [
+  { id: 0, n: 'Bridge', pw: 3 }, { id: 1, n: '1 Sage', pw: 3 }, { id: 2, n: '2 Workers', pw: 4 },
+  { id: 3, n: '7 Coins', pw: 4 }, { id: 4, n: '1 Shovel', pw: 4 }, { id: 5, n: '2 Shovels', pw: 6 }
+];
+const STARTER_SCORE = [0, 2, 5, 1, 3, 4];
+const STARTER_BONUS = [2, 4, 7, 0, 1, 8, 6, 3];
+
+const STRAT = {
+  expand: { n: 'Expansionist', i: '🌱', d: 'Spreads Huts far and wide to own the biggest connected realm.' },
+  devotee: { n: 'Devotee', i: '🔮', d: 'Pours sages into the four circles and races for the top of each track.' },
+  towns: { n: 'Town Builder', i: '🏘️', d: 'Packs buildings tight to found Towns and collect their charters and keys.' },
+  navigator: { n: 'Navigator', i: '⛵', d: 'Buys reach early (sailing, tunnels or glides) and settles across the rivers.' },
+  leech: { n: 'Power Siphon', i: '⚡', d: 'Settles next to rivals, drinks their power and fires the big power actions.' },
+  rusher: { n: 'Citadel Rusher', i: '🏰', d: 'Builds its Citadel as early as it can and leans on that ability all game.' },
+  digger: { n: 'Landshaper', i: '⛏️', d: 'Upgrades digging early and turns the map to its home terrain, scoring every shovel.' },
+  balanced: { n: 'Balanced', i: '⚖️', d: 'Weighs income, circles, towns and area evenly and takes the best value each turn.' }
+};
+const STRAT_KEYS = Object.keys(STRAT);
+const SW = { // weight multipliers per strategy
+  expand: { area: 1.6, exp: 1.5, cult: 0.8, town: 0.9, ship: 1.2, sh: 0.9, dig: 1.2, adj: 1, pw: 1 },
+  devotee: { area: 0.8, exp: 0.9, cult: 1.7, town: 1.1, ship: 0.8, sh: 1, dig: 0.8, adj: 1, pw: 1, p: 1.25 },
+  towns: { area: 1, exp: 1, cult: 1, town: 2.0, ship: 0.9, sh: 1.1, dig: 1, adj: 0.8, pw: 1 },
+  navigator: { area: 1.3, exp: 1.2, cult: 0.9, town: 0.9, ship: 2.0, sh: 1, dig: 0.9, adj: 1, pw: 1 },
+  leech: { area: 1, exp: 1, cult: 1, town: 1, ship: 1, sh: 1, dig: 1, adj: 2.2, pw: 1.3 },
+  rusher: { area: 1, exp: 1, cult: 1, town: 1, ship: 0.9, sh: 2.2, dig: 0.9, adj: 1, pw: 1 },
+  digger: { area: 1.2, exp: 1.5, cult: 0.9, town: 1, ship: 0.8, sh: 1, dig: 2.2, adj: 1, pw: 1 },
+  balanced: { area: 1, exp: 1, cult: 1, town: 1, ship: 1, sh: 1, dig: 1, adj: 1, pw: 1 }
+};
+const DIFF = { easy: { n: 'Easy' }, medium: { n: 'Medium' }, hard: { n: 'Hard' } };
+const BOT_NAMES = ['GAIa', 'MAIrlin', 'AIvalon', 'KAIrn', 'ThAIne'];
+
+/* ---------------- map ---------------- */
+const ROWS = 9, WIDE = 13;
+function rowLen(r) { return r % 2 ? WIDE - 1 : WIDE; }
+const GEO = (function () {
+  const hx = [], id = {};
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c < rowLen(r); c++) { id[r + ',' + c] = hx.length; hx.push({ r, c }); }
+  const N = hx.length, adj = [];
+  for (let i = 0; i < N; i++) {
+    const { r, c } = hx[i], o = r % 2;
+    const cand = [[r, c - 1], [r, c + 1], [r - 1, c - 1 + o], [r - 1, c + o], [r + 1, c - 1 + o], [r + 1, c + o]];
+    adj.push(cand.map(([a, b]) => id[a + ',' + b]).filter(x => x !== undefined));
+    hx[i].q = c - (r - o) / 2; hx[i].z = r;
+  }
+  const dist = (a, b) => { const A = hx[a], B = hx[b]; const dq = A.q - B.q, dz = A.z - B.z; return Math.max(Math.abs(dq), Math.abs(dz), Math.abs(dq + dz)); };
+  const D = new Int8Array(N * N); for (let a = 0; a < N; a++) for (let b = 0; b < N; b++) D[a * N + b] = dist(a, b);
+  return { hx, id, N, adj, D, ROWS, WIDE };
+})();
+const N = GEO.N;
+function isAdj(a, b) { return GEO.adj[a].indexOf(b) >= 0; }
+function hdist(a, b) { return GEO.D[a * N + b]; }
+
+function genMap(seed) {
+  const R = mkRng(seed * 7919 + 13);
+  for (let attempt = 0; attempt < 3000; attempt++) { const m = tryGen(R); if (m) { m.seed = seed; return m; } }
+  throw new Error('map generation failed');
+}
+function tryGen(R) {
+  const riv = new Uint8Array(N), nb = GEO.adj;
+  const rivN = (h, ex) => nb[h].filter(x => riv[x] && x !== ex);
+  function ok(h, from, allowJoin) {
+    if (riv[h]) return 0;
+    const others = rivN(h, from);
+    if (others.length > (allowJoin ? 1 : 0)) return 0;
+    const all = others.concat(from >= 0 ? [from] : []);
+    for (let i = 0; i < all.length; i++) for (let j = i + 1; j < all.length; j++) if (isAdj(all[i], all[j])) return 0;
+    return others.length ? 2 : 1;
+  }
+  const edge = h => { const { r, c } = GEO.hx[h]; return r === 0 || r === ROWS - 1 || c === 0 || c === rowLen(r) - 1; };
+  function walk(start, target, maxLen, joinOK) {
+    riv[start] = 1; let cur = start;
+    for (let s = 0; s < maxLen; s++) {
+      const cands = [];
+      for (const n of nb[cur]) { const k = ok(n, cur, joinOK && s > 1); if (!k) continue; if (edge(n) && s < 3) continue; cands.push({ n, k, sc: -hdist(n, target) + R() * 1.8 }); }
+      if (!cands.length) return;
+      cands.sort((a, b) => b.sc - a.sc);
+      const pick = cands[0]; riv[pick.n] = 1; cur = pick.n;
+      if (pick.k === 2) return;
+      if (pick.n === target || edge(pick.n)) return;
+    }
+  }
+  const H = (r, c) => GEO.id[r + ',' + c];
+  walk(H(3 + Math.floor(R() * 3), 0), H(2 + Math.floor(R() * 5), WIDE - 1), 22, false);
+  walk(H(0, 2 + Math.floor(R() * 9)), H(ROWS - 1, 1 + Math.floor(R() * 10)), 14, true);
+  let tries = 0;
+  while (riv.reduce((a, b) => a + b, 0) < 34 && tries++ < 40) {
+    const rs = []; for (let i = 0; i < N; i++) if (riv[i]) rs.push(i);
+    const s = rs[Math.floor(R() * rs.length)];
+    const firsts = nb[s].filter(n => ok(n, s, false) === 1);
+    if (!firsts.length) continue;
+    const f = firsts[Math.floor(R() * firsts.length)];
+    const edges = []; for (let i = 0; i < N; i++) if (edge(i) && hdist(i, f) >= 3 && hdist(i, f) <= 6) edges.push(i);
+    if (!edges.length) continue;
+    walk(f, edges[Math.floor(R() * edges.length)], 3 + Math.floor(R() * 5), true);
+  }
+  const nr = riv.reduce((a, b) => a + b, 0);
+  if (nr < 33 || nr > 39) return null;
+  const seen = new Uint8Array(N);
+  for (let i = 0; i < N; i++) if (!riv[i] && !seen[i]) {
+    let sz = 0; const q = [i]; seen[i] = 1;
+    while (q.length) { const x = q.pop(); sz++; for (const y of nb[x]) if (!riv[y] && !seen[y]) { seen[y] = 1; q.push(y); } }
+    if (sz < 3) return null;
+  }
+  for (let i = 0; i < N; i++) if (riv[i] && nb[i].filter(x => !riv[x]).length < 2) return null;
+  const land = []; for (let i = 0; i < N; i++) if (!riv[i]) land.push(i);
+  const cap = Math.ceil(land.length / 7);
+  for (let k = 0; k < 60; k++) {
+    const terr = new Array(N).fill(RIVER), cnt = [0, 0, 0, 0, 0, 0, 0];
+    for (const h of land) terr[h] = -2;
+    let fail = false;
+    for (const h of shuffle(land.slice(), R)) {
+      const used = new Set(nb[h].map(x => terr[x]).filter(x => x >= 0));
+      let opts = [0, 1, 2, 3, 4, 5, 6].filter(t => !used.has(t) && cnt[t] < cap);
+      if (!opts.length) { fail = true; break; }
+      const mn = Math.min(...opts.map(t => cnt[t])); opts = opts.filter(t => cnt[t] === mn);
+      const t = opts[Math.floor(R() * opts.length)]; terr[h] = t; cnt[t]++;
+    }
+    if (fail || Math.max(...cnt) - Math.min(...cnt) > 1) continue;
+    return finishMap(terr);
+  }
+  return null;
+}
+function finishMap(terr) {
+  const nb = GEO.adj;
+  const ship = new Int8Array(N * N).fill(99);
+  for (let a = 0; a < N; a++) if (terr[a] >= 0) {
+    const d = new Int8Array(N).fill(99), q = [];
+    for (const x of nb[a]) if (terr[x] < 0) { d[x] = 1; q.push(x); }
+    for (let qi = 0; qi < q.length; qi++) { const x = q[qi]; for (const y of nb[x]) if (terr[y] < 0 && d[y] > d[x] + 1) { d[y] = d[x] + 1; q.push(y); } }
+    for (let x = 0; x < N; x++) if (terr[x] < 0 && d[x] < 99) for (const b of nb[x]) if (terr[b] >= 0 && b !== a && d[x] < ship[a * N + b]) ship[a * N + b] = d[x];
+  }
+  // bridge spots: two land spaces whose two shared neighbours are both river
+  const bridges = [];
+  for (let a = 0; a < N; a++) if (terr[a] >= 0) for (let b = a + 1; b < N; b++) if (terr[b] >= 0 && hdist(a, b) === 2) {
+    const common = nb[a].filter(x => nb[b].indexOf(x) >= 0);
+    if (common.length === 2 && common.every(x => terr[x] < 0)) bridges.push({ a, b, r: common });
+  }
+  return { terr, ship, bridges };
+}
+const MAPC = {};
+function mapOf(st) { const k = st.mapSeed; if (!MAPC[k]) MAPC[k] = genMap(k); return MAPC[k]; }
+const STANDARD_SEED = 99;
+
+/* ---------------- helpers ---------------- */
+function F(P) { return FAC[P.fac]; }
+function cult10Taken(st, c) { return st.players.some(q => q.cult[c] >= 10); }
+function keysFree(P) { return P.keys - P.cult.filter(x => x >= 10).length; }
+function capacity(P) { return P.b[0] * 2 + P.b[1]; }
+function gainPW(P, n) {
+  let g = 0;
+  while (n > 0 && P.b[0] > 0) { P.b[0]--; P.b[1]++; n--; g++; }
+  while (n > 0 && P.b[1] > 0) { P.b[1]--; P.b[2]++; n--; g++; }
+  return g;
+}
+function psup(P) { return 7 - P.p - P.ord; }
+function gainP(P, n) { const g = Math.max(0, Math.min(n, psup(P))); P.p += g; return g; }
+function log(st, txt, cls) { if (st.sim) return; st.log.push({ t: txt, c: cls || '' }); if (st.log.length > 500) st.log.splice(0, st.log.length - 500); }
+function addVP(P, n, cat) { if (!n) return; P.vp += n; P.vb[cat] = (P.vb[cat] || 0) + n; }
+function curScore(st) { return SCORE[st.tiles[Math.max(0, st.round - 1)]]; }
+function bldCount(st, p) { const c = [0, 0, 0, 0, 0, 0]; for (let h = 0; h < N; h++) if (st.own[h] === p) c[st.bt[h]]++; return c; }
+function spadeNeed(P, T) { if (T === P.terr) return 0; if (P.fac === 'titan') return 2; return cyc(T, P.terr); }
+function rate(P) { return 3 - P.dig; }
+function shipLevel(st, P) { if (!F(P).ship) return 0; return P.ship + (P.bon >= 0 && BONUS[P.bon].ship && !P.passed ? 1 : 0); }
+function carpetRange(P) { return 1 + (P.shBuilt ? 1 : 0) + (P.carpetPlus || 0); }
+function ownBridgeAdj(st, p, h) { const m = []; for (const b of st.bridges) if (b.p === p) { const s = st.mapB[b.i]; if (s.a === h) m.push(s.b); else if (s.b === h) m.push(s.a); } return m; }
+function directNb(st, p, h) { const r = GEO.adj[h].slice(); for (const x of ownBridgeAdj(st, p, h)) r.push(x); return r; }
+function stepToward(T, home, s) {
+  for (let i = 0; i < s; i++) { if (T === home) break; const up = (home - T + 7) % 7; T = up <= 3 ? (T + 1) % 7 : (T + 6) % 7; }
+  return T;
+}
+/* reach: 0 none, 1 normal (direct or shipping), 2 tunnel/glide only */
+function reachMap(st, p, noSpecial) {
+  const P = st.players[p], M = mapOf(st), out = new Int8Array(N);
+  const sh = shipLevel(st, P), fac = P.fac;
+  const mine = []; for (let h = 0; h < N; h++) if (st.own[h] === p) mine.push(h);
+  for (const h of mine) {
+    for (const x of directNb(st, p, h)) out[x] = 1;
+    if (sh > 0) { const base = h * N; for (let x = 0; x < N; x++) if (M.ship[base + x] <= sh) out[x] = 1; }
+  }
+  if (!noSpecial && (fac === 'delve' || fac === 'glide')) {
+    const rr = fac === 'delve' ? 2 : carpetRange(P) + 1;
+    for (const h of mine) for (let x = 0; x < N; x++) if (!out[x] && hdist(h, x) <= rr) out[x] = 2;
+  }
+  for (let x = 0; x < N; x++) if (st.terr[x] < 0 || st.own[x] >= 0) out[x] = 0;
+  return out;
+}
+
+/* ---------------- payment ---------------- */
+// cost: {w,c,p,pw}. pw is paid from bowl III. Shortfalls are covered automatically from power (burning if needed).
+function plan(P, cost) {
+  const w = cost.w || 0, c = cost.c || 0, p = cost.p || 0, pw = cost.pw || 0;
+  let dw = Math.max(0, w - P.w), dc = Math.max(0, c - P.c);
+  const dp = Math.max(0, p - P.p), spareW = Math.max(0, P.w - w);
+  let wc = 0;
+  for (let it = 0; it < 2; it++) {
+    const need = pw + dc + 3 * dw + 5 * dp, burnable = Math.floor(P.b[1] / 2);
+    if (need <= P.b[2]) return { need, burn: 0, dw, dc, dp, wc };
+    if (need - P.b[2] <= burnable) return { need, burn: need - P.b[2], dw, dc, dp, wc };
+    if (it === 0 && dc > 0 && spareW > 0) { wc = Math.min(dc, spareW); dc -= wc; } else break;
+  }
+  return null;
+}
+function canPay(P, cost) { const pl = plan(P, cost); return !!pl && !(pl.dp > 0 && psup(P) < pl.dp); }
+function pay(st, P, cost) {
+  const pl = plan(P, cost); if (!pl) throw new Error('cannot afford');
+  P.b[1] -= 2 * pl.burn; P.b[2] += pl.burn;
+  P.b[2] -= pl.need; P.b[0] += pl.need;
+  P.w += pl.dw; P.c += pl.dc; P.p += pl.dp; P.w -= pl.wc; P.c += pl.wc;
+  P.w -= cost.w || 0; P.c -= cost.c || 0; P.p -= cost.p || 0;
+  if (P.w < 0 || P.c < 0 || P.p < 0 || P.b[1] < 0 || P.b[2] < 0) throw new Error('negative resources');
+  if (!st.sim) { const t = convText(null, cost, pl); if (t) log(st, '  (' + P.name + ' converted ' + t + ')', 'dim'); }
+}
+function convText(P, cost, pl) {
+  pl = pl || plan(P, cost); if (!pl) return null;
+  const parts = []; if (pl.burn) parts.push('burn ' + pl.burn + '⚡'); if (pl.dc) parts.push(pl.dc + '⚡→' + pl.dc + '💰'); if (pl.dw) parts.push(pl.dw * 3 + '⚡→' + pl.dw + '👷'); if (pl.dp) parts.push(pl.dp * 5 + '⚡→' + pl.dp + '🙏'); if (pl.wc) parts.push(pl.wc + '👷→' + pl.wc + '💰');
+  return parts.join(', ');
+}
+function costText(cost) {
+  const p = []; if (cost.w) p.push(cost.w + '👷'); if (cost.c) p.push(cost.c + '💰'); if (cost.p) p.push(cost.p + '🙏'); if (cost.pw) p.push(cost.pw + '⚡');
+  return p.length ? p.join(' ') : 'free';
+}
+
+/* ---------------- new game ---------------- */
+function newGame(cfg) {
+  const seed = cfg.seed == null ? Math.floor(Math.random() * 1e9) : cfg.seed;
+  const R = mkRng(seed);
+  const opts = Object.assign({ map: 'standard', quick: false, tiles: 'starter', vp: 'faction', hints: false }, cfg.opts || {});
+  const n = cfg.players.length;
+  if (n < 2 || n > 5) throw new Error('2-5 players');
+  const st = { v: 1, seed, rs: (seed ^ 0x9e3779b9) >>> 0, n, opts, round: 0, maxRound: opts.quick ? 4 : 6, phase: 'setup', pending: [], log: [], over: false, winner: -1 };
+  st.mapSeed = opts.map === 'random' ? 1000 + Math.floor(R() * 1e6) : STANDARD_SEED;
+  const M = mapOf(st);
+  st.mapB = M.bridges;
+  st.terr = M.terr.slice(); st.own = new Array(N).fill(-1); st.bt = new Array(N).fill(0); st.town = new Array(N).fill(0);
+  st.lb = {}; st.bridges = []; st.slots = [[-1, -1, -1, -1], [-1, -1, -1, -1], [-1, -1, -1, -1], [-1, -1, -1, -1]];
+  if (opts.tiles === 'random') {
+    let t; do { t = shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8], R).slice(0, 6); } while (t[4] === 0 || t[5] === 0);
+    st.tiles = t; st.bonusIds = shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], R).slice(0, n + 3);
+  } else { st.tiles = STARTER_SCORE.slice(); st.bonusIds = STARTER_BONUS.slice(0, n + 3); }
+  if (opts.quick) st.tiles = st.tiles.slice(0, 4);
+  st.pool = st.bonusIds.map(id => ({ id, coins: 0 }));
+  st.favLeft = FAVOR.map(f => f.cnt); st.townLeft = TOWN.map(t => t.cnt);
+  st.pact = [0, 0, 0, 0, 0, 0];
+  const usedT = new Set(), facs = new Array(n);
+  cfg.players.forEach((pc, i) => { const f = pc.faction; if (f && FAC[f] && !usedT.has(FAC[f].t)) { facs[i] = f; usedT.add(FAC[f].t); } });
+  cfg.players.forEach((pc, i) => { if (facs[i]) return; const pool = FAC_KEYS.filter(k => !usedT.has(FAC[k].t)); const f = pool[Math.floor(R() * pool.length)]; facs[i] = f; usedT.add(FAC[f].t); });
+  let bi = 0;
+  st.players = cfg.players.map((pc, i) => {
+    const Fd = FAC[facs[i]];
+    const strat = pc.human ? null : (pc.strategy && STRAT[pc.strategy] ? pc.strategy : STRAT_KEYS[Math.floor(R() * STRAT_KEYS.length)]);
+    const P = { i, name: pc.human ? 'You' : (pc.name || BOT_NAMES[bi++ % BOT_NAMES.length]), human: !!pc.human, fac: facs[i], terr: Fd.t, color: TERR[Fd.t].c,
+      strategy: strat, stratRandom: !pc.human && !(pc.strategy && STRAT[pc.strategy]), difficulty: pc.human ? null : (DIFF[pc.difficulty] ? pc.difficulty : 'medium'),
+      vp: 0, vb: {}, w: Fd.start.w, c: Fd.start.c, p: Fd.start.p, ord: 0, b: [Fd.pw[0], Fd.pw[1], 0], ship: Fd.ship ? Fd.ship.start : 0, dig: 0,
+      cult: Fd.cult.slice(), favs: [], towns: [], keys: 0, bon: -1, passed: false, used: {}, more: 0, shBuilt: false, saBuilt: false, carpetPlus: 0, bridgesLeft: 3, spadesUsed: 0,
+      bc: [0, 0, 0, 0, 0, 0] };
+    addVP(P, opts.vp === 'even' ? 20 : Fd.vp, 'start');
+    return P;
+  });
+  const hi = st.players.findIndex(p => p.human);
+  st.start = (cfg.first === 'me' && hi >= 0) ? hi : Math.floor(R() * n);
+  const ord = []; for (let k = 0; k < n; k++) ord.push((st.start + k) % n);
+  const seq = [];
+  for (const p of ord) if (st.players[p].fac !== 'rift') seq.push(p);
+  for (const p of ord.slice().reverse()) if (st.players[p].fac !== 'rift') seq.push(p);
+  for (const p of ord) if (st.players[p].fac === 'sand') seq.push(p);
+  for (const p of ord) if (st.players[p].fac === 'rift') seq.push(p);
+  for (const p of seq) st.pending.push({ type: 'place', p });
+  for (const p of ord.slice().reverse()) st.pending.push({ type: 'bonus', p });
+  log(st, 'New game: ' + st.players.map(P => P.name + ' (' + FAC[P.fac].n + ', ' + TERR[P.terr].n + ')').join(', ') + '.', 'turn');
+  log(st, st.players[st.start].name + ' ' + (st.players[st.start].human ? 'go' : 'goes') + ' first. Place starting Huts on home terrain, then pick a boon.');
+  return st;
+}
+
+/* ---------------- legal actions ---------------- */
+function actor(st) { if (st.over) return -1; if (st.pending.length) return st.pending[0].p; if (st.phase === 'act') return st.cur; return -1; }
+function legal(st, forUI) {
+  if (st.over) return [];
+  if (st.pending.length) return legalPending(st);
+  if (st.phase !== 'act') return [];
+  return legalMain(st, st.cur, forUI);
+}
+function cultOK(st, P, c, n) { return P.cult[c] < 9 || (P.cult[c] === 9 && keysFree(P) > 0 && !cult10Taken(st, c)); }
+function legalPending(st) {
+  const pd = st.pending[0], p = pd.p, P = st.players[p], L = [];
+  if (pd.type === 'place') { for (let h = 0; h < N; h++) if (st.terr[h] === P.terr && st.own[h] < 0) L.push({ t: 'place', h }); }
+  else if (pd.type === 'bonus') { st.pool.forEach(b => L.push({ t: 'bonus', b: b.id })); }
+  else if (pd.type === 'leech') { L.push({ t: 'leech', y: 1 }); L.push({ t: 'leech', y: 0 }); }
+  else if (pd.type === 'cult') { for (let c = 0; c < 4; c++) if (cultOK(st, P, c)) L.push({ t: 'cult', c }); if (!L.length) L.push({ t: 'cult', c: -1 }); }
+  else if (pd.type === 'favor') { FAVOR.forEach(f => { if (st.favLeft[f.id] > 0 && P.favs.indexOf(f.id) < 0) L.push({ t: 'favor', f: f.id }); }); if (!L.length) L.push({ t: 'favor', f: -1 }); }
+  else if (pd.type === 'town') { TOWN.forEach(t => { if (st.townLeft[t.id] > 0) L.push({ t: 'town', k: t.id }); }); if (!L.length) L.push({ t: 'town', k: -1 }); }
+  else if (pd.type === 'ordain') { const mx = Math.min(3, P.w, psup(P)); for (let k = mx; k >= 0; k--) L.push({ t: 'ordain', k }); }
+  else if (pd.type === 'spades') {
+    const R = reachMap(st, p, true);
+    for (let h = 0; h < N; h++) if (R[h] === 1 && st.terr[h] !== P.terr) {
+      const need = spadeNeed(P, st.terr[h]);
+      if (P.fac === 'titan' && pd.n < 2) continue;
+      L.push({ t: 'spade', h, b: 0 });
+      if (pd.build && need <= pd.n && P.bc[1] < 8 && canPay(P, F(P).cost[1])) L.push({ t: 'spade', h, b: 1 });
+    }
+    L.push({ t: 'spade', h: -1, b: 0 });
+  }
+  return L;
+}
+function tbCost(st, p, h, src, b, reach) {
+  const P = st.players[p], Fd = F(P), need = spadeNeed(P, st.terr[h]);
+  const free = src === 'pa5' ? 1 : src === 'pa6' ? 2 : src === 'bon' ? 1 : src === 'gi' ? 2 : 0;
+  if (src !== 'w' && need < 1) return null;
+  if (src === 'gi' && need !== 2) return null;
+  if (src === 'w' && need === 0 && !b) return null;
+  const miss = Math.max(0, need - free);
+  const cost = { w: 0, c: 0, p: 0, pw: src === 'pa5' ? 4 : src === 'pa6' ? 6 : 0 };
+  if (P.fac === 'bog') cost.p += miss; else cost.w += miss * rate(P);
+  if (reach === 2) { if (P.fac === 'delve') cost.w += P.shBuilt ? 1 : 2; else cost.p += 1; }
+  if (b) { cost.w += Fd.cost[1].w; cost.c += Fd.cost[1].c; }
+  return { cost, need, extra: Math.max(0, free - need), miss };
+}
+function upCost(st, p, h, to) {
+  const P = st.players[p], c = F(P).cost[to];
+  if (to === 2) { const nbOpp = GEO.adj[h].some(x => st.own[x] >= 0 && st.own[x] !== p); return { w: c.w, c: nbOpp ? c.cn : c.c }; }
+  return { w: c.w, c: c.c };
+}
+function legalMain(st, p, forUI) {
+  const P = st.players[p], Fd = F(P), L = [], bc = P.bc;
+  const R = reachMap(st, p), dLeft = bc[1] < 8;
+  const srcs = ['w'];
+  if (!st.pact[4]) srcs.push('pa5'); if (!st.pact[5]) srcs.push('pa6');
+  if (P.bon >= 0 && BONUS[P.bon].sp === 'spade' && !P.used.bon) srcs.push('bon');
+  if (P.fac === 'titan' && P.shBuilt && !P.used.fac) srcs.push('gi');
+  for (let h = 0; h < N; h++) if (R[h]) for (const src of srcs) for (const b of (dLeft ? [1, 0] : [0])) {
+    const tc = tbCost(st, p, h, src, b, R[h]); if (!tc) continue;
+    if (canPay(P, tc.cost)) L.push({ t: 'tb', h, src, b, r: R[h] });
+  }
+  for (let h = 0; h < N; h++) if (st.own[h] === p) {
+    const k = st.bt[h], ups = k === 1 ? [2] : k === 2 ? [3, 4] : k === 3 ? [5] : [];
+    for (const to of ups) if (bc[to] < SUPPLY[to] && canPay(P, upCost(st, p, h, to))) L.push({ t: 'up', h, to });
+    if (k === 1 && P.fac === 'shoal' && P.shBuilt && !P.used.fac && bc[2] < 4) L.push({ t: 'free', h });
+  }
+  if (Fd.ship && P.ship < Fd.ship.max && canPay(P, { p: 1, c: 4 })) L.push({ t: 'ship' });
+  if (Fd.dig && P.dig < Fd.dig.max && canPay(P, Fd.dig)) L.push({ t: 'dig' });
+  if (P.p > 0) for (let c = 0; c < 4; c++) {
+    if (!cultOK(st, P, c)) continue;
+    const s = st.slots[c].indexOf(-1); if (s >= 0) L.push({ t: 'pr', c, s });
+    L.push({ t: 'pr', c, s: 4 });
+  }
+  if (!st.pact[1] && psup(P) > 0 && canPay(P, { pw: 3 })) L.push({ t: 'pa', k: 1 });
+  if (!st.pact[2] && canPay(P, { pw: 4 })) L.push({ t: 'pa', k: 2 });
+  if (!st.pact[3] && canPay(P, { pw: 4 })) L.push({ t: 'pa', k: 3 });
+  if (P.bridgesLeft > 0) {
+    const okB = !st.pact[0] && canPay(P, { pw: 3 }), okE = P.fac === 'span' && canPay(P, { w: 2 });
+    if (okB || okE) st.mapB.forEach((s, i) => {
+      if (st.bridges.some(b => b.i === i)) return;
+      if (st.own[s.a] !== p && st.own[s.b] !== p) return;
+      if (okB) L.push({ t: 'br', i, src: 'pa' });
+      if (okE) L.push({ t: 'br', i, src: 'eng' });
+    });
+  }
+  if (P.bon >= 0 && BONUS[P.bon].sp === 'cult' && !P.used.bon) for (let c = 0; c < 4; c++) if (cultOK(st, P, c)) L.push({ t: 'sp', k: 'bcult', c });
+  if (P.favs.indexOf(5) >= 0 && !P.used.fav) for (let c = 0; c < 4; c++) if (cultOK(st, P, c)) L.push({ t: 'sp', k: 'fcult', c });
+  if (P.shBuilt && !P.used.fac) {
+    if (P.fac === 'veil') for (let c = 0; c < 4; c++) if (cultOK(st, P, c)) L.push({ t: 'sp', k: 'veil', c });
+    if (P.fac === 'coven' && dLeft) for (let h = 0; h < N; h++) if (st.terr[h] === 3 && st.own[h] < 0) L.push({ t: 'sp', k: 'ride', h });
+    if (P.fac === 'rift') L.push({ t: 'sp', k: 'double' });
+    if (P.fac === 'sand') {
+      const seen = new Set();
+      for (let h = 0; h < N; h++) if (st.own[h] === p) for (const x of GEO.adj[h]) if (!seen.has(x) && st.terr[x] >= 0 && st.terr[x] !== P.terr && st.own[x] < 0) {
+        seen.add(x); L.push({ t: 'sp', k: 'surge', h: x, b: 0 }); if (dLeft && canPay(P, Fd.cost[1])) L.push({ t: 'sp', k: 'surge', h: x, b: 1 });
+      }
+    }
+  }
+  if (forUI) {
+    if (P.b[2] >= 1) L.push({ t: 'cv', k: 'pc' });
+    if (P.b[2] >= 3) L.push({ t: 'cv', k: 'pw' });
+    if (P.b[2] >= 5 && psup(P) > 0) L.push({ t: 'cv', k: 'pp' });
+    if (P.p > 0) L.push({ t: 'cv', k: 'qw' });
+    if (P.w > 0) L.push({ t: 'cv', k: 'wc' });
+    if (P.b[1] >= 2) L.push({ t: 'cv', k: 'burn' });
+    if (P.fac === 'gild') { if (P.vp > 0) L.push({ t: 'cv', k: 'vc' }); if (P.c >= 2) L.push({ t: 'cv', k: 'cv' }); }
+  }
+  if (st.round >= st.maxRound) L.push({ t: 'pass', b: -1 });
+  else st.pool.forEach(b => { if (b.id !== P.bon) L.push({ t: 'pass', b: b.id }); });
+  return L;
+}
+function actionCost(st, a) {
+  const p = actor(st), P = st.players[p], Fd = F(P);
+  if (a.t === 'tb') return tbCost(st, p, a.h, a.src, a.b, a.r).cost;
+  if (a.t === 'up') return upCost(st, p, a.h, a.to);
+  if (a.t === 'ship') return { p: 1, c: 4 };
+  if (a.t === 'dig') return Fd.dig;
+  if (a.t === 'pr') return { p: 1 };
+  if (a.t === 'pa') return { pw: PACT[a.k].pw };
+  if (a.t === 'br') return a.src === 'eng' ? { w: 2 } : { pw: 3 };
+  if ((a.t === 'sp' && a.k === 'surge' && a.b) || (a.t === 'spade' && a.b)) return Fd.cost[1];
+  return {};
+}
+
+/* ---------------- applying actions ---------------- */
+function key(a) { return JSON.stringify(a); }
+function act(st, a) {
+  if (!a) throw new Error('no action');
+  const k = key(a);
+  if (!legal(st, true).some(x => key(x) === k)) throw new Error('illegal action ' + k);
+  return apply(st, a);
+}
+function apply(st, a) {
+  if (st.pending.length) applyPending(st, a); else applyMain(st, a);
+  flow(st);
+  return st;
+}
+function applyPending(st, a) {
+  const pd = st.pending.shift(), p = pd.p, P = st.players[p];
+  if (a.t === 'place') {
+    st.own[a.h] = p; st.bt[a.h] = 1; P.bc[1]++;
+    log(st, P.name + ' place' + (P.human ? '' : 's') + ' a starting Hut.');
+  } else if (a.t === 'bonus') {
+    const k = st.pool.findIndex(b => b.id === a.b); const card = st.pool.splice(k, 1)[0];
+    P.bon = card.id; P.c += card.coins;
+    log(st, P.name + ' take' + (P.human ? '' : 's') + ' the ' + BONUS[card.id].n + '.');
+  } else if (a.t === 'leech') {
+    const amt = Math.min(pd.amt, capacity(P), P.vp + 1);
+    if (a.y && amt > 0) {
+      gainPW(P, amt); addVP(P, -(amt - 1), 'leech'); st.lb[pd.bid].acc++;
+      log(st, P.name + ' take' + (P.human ? '' : 's') + ' ' + amt + ' power' + (amt > 1 ? ' for ' + (amt - 1) + ' VP' : '') + '.', 'dim');
+    } else log(st, P.name + ' decline' + (P.human ? '' : 's') + ' ' + pd.amt + ' power.', 'dim');
+    const bt = st.lb[pd.bid]; bt.left--;
+    if (bt.left === 0) delete st.lb[pd.bid];
+    if (bt.left === 0 && st.players[pd.from].fac === 'chant') {
+      const C = st.players[pd.from];
+      if (bt.acc > 0) st.pending.unshift({ type: 'cult', p: pd.from, n: 1, why: 'echo' });
+      else { gainPW(C, 1); log(st, C.name + ' gain' + (C.human ? '' : 's') + ' 1 power (no one took power).', 'dim'); }
+    }
+  } else if (a.t === 'cult') {
+    if (a.c >= 0) { const g = advance(st, P, a.c, pd.n); log(st, P.name + ' step' + (P.human ? '' : 's') + ' ' + g + ' up ' + CULTS[a.c].n + '.'); }
+  } else if (a.t === 'favor') { if (a.f >= 0) takeFavor(st, p, a.f); }
+  else if (a.t === 'town') { if (a.k >= 0) takeTown(st, p, a.k); }
+  else if (a.t === 'ordain') { P.w -= a.k; P.p += a.k; log(st, P.name + ' ordain' + (P.human ? '' : 's') + ' ' + a.k + ' worker' + (a.k === 1 ? '' : 's') + ' as sages.'); }
+  else if (a.t === 'spade') {
+    if (a.h < 0) { log(st, P.name + ' forgo' + (P.human ? '' : 'es') + ' ' + pd.n + ' shovel' + (pd.n > 1 ? 's' : '') + '.', 'dim'); return; }
+    const T = st.terr[a.h], need = spadeNeed(P, T);
+    const use = P.fac === 'titan' ? 2 : Math.min(need, pd.n);
+    st.terr[a.h] = P.fac === 'titan' ? P.terr : stepToward(T, P.terr, use);
+    spadeGain(st, P, use, pd.phase === 'act');
+    log(st, P.name + ' use' + (P.human ? '' : 's') + ' ' + use + ' shovel' + (use > 1 ? 's' : '') + ': ' + TERR[T].n + ' → ' + TERR[st.terr[a.h]].n + '.');
+    const left = pd.n - use;
+    let build = pd.build;
+    if (a.b) { pay(st, P, F(P).cost[1]); placeD(st, p, a.h); build = false; }
+    if (left > 0) st.pending.unshift({ type: 'spades', p, n: left, build, phase: pd.phase });
+    if (a.b) afterBuild(st, p, a.h);
+  }
+}
+function spadeGain(st, P, n, inAction) {
+  if (!n) return;
+  P.spadesUsed += n;
+  if (P.fac === 'furrow') addVP(P, n, 'spade');
+  if (P.fac === 'gild' && P.shBuilt) gainPW(P, 2 * n);
+  if (inAction && st.phase === 'act' && curScore(st).act === 'spade') addVP(P, curScore(st).v * n, 'tile');
+}
+function placeD(st, p, h) {
+  const P = st.players[p]; st.own[h] = p; st.bt[h] = 1; P.bc[1]++;
+  if (st.phase === 'act' && curScore(st).act === 'D') addVP(P, curScore(st).v, 'tile');
+  if (P.favs.indexOf(10) >= 0) addVP(P, 2, 'favor');
+}
+function advance(st, P, c, n) {
+  if (P.cult[c] >= 10) return 0;
+  const cap = (keysFree(P) > 0 && !cult10Taken(st, c)) ? 10 : 9;
+  const to = Math.max(P.cult[c], Math.min(P.cult[c] + n, cap));
+  let g = 0; for (let x = P.cult[c] + 1; x <= to; x++) if (CULT_PW[x]) g += CULT_PW[x];
+  const moved = to - P.cult[c]; P.cult[c] = to; if (g) gainPW(P, g);
+  return moved;
+}
+function takeFavor(st, p, f) {
+  const P = st.players[p], T = FAVOR[f];
+  st.favLeft[f]--; P.favs.push(f);
+  const g = advance(st, P, T.cult, T.s);
+  log(st, P.name + ' take' + (P.human ? '' : 's') + ' the blessing ' + T.n + ' (+' + g + ' ' + CULTS[T.cult].n + ').');
+  if (T.town6) for (let h = 0; h < N; h++) if (st.own[h] === p && !st.town[h]) checkTown(st, p, h);
+}
+function takeTown(st, p, k) {
+  const P = st.players[p], T = TOWN[k];
+  st.townLeft[k]--; P.towns.push(k); P.keys += T.keys || 1;
+  addVP(P, T.vp, 'town');
+  if (T.g.c) P.c += T.g.c; if (T.g.w) P.w += T.g.w; if (T.g.p) gainP(P, T.g.p); if (T.g.pw) gainPW(P, T.g.pw);
+  if (T.g.cult) for (let c = 0; c < 4; c++) advance(st, P, c, T.g.cult);
+  if (T.g.ship) {
+    if (F(P).ship && P.ship < F(P).ship.max) { P.ship++; addVP(P, P.ship + 1, 'ship'); }
+    else if (P.fac === 'glide') P.carpetPlus = (P.carpetPlus || 0) + 1;
+  }
+  log(st, P.name + ' found' + (P.human ? '' : 's') + ' a Town and take' + (P.human ? '' : 's') + ' the ' + T.n + '.', 'good');
+}
+function townComp(st, p, h) {
+  const comp = [], seen = new Set([h]), q = [h];
+  while (q.length) { const x = q.pop(); comp.push(x); for (const y of directNb(st, p, x)) if (!seen.has(y) && st.own[y] === p) { seen.add(y); q.push(y); } }
+  return comp;
+}
+function townOK(st, P, comp) {
+  const pw = comp.reduce((s, x) => s + PWV[st.bt[x]], 0), sa = comp.some(x => st.bt[x] === 5);
+  return comp.length >= (sa ? 3 : 4) && pw >= (P.favs.indexOf(4) >= 0 ? 6 : 7);
+}
+function checkTown(st, p, h) {
+  if (st.own[h] !== p) return;
+  const P = st.players[p], comp = townComp(st, p, h);
+  if (comp.some(x => st.town[x])) { comp.forEach(x => { st.town[x] = 1; }); return; }
+  let found = null;
+  if (townOK(st, P, comp)) found = comp;
+  else if (P.fac === 'tide') {
+    const inC = new Set(comp);
+    outer: for (const x of comp) for (const r of GEO.adj[x]) if (st.terr[r] < 0) for (const y of GEO.adj[r]) if (st.own[y] === p && !inC.has(y) && !st.town[y]) {
+      const c2 = townComp(st, p, y); if (c2.some(z => st.town[z])) continue;
+      const u = comp.concat(c2); if (townOK(st, P, u)) { found = u; break outer; }
+    }
+  }
+  if (!found) return;
+  found.forEach(x => { st.town[x] = 1; });
+  if (st.phase === 'act' && curScore(st).act === 'town') addVP(P, curScore(st).v, 'tile');
+  if (P.fac === 'coven') addVP(P, 5, 'town');
+  if (P.fac === 'shoal') P.w += 3;
+  st.pending.unshift({ type: 'town', p });
+}
+function afterBuild(st, p, h) {
+  checkTown(st, p, h);
+  const bid = st.bid = (st.bid || 0) + 1, batch = { acc: 0, left: 0 };
+  for (let k = 1; k < st.n; k++) {
+    const q = (p + k) % st.n, Q = st.players[q];
+    let amt = 0; for (const x of GEO.adj[h]) if (st.own[x] === q) amt += PWV[st.bt[x]];
+    if (amt > 0 && capacity(Q) > 0) { batch.left++; st.pending.push({ type: 'leech', p: q, from: p, amt, bid }); }
+  }
+  if (batch.left) st.lb[bid] = batch;
+}
+function applyMain(st, a) {
+  const p = st.cur, P = st.players[p], Fd = F(P);
+  let endTurn = true;
+  const s_ = P.human ? '' : 's';
+  if (a.t === 'cv') {
+    if (a.k === 'pc') { P.b[2]--; P.b[0]++; P.c++; }
+    else if (a.k === 'pw') { P.b[2] -= 3; P.b[0] += 3; P.w++; }
+    else if (a.k === 'pp') { P.b[2] -= 5; P.b[0] += 5; P.p++; }
+    else if (a.k === 'qw') { P.p--; P.w++; }
+    else if (a.k === 'wc') { P.w--; P.c++; }
+    else if (a.k === 'burn') { P.b[1] -= 2; P.b[2]++; }
+    else if (a.k === 'vc') { addVP(P, -1, 'gild'); P.c++; }
+    else if (a.k === 'cv') { P.c -= 2; addVP(P, 1, 'gild'); }
+    return;
+  }
+  if (a.t === 'tb') {
+    const tc = tbCost(st, p, a.h, a.src, a.b, a.r);
+    pay(st, P, tc.cost);
+    const T = st.terr[a.h];
+    if (a.src === 'pa5') st.pact[4] = 1; if (a.src === 'pa6') st.pact[5] = 1;
+    if (a.src === 'bon') P.used.bon = 1; if (a.src === 'gi') P.used.fac = 1;
+    if (a.r === 2) addVP(P, 4, P.fac === 'delve' ? 'tunnel' : 'glide');
+    if (tc.need > 0) { st.terr[a.h] = P.terr; spadeGain(st, P, tc.need, true); if (P.fac === 'bog') addVP(P, 2 * tc.miss, 'spade'); }
+    const srcN = { w: '', pa5: ' with the 1 Shovel power action', pa6: ' with the 2 Shovels power action', bon: ' with the Digger\u2019s Boon', gi: ' with Ashtitan shovels' }[a.src];
+    log(st, P.name + (tc.need ? ' turn' + s_ + ' ' + TERR[T].n + ' into ' + TERR[P.terr].n + srcN + (a.b ? ' and build' + s_ + ' a Hut' : '') : ' build' + s_ + ' a Hut') + (a.r === 2 ? (P.fac === 'delve' ? ' (tunnel)' : ' (glide)') : '') + '.');
+    if (a.b) placeD(st, p, a.h);
+    if (tc.extra > 0) st.pending.push({ type: 'spades', p, n: tc.extra, build: false, phase: 'act' });
+    if (a.b) afterBuild(st, p, a.h);
+  } else if (a.t === 'up') { pay(st, P, upCost(st, p, a.h, a.to)); upgrade(st, p, a.h, a.to); }
+  else if (a.t === 'free') { P.used.fac = 1; upgrade(st, p, a.h, 2); }
+  else if (a.t === 'ship') { pay(st, P, { p: 1, c: 4 }); P.ship++; addVP(P, P.ship + 1, 'ship'); log(st, P.name + ' improve' + s_ + ' Sailing to ' + P.ship + ' (+' + (P.ship + 1) + ' VP).'); }
+  else if (a.t === 'dig') { pay(st, P, Fd.dig); P.dig++; addVP(P, 6, 'dig'); log(st, P.name + ' improve' + s_ + ' digging to ' + rate(P) + ' worker' + (rate(P) > 1 ? 's' : '') + ' per shovel (+6 VP).'); }
+  else if (a.t === 'pr') {
+    P.p--;
+    if (a.s < 4) { st.slots[a.c][a.s] = p; P.ord++; }
+    const g = advance(st, P, a.c, a.s < 4 ? ORDER_SLOTS[a.s] : 1);
+    log(st, P.name + ' send' + s_ + ' a sage to ' + CULTS[a.c].n + ' (+' + g + ')' + (a.s === 4 ? ' and keep' + s_ + ' it' : '') + '.');
+  } else if (a.t === 'pa') {
+    pay(st, P, { pw: PACT[a.k].pw }); st.pact[a.k] = 1;
+    if (a.k === 1) gainP(P, 1); if (a.k === 2) P.w += 2; if (a.k === 3) P.c += 7;
+    log(st, P.name + ' take' + s_ + ' the ' + PACT[a.k].n + ' power action.');
+  } else if (a.t === 'br') {
+    if (a.src === 'pa') { pay(st, P, { pw: 3 }); st.pact[0] = 1; } else pay(st, P, { w: 2 });
+    st.bridges.push({ i: a.i, p }); P.bridgesLeft--;
+    log(st, P.name + ' build' + s_ + ' a Bridge' + (a.src === 'eng' ? ' (2 workers)' : '') + '.');
+    const s = st.mapB[a.i]; if (st.own[s.a] === p) checkTown(st, p, s.a); else if (st.own[s.b] === p) checkTown(st, p, s.b);
+  } else if (a.t === 'sp') {
+    if (a.k === 'bcult') { P.used.bon = 1; const g = advance(st, P, a.c, 1); log(st, P.name + ' use' + s_ + ' the Seeker\u2019s Boon: +' + g + ' ' + CULTS[a.c].n + '.'); }
+    else if (a.k === 'fcult') { P.used.fav = 1; const g = advance(st, P, a.c, 1); log(st, P.name + ' use' + s_ + ' Wellspring: +' + g + ' ' + CULTS[a.c].n + '.'); }
+    else if (a.k === 'veil') { P.used.fac = 1; const g = advance(st, P, a.c, 2); log(st, P.name + ' use' + s_ + ' the Veil rite: +' + g + ' ' + CULTS[a.c].n + '.'); }
+    else if (a.k === 'ride') { P.used.fac = 1; placeD(st, p, a.h); log(st, P.name + ' fl' + (P.human ? 'y' : 'ies') + ' in by broom and build' + s_ + ' a free Hut.'); afterBuild(st, p, a.h); }
+    else if (a.k === 'double') { P.used.fac = 1; P.more = 1; endTurn = false; log(st, P.name + ' open' + s_ + ' a Time Rift: two actions in a row.'); }
+    else if (a.k === 'surge') {
+      P.used.fac = 1; const T = st.terr[a.h]; st.terr[a.h] = P.terr;
+      if (a.b) pay(st, P, Fd.cost[1]);
+      log(st, P.name + ' raise' + s_ + ' a Dune Surge: ' + TERR[T].n + ' becomes Dunes' + (a.b ? ' and gets a Hut' : '') + '.');
+      if (a.b) { placeD(st, p, a.h); afterBuild(st, p, a.h); }
+    }
+  } else if (a.t === 'pass') doPass(st, p, a.b);
+  else throw new Error('unknown action ' + a.t);
+  if (endTurn) { if (P.more > 0 && a.t !== 'pass') P.more--; else { P.more = 0; st.turnEnded = true; } }
+}
+function upgrade(st, p, h, to) {
+  const P = st.players[p], from = st.bt[h];
+  st.bt[h] = to; P.bc[from]--; P.bc[to]++;
+  const S = curScore(st);
+  if ((S.act === 'TH' && to === 2) || (S.act === 'TE' && to === 3) || (S.act === 'SHSA' && (to === 4 || to === 5))) addVP(P, S.v, 'tile');
+  if (to === 2 && P.favs.indexOf(9) >= 0) addVP(P, 3, 'favor');
+  log(st, P.name + ' upgrade' + (P.human ? '' : 's') + ' to a ' + BNAME[to] + '.');
+  if (to === 3 || to === 5) { const k = P.fac === 'rift' ? 2 : 1; for (let i = 0; i < k; i++) st.pending.push({ type: 'favor', p }); }
+  if (to === 4) {
+    P.shBuilt = true;
+    if (P.fac === 'chant') addVP(P, 7, 'faction');
+    if (P.fac === 'gild') gainPW(P, 12);
+    if (P.fac === 'veil') st.pending.push({ type: 'favor', p });
+    if (P.fac === 'tide' && P.ship < F(P).ship.max) { P.ship++; addVP(P, P.ship + 1, 'ship'); }
+    if (P.fac === 'bog') st.pending.push({ type: 'ordain', p });
+    if (P.fac === 'furrow') st.pending.push({ type: 'spades', p, n: 3, build: true, phase: 'act' });
+  }
+  if (to === 5) P.saBuilt = true;
+  afterBuild(st, p, h);
+}
+function passVP(st, p) {
+  const P = st.players[p]; let v = 0;
+  if (P.bon >= 0) { const B = BONUS[P.bon];
+    if (B.pass === 'D') v += P.bc[1]; if (B.pass === 'TH') v += 2 * P.bc[2];
+    if (B.pass === 'SHSA') v += (P.shBuilt ? 4 : 0) + (P.saBuilt ? 4 : 0);
+    if (B.pass === 'ship') v += 3 * (F(P).ship ? P.ship : 0); }
+  if (P.favs.indexOf(11) >= 0) v += [0, 2, 3, 3, 4][Math.min(4, P.bc[2])];
+  if (P.fac === 'span' && P.shBuilt) for (const b of st.bridges) if (b.p === p) { const s = st.mapB[b.i]; if (st.own[s.a] === p && st.own[s.b] === p) v += 3; }
+  return v;
+}
+function doPass(st, p, bid) {
+  const P = st.players[p], s_ = P.human ? '' : 'es';
+  const v = passVP(st, p); addVP(P, v, 'pass');
+  if (!st.passOrder.length) st.nextStart = p;
+  st.passOrder.push(p); P.passed = true;
+  const old = P.bon;
+  if (bid >= 0) {
+    const k = st.pool.findIndex(b => b.id === bid); const card = st.pool.splice(k, 1)[0];
+    P.c += card.coins; P.bon = card.id;
+    if (old >= 0) st.pool.push({ id: old, coins: 0 });
+    log(st, P.name + ' pass' + s_ + (v ? ' (+' + v + ' VP)' : '') + ' and take' + (P.human ? '' : 's') + ' the ' + BONUS[card.id].n + (card.coins ? ' with ' + card.coins + ' coin' + (card.coins > 1 ? 's' : '') : '') + '.', 'turn');
+  } else { if (old >= 0) st.pool.push({ id: old, coins: 0 }); P.bon = -1; log(st, P.name + ' pass' + s_ + (v ? ' (+' + v + ' VP)' : '') + '.', 'turn'); }
+}
+
+/* ---------------- flow ---------------- */
+function flow(st) {
+  let guard = 0;
+  while (!st.over && !st.pending.length && guard++ < 50) {
+    if (st.phase === 'setup') { for (const b of st.pool) b.coins++; startRound(st); continue; }
+    if (st.phase === 'act') {
+      if (!st.turnEnded) break;
+      st.turnEnded = false;
+      if (st.players.every(P => P.passed)) { endActions(st); continue; }
+      let i = st.order.indexOf(st.cur);
+      do { i = (i + 1) % st.n; } while (st.players[st.order[i]].passed);
+      st.cur = st.order[i];
+      break;
+    }
+    if (st.phase === 'cleanup') { for (const b of st.pool) b.coins++; startRound(st); continue; }
+    break;
+  }
+}
+function income(st, p) {
+  const P = st.players[p], Fd = F(P), bc = P.bc, I = { w: 0, c: 0, p: 0, pw: 0 };
+  I.w += Fd.inc.D[bc[1]]; I.c += Fd.inc.THc[bc[2]]; I.pw += Fd.inc.THpw[bc[2]]; I.p += Fd.inc.TEp[bc[3]]; I.pw += Fd.inc.TEpw[bc[3]];
+  if (bc[4]) for (const k in Fd.inc.SH) I[k] += Fd.inc.SH[k];
+  if (bc[5]) for (const k in Fd.inc.SA) I[k] += Fd.inc.SA[k];
+  for (const f of P.favs) { const T = FAVOR[f]; if (T.inc) for (const k in T.inc) I[k] += T.inc[k]; }
+  return I;
+}
+function bonusInc(id) { const I = { w: 0, c: 0, p: 0, pw: 0 }; if (id >= 0) for (const k in BONUS[id].inc) I[k] += BONUS[id].inc[k]; return I; }
+function startRound(st) {
+  st.round++; st.phase = 'act';
+  const startP = st.round === 1 ? st.start : st.nextStart;
+  st.order = []; for (let k = 0; k < st.n; k++) st.order.push((startP + k) % st.n);
+  st.cur = st.order[0]; st.passOrder = []; st.turnEnded = false; st.nextStart = startP;
+  st.players.forEach((P, p) => {
+    P.bc = bldCount(st, p); P.passed = false; P.used = {}; P.more = 0;
+    const I = income(st, p), B = bonusInc(P.bon);
+    P.w += I.w + B.w; P.c += I.c + B.c; gainP(P, I.p + B.p); gainPW(P, I.pw + B.pw);
+  });
+  st.pact = [0, 0, 0, 0, 0, 0];
+  log(st, '— Round ' + st.round + ' of ' + st.maxRound + ': ' + SCORE[st.tiles[st.round - 1]].n + ' (' + tileText(st.tiles[st.round - 1], st.round === st.maxRound) + '). ' + st.players[st.cur].name + ' start' + (st.players[st.cur].human ? '' : 's') + '.', 'turn');
+}
+function tileText(id, last) {
+  const S = SCORE[id];
+  const a = { spade: '+2 VP per shovel', town: '+5 VP per Town', D: '+2 VP per Hut', TH: '+3 VP per Market', SHSA: '+5 VP per Citadel or Sanctum', TE: '+4 VP per Shrine' }[S.act];
+  if (last) return a + '; no circle bonus in the final round';
+  const rw = S.rw.c ? S.rw.c + ' coin' + (S.rw.c > 1 ? 's' : '') : S.rw.w ? '1 worker' : S.rw.p ? '1 sage' : S.rw.pw ? '4 power' : '1 shovel';
+  const cond = S.cult < 0 ? 'each sage in a circle order' : 'every ' + S.req + ' ' + CULTS[S.cult].n;
+  return a + '; round end: ' + rw + ' for ' + cond;
+}
+function endActions(st) {
+  if (st.round >= st.maxRound) { finalScoring(st); return; }
+  st.phase = 'cleanup';
+  const S = curScore(st);
+  for (let k = 0; k < st.n; k++) {
+    const p = (st.nextStart + k) % st.n, P = st.players[p];
+    const times = S.cult < 0 ? P.ord : Math.floor(P.cult[S.cult] / S.req);
+    if (!times) continue;
+    if (S.rw.c) P.c += S.rw.c * times; if (S.rw.w) P.w += S.rw.w * times; if (S.rw.p) gainP(P, S.rw.p * times); if (S.rw.pw) gainPW(P, S.rw.pw * times);
+    if (S.rw.spade) {
+      if (P.fac === 'titan' && times < 2) { log(st, P.name + ' lose' + (P.human ? '' : 's') + ' a lone circle shovel (Ashtitans need 2).', 'dim'); continue; }
+      st.pending.push({ type: 'spades', p, n: times, build: false, phase: 'cleanup' });
+    }
+    log(st, P.name + ' get' + (P.human ? '' : 's') + ' the round-end circle bonus ×' + times + '.', 'dim');
+  }
+}
+function rankAward(vals, awards) {
+  const idx = vals.map((v, i) => i).filter(i => vals[i] > 0).sort((a, b) => vals[b] - vals[a]);
+  const out = vals.map(() => 0); let r = 0;
+  while (r < idx.length && r < awards.length) {
+    let j = r; while (j + 1 < idx.length && vals[idx[j + 1]] === vals[idx[r]]) j++;
+    let pool = 0; for (let k = r; k <= j; k++) pool += awards[k] || 0;
+    const each = Math.floor(pool / (j - r + 1)); for (let k = r; k <= j; k++) out[idx[k]] = each;
+    r = j + 1;
+  }
+  return out;
+}
+function areaSize(st, p, final) {
+  const P = st.players[p], M = mapOf(st);
+  const mine = []; for (let h = 0; h < N; h++) if (st.own[h] === p) mine.push(h);
+  if (!mine.length) return 0;
+  const sh = final ? (F(P).ship ? P.ship : 0) : shipLevel(st, P);
+  const rr = P.fac === 'delve' ? 2 : P.fac === 'glide' ? carpetRange(P) + 1 : 0;
+  const par = {}; mine.forEach(h => { par[h] = h; });
+  const fd = x => { while (par[x] !== x) { par[x] = par[par[x]]; x = par[x]; } return x; };
+  const br = new Set(); for (const b of st.bridges) if (b.p === p) { const s = st.mapB[b.i]; br.add(s.a + ',' + s.b); }
+  for (let i = 0; i < mine.length; i++) for (let j = i + 1; j < mine.length; j++) {
+    const a = mine[i], b = mine[j];
+    if (isAdj(a, b) || (sh > 0 && M.ship[a * N + b] <= sh) || (rr && hdist(a, b) <= rr) || br.has(Math.min(a, b) + ',' + Math.max(a, b))) { const x = fd(a), y = fd(b); if (x !== y) par[x] = y; }
+  }
+  const cnt = {}; let best = 0; for (const h of mine) { const r = fd(h); cnt[r] = (cnt[r] || 0) + 1; if (cnt[r] > best) best = cnt[r]; }
+  return best;
+}
+function finalScoring(st) {
+  st.phase = 'over';
+  st.final = st.players.map(() => ({ area: 0, cult: [0, 0, 0, 0], res: 0, size: 0 }));
+  const sizes = st.players.map((P, p) => areaSize(st, p, true));
+  const ar = rankAward(sizes, [18, 12, 6]);
+  st.players.forEach((P, p) => { addVP(P, ar[p], 'area'); st.final[p].area = ar[p]; st.final[p].size = sizes[p]; });
+  for (let c = 0; c < 4; c++) { const cr = rankAward(st.players.map(P => P.cult[c]), [8, 4, 2]); st.players.forEach((P, p) => { addVP(P, cr[p], 'cult'); st.final[p].cult[c] = cr[p]; }); }
+  st.players.forEach((P, p) => {
+    const coins = P.c + P.w + P.p + P.b[2];
+    const v = P.fac === 'gild' ? Math.floor(coins / 2) : Math.floor(coins / 3);
+    addVP(P, v, 'res'); st.final[p].res = v;
+  });
+  let best = -1e9; st.players.forEach((P, p) => { if (P.vp > best) { best = P.vp; st.winner = p; } });
+  st.winners = st.players.map((P, p) => p).filter(p => st.players[p].vp === best);
+  st.over = true;
+  log(st, 'Game over. ' + st.players.map(P => P.name + ' ' + P.vp).join(', ') + '.', 'win');
+}
+
+/* ---------------- describe ---------------- */
+function describe(st, a) {
+  const p = actor(st), P = p >= 0 ? st.players[p] : null;
+  const cost = c => { const t = costText(c); const cv = P ? convText(P, c) : ''; return t + (cv ? ' (converts ' + cv + ')' : ''); };
+  switch (a.t) {
+    case 'place': return 'Place a starting Hut here';
+    case 'bonus': return BONUS[a.b].i + ' ' + BONUS[a.b].n + ': ' + bonusText(a.b);
+    case 'leech': { const pd = st.pending[0]; const amt = Math.min(pd.amt, capacity(P), P.vp + 1); return a.y ? 'Take ' + amt + ' power' + (amt > 1 ? ' for ' + (amt - 1) + ' VP' : ' (free)') : 'Decline'; }
+    case 'cult': return a.c < 0 ? 'No circle step possible' : CULTS[a.c].i + ' ' + CULTS[a.c].n + ' (now ' + P.cult[a.c] + ')';
+    case 'favor': return a.f < 0 ? 'No Blessings left' : FAVOR[a.f].n + ': +' + FAVOR[a.f].s + ' ' + CULTS[FAVOR[a.f].cult].i + (FAVOR[a.f].d ? '; ' + FAVOR[a.f].d : '');
+    case 'town': return a.k < 0 ? 'No charters left' : TOWN[a.k].n + ': ' + townText(a.k);
+    case 'ordain': return 'Ordain ' + a.k + ' worker' + (a.k === 1 ? '' : 's') + ' as sage' + (a.k === 1 ? '' : 's');
+    case 'spade': if (a.h < 0) return 'Skip the remaining shovels';
+      return 'Dig this ' + TERR[st.terr[a.h]].n + ' toward ' + TERR[P.terr].n + (a.b ? ' and build a Hut (' + cost(F(P).cost[1]) + ')' : '');
+    case 'tb': { const tc = tbCost(st, p, a.h, a.src, a.b, a.r); const T = st.terr[a.h];
+      const src = { w: '', pa5: '1 Shovel power action: ', pa6: '2 Shovels power action: ', bon: 'Digger\u2019s Boon: ', gi: 'Ashtitan shovels: ' }[a.src];
+      let s = src + (tc.need ? 'Turn ' + TERR[T].n + ' into ' + TERR[P.terr].n + (a.b ? ' and build a Hut' : ' (no building)') : 'Build a Hut');
+      if (a.r === 2) s += P.fac === 'delve' ? ' · tunnel +4 VP' : ' · glide +4 VP';
+      if (tc.extra) s += ' · +' + tc.extra + ' spare shovel';
+      return s + ' — ' + cost(tc.cost); }
+    case 'up': return 'Upgrade to ' + BNAME[a.to] + ' — ' + cost(upCost(st, p, a.h, a.to));
+    case 'free': return 'Free upgrade to Market (Shoalkin citadel)';
+    case 'ship': return 'Sailing ' + P.ship + '→' + (P.ship + 1) + ' (+' + (P.ship + 2) + ' VP) — ' + cost({ p: 1, c: 4 });
+    case 'dig': return 'Digging: ' + rate(P) + '→' + (rate(P) - 1) + ' workers per shovel (+6 VP) — ' + cost(F(P).dig);
+    case 'pr': return a.s < 4 ? CULTS[a.c].i + ' ' + CULTS[a.c].n + ' order: +' + ORDER_SLOTS[a.s] + ' (sage stays)' : CULTS[a.c].i + ' ' + CULTS[a.c].n + ': +1 (sage returns)';
+    case 'pa': return PACT[a.k].n + ' — ' + cost({ pw: PACT[a.k].pw });
+    case 'br': return 'Build this Bridge — ' + cost(a.src === 'eng' ? { w: 2 } : { pw: 3 }) + (a.src === 'eng' ? ' (Spanwright)' : ' (power action)');
+    case 'sp': return a.k === 'bcult' ? 'Seeker\u2019s Boon: +1 ' + CULTS[a.c].i + ' ' + CULTS[a.c].n : a.k === 'fcult' ? 'Wellspring: +1 ' + CULTS[a.c].i + ' ' + CULTS[a.c].n : a.k === 'veil' ? 'Veil rite: +2 ' + CULTS[a.c].i + ' ' + CULTS[a.c].n :
+      a.k === 'ride' ? 'Broom Flight: free Hut here' : a.k === 'double' ? 'Time Rift: take two actions in a row' : 'Dune Surge: make this Dunes' + (a.b ? ' and build a Hut (' + cost(F(P).cost[1]) + ')' : '');
+    case 'cv': return { pc: '1⚡ → 1💰', pw: '3⚡ → 1👷', pp: '5⚡ → 1🙏', qw: '1🙏 → 1👷', wc: '1👷 → 1💰', burn: 'Burn: 2⚡ in pool II → 1 into pool III', vc: '1 VP → 1💰', cv: '2💰 → 1 VP' }[a.k];
+    case 'pass': return a.b < 0 ? 'Pass (final round)' + passNote(st, p) : 'Pass and take ' + BONUS[a.b].i + ' ' + BONUS[a.b].n + passNote(st, p);
+  }
+  return a.t;
+}
+function passNote(st, p) { const v = passVP(st, p); return v ? ' (+' + v + ' VP now)' : ''; }
+function bonusText(id) {
+  const B = BONUS[id], I = B.inc, p = [];
+  if (I.c) p.push('+' + I.c + '💰'); if (I.w) p.push('+' + I.w + '👷'); if (I.p) p.push('+' + I.p + '🙏'); if (I.pw) p.push('+' + I.pw + '⚡');
+  if (B.sp === 'spade') p.push('action: 1 free shovel'); if (B.sp === 'cult') p.push('action: 1 circle step'); if (B.ship) p.push('+1 sailing this round');
+  if (B.pass === 'D') p.push('pass: 1 VP per Hut'); if (B.pass === 'TH') p.push('pass: 2 VP per Market'); if (B.pass === 'SHSA') p.push('pass: 4 VP each for Citadel and Sanctum'); if (B.pass === 'ship') p.push('pass: 3 VP per sailing level');
+  return p.join(', ');
+}
+function townText(k) { const T = TOWN[k], g = T.g; let s = T.vp + ' VP'; if (g.c) s += ', 6 coins'; if (g.w) s += ', 2 workers'; if (g.p) s += ', 1 sage'; if (g.pw) s += ', 8 power'; if (g.cult) s += ', +' + g.cult + ' on every circle'; if (g.ship) s += ', +1 sailing (Dunegliders: +1 glide)'; if (T.keys === 2) s += ', 2 keys'; return s; }
+
+/* ================= bots ================= */
+function clone(st) { return JSON.parse(JSON.stringify(st)); }
+function now() { return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now(); }
+function gauss(st) { let s = 0; for (let i = 0; i < 3; i++) s += rint(st, 1000) / 1000 - 0.5; return s * 2; }
+
+// Approximate final VP of player p from this position. opt.smart=false is the simpler model used by Easy/Medium bots.
+function evalFor(st, p, opt) {
+  opt = opt || {};
+  const P = st.players[p], Fd = F(P);
+  if (st.over) { let best = -1e9; st.players.forEach((q, i) => { if (i !== p && q.vp > best) best = q.vp; }); return P.vp + 0.25 * (P.vp - best); }
+  const W = SW[P.strategy || 'balanced'] || SW.balanced;
+  const smart = opt.smart !== false;
+  const maxR = st.maxRound, rnd = Math.max(1, st.round);
+  const Rleft = smart ? (maxR - rnd) : 2.5;
+  const prog = smart ? Math.min(1, (rnd - 0.5) / maxR) : 0.5;
+  const endNow = rnd === maxR && P.passed && smart;
+  const lastR = smart && rnd === maxR;
+  const wv = endNow ? 1 / 3 : lastR ? 0.9 : 1.05 + 0.14 * Rleft;
+  const cv = endNow ? (P.fac === 'gild' ? 0.5 : 1 / 3) : lastR ? 0.4 : 0.36 + 0.045 * Rleft;
+  const pv = endNow ? 1 / 3 : (lastR ? 1.3 : 1.7 + 0.22 * Rleft) * (W.p || 1);
+  const b3 = endNow ? 1 / 3 : 0.36 * W.pw, b2 = endNow ? 0 : 0.22 * W.pw, b1 = endNow ? 0 : 0.08;
+  let v = P.vp + P.w * wv + P.c * cv + P.p * pv + P.b[0] * b1 + P.b[1] * b2 + P.b[2] * b3;
+  // future income
+  const I = income(st, p);
+  const ivRound = 1.1 * wv * I.w + Math.max(cv, 0.4) * I.c + 0.9 * pv * I.p + 0.3 * I.pw;
+  v += ivRound * Rleft * 0.85;
+  if (rnd < maxR && smart) { // next round's bonus scroll
+    const cardV = id => { const B = bonusInc(id); return B.w * wv + B.c * cv + B.p * pv + B.pw * 0.3 + (BONUS[id].sp ? 1.5 : 0) + (BONUS[id].ship ? 1 : 0); };
+    if (P.passed) v += cardV(P.bon);
+    else { let bb = 0; for (const b of st.pool) if (b.id !== P.bon) bb = Math.max(bb, cardV(b.id) + b.coins * cv); v += bb; }
+  }
+  // upgrade paths still open
+  const bcs = P.bc;
+  if (!endNow) {
+    const path = (bcs[3] < 3 || !P.shBuilt ? 4.5 : 1) * bcs[2] + (!P.saBuilt ? 2 : 0) * bcs[3];
+    v += path * (smart ? Math.min(1, (Rleft + 1) / 3) : 1);
+  }
+  // area
+  const area = areaSize(st, p, false);
+  if (smart) {
+    const all = st.players.map((q, i) => i === p ? area : areaSize(st, i, false));
+    const aw = rankAward(all, [18, 12, 6])[p];
+    v += (aw * (0.3 + 0.7 * prog) + area * 0.6 * (1 - prog)) * W.area;
+  } else v += area * 1.1 * W.area;
+  // cults
+  for (let c = 0; c < 4; c++) {
+    if (smart) {
+      const aw = rankAward(st.players.map(q => q.cult[c]), [8, 4, 2])[p];
+      v += (aw * (0.35 + 0.65 * prog) + P.cult[c] * 0.3 * (1 - prog)) * W.cult;
+    } else v += P.cult[c] * 0.7 * W.cult;
+  }
+  if (smart) for (let r = rnd; r < maxR; r++) { // upcoming round-end cult bonuses
+    if (r === rnd && st.phase !== 'act') continue;
+    const S = SCORE[st.tiles[r - 1]];
+    const t = S.cult < 0 ? P.ord : Math.floor(P.cult[S.cult] / S.req);
+    const rv = S.rw.c ? cv * S.rw.c : S.rw.w ? wv : S.rw.p ? pv : S.rw.pw ? 1.6 : (P.fac === 'titan' ? 1.2 : 2.4);
+    v += t * rv * (r === rnd ? 1 : 0.75);
+  }
+  // shipping / digging / reach
+  if (!endNow) {
+    const fut = smart ? Math.min(1, (Rleft + 1) / 3) : 1;
+    v += (Fd.ship ? P.ship - Fd.ship.start : 0) * 1.5 * W.ship * fut;
+    v += P.dig * wv * 1.1 * Math.min(Rleft + 1, 4) * 0.5 * W.dig * (smart ? 1 : 0.8);
+    if (P.fac === 'glide') v += (P.carpetPlus || 0) * 2 * W.ship * fut;
+    const R = reachMap(st, p, false); let home = 0, near = 0;
+    for (let h = 0; h < N; h++) if (R[h]) { const d = spadeNeed(P, st.terr[h]); if (d === 0) home++; else if (d === 1) near++; }
+    v += (Math.min(home, 4) * 0.9 + Math.min(near, 6) * 0.3) * W.exp * fut;
+    // town progress
+    const seen = new Set(); let bestT = 0;
+    for (let h = 0; h < N; h++) if (st.own[h] === p && !st.town[h] && !seen.has(h)) {
+      const comp = townComp(st, p, h); comp.forEach(x => seen.add(x));
+      const pw = comp.reduce((s, x) => s + PWV[st.bt[x]], 0), need = P.favs.indexOf(4) >= 0 ? 6 : 7;
+      const pr = Math.min(1, pw / need) * Math.min(1, comp.length / 4);
+      if (pr > bestT) bestT = pr;
+    }
+    v += bestT * bestT * 6 * W.town * (smart ? Math.min(1, (Rleft + 1) / 2) : 1);
+    let adjO = 0; for (let h = 0; h < N; h++) if (st.own[h] === p) for (const x of GEO.adj[h]) if (st.own[x] >= 0 && st.own[x] !== p) adjO += PWV[st.bt[x]];
+    v += Math.min(adjO, 12) * 0.22 * W.adj * (smart ? Math.min(1, Rleft / 2) : 1);
+    if (P.shBuilt) {
+      const sv = { coven: 4, sand: 3.5, titan: 3.5, shoal: 3.5, rift: 2, veil: 2.5, span: 1.5, delve: 1, glide: 1.2 }[P.fac] || 0;
+      v += sv * (Rleft + (P.used.fac || P.passed ? 0 : 1)) * W.sh * (smart ? 1 : 0.6);
+    } else if (W.sh > 1.5 && smart) v -= 3 * prog;
+    for (const f of P.favs) { if (f === 5) v += 1.2 * Rleft; if (f === 9 || f === 10) v += 1.4 * Math.min(Rleft + 1, 4); if (f === 11) v += 2.2 * Rleft; }
+    v += keysFree(P) * 1.2;
+    if (smart && !P.passed && P.bon >= 0 && BONUS[P.bon].sp && !P.used.bon) v += 1.5;
+  }
+  return v;
+}
+
+function quickLeech(st) {
+  const pd = st.pending[0], P = st.players[pd.p];
+  const amt = Math.min(pd.amt, capacity(P), P.vp + 1);
+  return { t: 'leech', y: (amt <= 2 || (amt <= 3 && st.round <= 4)) ? 1 : 0 };
+}
+function resolveSim(st, p, smart) {
+  let g = 0;
+  while (st.pending.length && g++ < 30) {
+    const pd = st.pending[0];
+    if (pd.type === 'leech') { apply(st, quickLeech(st)); continue; }
+    const L = legalPending(st);
+    if (pd.p !== p || !smart || L.length === 1) { apply(st, L[0]); continue; }
+    let best = L[0], bv = -1e9;
+    for (const a of L) { const c = clone(st); c.sim = true; apply(c, a); const v = evalFor(c, p); if (v > bv) { bv = v; best = a; } }
+    apply(st, best);
+  }
+  return st;
+}
+function simMove(st, p, a, smart) { const c = clone(st); c.sim = true; apply(c, a); resolveSim(c, p, smart); return c; }
+
+function choosePending(st, p, diff) {
+  const pd = st.pending[0], P = st.players[p];
+  const L = legalPending(st);
+  if (L.length === 1) return L[0];
+  if (pd.type === 'leech') {
+    const amt = Math.min(pd.amt, capacity(P), P.vp + 1);
+    if (diff === 'easy') return { t: 'leech', y: amt <= 2 ? 1 : 0 };
+    if (diff === 'medium') return quickLeech(st);
+    const W = SW[P.strategy || 'balanced'], Rl = st.maxRound - st.round;
+    const gainV = amt * (0.42 + 0.1 * Math.min(Rl, 3)) * W.pw * (W.adj > 1.5 ? 1.2 : 1) + (Rl > 0 ? 0.6 : 0);
+    return { t: 'leech', y: gainV >= (amt - 1) ? 1 : 0 };
+  }
+  if (pd.type === 'place') return placePick(st, p, L, diff);
+  let best = L[0], bv = -1e9;
+  for (const a of L) {
+    const c = clone(st); c.sim = true; apply(c, a); resolveSim(c, p, false);
+    let v = evalFor(c, p, { smart: diff !== 'easy' });
+    if (diff === 'easy') v += gauss(st) * 4; else if (diff === 'medium') v += gauss(st) * 1;
+    if (v > bv) { bv = v; best = a; }
+  }
+  return best;
+}
+function placePick(st, p, L, diff) {
+  const P = st.players[p], M = mapOf(st);
+  let best = L[0], bv = -1e9;
+  const mine = []; for (let h = 0; h < N; h++) if (st.own[h] === p) mine.push(h);
+  for (const a of L) {
+    const h = a.h; let v = 0;
+    for (const x of GEO.adj[h]) {
+      if (st.terr[x] < 0) v += F(P).ship ? 0.7 : 0.2;
+      else if (st.own[x] >= 0) v += st.own[x] === p ? -2 : 0.6;
+      else { const d = spadeNeed(P, st.terr[x]); v += d === 0 ? 1.5 : d === 1 ? 1.0 : d === 2 ? 0.3 : 0; }
+    }
+    for (let x = 0; x < N; x++) if (st.terr[x] === P.terr && st.own[x] < 0 && x !== h) { const d = hdist(h, x); if (d === 2) v += 0.6; else if (d === 3) v += 0.25; }
+    for (const m of mine) { const d = hdist(h, m); v += d === 2 ? 3 : d === 3 ? 2 : d === 1 ? -1 : d <= 5 ? 0.5 : -1; }
+    for (let x = 0; x < N; x++) if (st.own[x] >= 0 && st.own[x] !== p && hdist(h, x) <= 1) v -= 0.4;
+    const r = GEO.hx[h]; if (r.r === 0 || r.r === ROWS - 1 || r.c === 0 || r.c === rowLen(r.r) - 1) v -= 0.7;
+    v += (diff === 'easy' ? 4 : diff === 'medium' ? 1.5 : 0.3) * gauss(st);
+    if (v > bv) { bv = v; best = a; }
+  }
+  return best;
+}
+function candidates(st, p) {
+  // bots skip manual conversions (payment converts automatically) and only keep the cheapest way to make each build
+  const L = legalMain(st, p, false), out = [], seen = {};
+  for (const a of L) {
+    if (a.t === 'tb') {
+      const k = a.h + ':' + a.b; const tc = tbCost(st, p, a.h, a.src, a.b, a.r);
+      const P = st.players[p];
+      const val = (tc.cost.w || 0) * 2.2 + (tc.cost.c || 0) * 0.6 + (tc.cost.p || 0) * 3 + (tc.cost.pw || 0) * 0.55 + (a.src === 'bon' ? 1.2 : 0) + (a.src === 'gi' ? 2.5 : 0) - tc.extra * 2;
+      if (!seen[k] || seen[k].val > val) seen[k] = { a, val };
+      continue;
+    }
+    out.push(a);
+  }
+  for (const k in seen) out.push(seen[k].a);
+  return out;
+}
+function chooseMain(st, p, diff) {
+  const L = candidates(st, p);
+  if (L.length === 1) return L[0];
+  const t0 = now(), hard = diff === 'hard', budget = hard ? 700 : 300;
+  const sc = [];
+  for (const a of L) {
+    const c = simMove(st, p, a, hard);
+    sc.push({ a, v: evalFor(c, p, { smart: diff !== 'easy' }), c });
+    if (now() - t0 > budget) break;
+  }
+  if (diff === 'easy') { for (const s of sc) s.v += gauss(st) * 5; if (rint(st, 100) < 20) return sc[rint(st, sc.length)].a; }
+  if (diff === 'medium') for (const s of sc) s.v += gauss(st) * 1.5;
+  sc.sort((x, y) => y.v - x.v);
+  if (!hard) return sc[0].a;
+  // Hard: look one own action further (what does this action set up for my next turn?)
+  const K = Math.min(sc.length, 8);
+  let best = sc[0], bv = -1e9;
+  for (let i = 0; i < K; i++) {
+    const s = sc[i]; let v2 = s.v;
+    const c = s.c;
+    if (s.a.t !== 'pass' && !c.over && c.phase === 'act' && !c.players[p].passed && !c.pending.length) {
+      const sv = { cur: c.cur, te: c.turnEnded }; c.cur = p; c.turnEnded = false;
+      const L2 = candidates(c, p).filter(a => a.t !== 'pass');
+      let b2 = -1e9;
+      for (const a2 of L2) { if (now() - t0 > budget) break; const v = evalFor(simMove(c, p, a2, false), p); if (v > b2) b2 = v; }
+      c.cur = sv.cur; c.turnEnded = sv.te;
+      if (b2 > v2) v2 = s.v + 0.6 * (b2 - s.v);
+    }
+    if (v2 > bv) { bv = v2; best = s; }
+    if (now() - t0 > budget) break;
+  }
+  return best.a;
+}
+function botAction(st, asDiff) {
+  const p = actor(st); if (p < 0) return null;
+  const P = st.players[p], diff = asDiff || P.difficulty || 'medium';
+  if (st.pending.length) return choosePending(st, p, diff);
+  return chooseMain(st, p, diff);
+}
+function hint(st) { const p = actor(st); if (p < 0) return null; const c = clone(st); c.sim = true; return botAction(c, 'hard'); }
+
+/* ---------------- export ---------------- */
+const api = {
+  newGame, legal, act, apply, botAction, hint, describe, evalFor, key, clone, actor, reachMap, tbCost, upCost, actionCost, income, bonusInc, capacity, passVP, areaSize,
+  mapOf, genMap, spadeNeed, rate, shipLevel, psup, costText, convText, bonusText, townText, tileText, rankAward, keysFree, cyc, curScore, canPay,
+  TERR, CULTS, BNAME, BSHORT, PWV, SUPPLY, ORDER_SLOTS, FAC, FAC_KEYS, SCORE, BONUS, FAVOR, TOWN, PACT, STRAT, STRAT_KEYS, DIFF, BOT_NAMES, GEO, STANDARD_SEED, mkRng
+};
+if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.TerraEngine = api;
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script>
+(function(){
+'use strict';
+var E=window.TerraEngine, $=function(id){return document.getElementById(id);};
+var SPEED={slow:1100,normal:550,fast:180,instant:0};
+var G=null, ui={sel:null,verb:null,busy:false,speed:'normal',hint:null,hintKey:'',timer:null};
+var cfg=loadCfg();
+function defSeats(){var a=[];for(var i=0;i<4;i++)a.push({f:'random',s:'random',d:'medium'});return a;}
+function loadCfg(){
+  var d={n:3,first:'me',map:'random',quick:0,tiles:'starter',vp:'faction',hints:0,myFac:'random',seats:defSeats()};
+  try{var c=JSON.parse(localStorage.getItem('terraSetup')||'null');if(c){['n','first','map','quick','tiles','vp','hints','myFac'].forEach(function(k){if(c[k]!=null)d[k]=c[k];});
+    if(Array.isArray(c.seats))c.seats.slice(0,4).forEach(function(s,i){if(!s)return;if(s.f==='random'||E.FAC[s.f])d.seats[i].f=s.f;if(s.s==='random'||E.STRAT[s.s])d.seats[i].s=s.s;if(E.DIFF[s.d])d.seats[i].d=s.d;});}}catch(e){}
+  if(!(d.myFac==='random'||E.FAC[d.myFac]))d.myFac='random';
+  return d;
+}
+function saveCfg(){try{localStorage.setItem('terraSetup',JSON.stringify(cfg));}catch(e){}}
+try{ui.speed=localStorage.getItem('terraSpeed')||'fast';if(!(ui.speed in SPEED))ui.speed='normal';}catch(e){}
+$('speedSel').value=ui.speed;
+
+/* ---------- helpers ---------- */
+var NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent,text){var e=document.createElementNS(NS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;if(parent)parent.appendChild(e);return e;}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function toast(t){var x=$('toast');x.textContent=t;x.className='show';clearTimeout(toast.t);toast.t=setTimeout(function(){x.className='';},2600);}
+function me(){return G?G.players.findIndex(function(p){return p.human;}):-1;}
+function myTurn(){return G&&!G.over&&E.actor(G)===me()&&!ui.busy;}
+function L(){return myTurn()?E.legal(G,true):[];}
+var S=36, HW=Math.sqrt(3)*S;
+function hpos(h){var x=E.GEO.hx[h];return {x:30+HW/2+x.c*HW+(x.r%2?HW/2:0), y:30+S+x.r*1.5*S};}
+function hexPts(cx,cy,s){var p=[];for(var i=0;i<6;i++){var a=Math.PI/180*(60*i-30);p.push((cx+s*Math.cos(a)).toFixed(1)+','+(cy+s*Math.sin(a)).toFixed(1));}return p.join(' ');}
+function sumRes(P){return P.w+'👷 '+P.c+'💰 '+P.p+'🙏';}
+
+/* ---------- terrain art ---------- */
+function art(g,t,x,y){
+  var s='#0000004d', l='#ffffff59';
+  if(t===0){for(var i=-1;i<=1;i++){el('line',{x1:x+i*9,y1:y+10,x2:x+i*9+2,y2:y-6,stroke:'#f3dfa0',"stroke-width":2},g);el('ellipse',{cx:x+i*9+2,cy:y-8,rx:2.6,ry:5,fill:'#f3dfa0'},g);}}
+  else if(t===1){el('ellipse',{cx:x,cy:y+8,rx:14,ry:4,fill:'#2b2740'},g);[-8,-2,5].forEach(function(d){el('line',{x1:x+d,y1:y+8,x2:x+d,y2:y-9,stroke:'#8fa36b',"stroke-width":2},g);el('ellipse',{cx:x+d,cy:y-9,rx:2,ry:4.5,fill:'#6b4a2f'},g);});}
+  else if(t===2){[-6,2,10].forEach(function(d){el('path',{d:'M'+(x-13)+','+(y+d-4)+' q4,-4 8,0 t8,0 t8,0',stroke:l,"stroke-width":2.2,fill:'none'},g);});}
+  else if(t===3){[[-8,4],[6,0]].forEach(function(o){el('polygon',{points:(x+o[0])+','+(y+o[1]-16)+' '+(x+o[0]-9)+','+(y+o[1]+4)+' '+(x+o[0]+9)+','+(y+o[1]+4),fill:'#1f6b33'},g);el('rect',{x:x+o[0]-1.5,y:y+o[1]+4,width:3,height:5,fill:'#5a3b1e'},g);});}
+  else if(t===4){el('polygon',{points:(x-16)+','+(y+10)+' '+(x-4)+','+(y-12)+' '+(x+8)+','+(y+10),fill:'#6f6f7c'},g);el('polygon',{points:(x-4)+','+(y-12)+' '+(x-8)+','+(y-5)+' '+(x)+','+(y-5),fill:'#fff'},g);el('polygon',{points:(x)+','+(y+10)+' '+(x+9)+','+(y-4)+' '+(x+17)+','+(y+10),fill:'#7d7d8a'},g);}
+  else if(t===5){el('path',{d:'M'+(x-12)+','+(y-6)+' l6,5 l-3,6 l7,4 M'+(x+4)+','+(y-10)+' l3,7 l7,2 M'+(x-2)+','+(y+3)+' l8,4',stroke:'#5a1d14',"stroke-width":2,fill:'none'},g);}
+  else if(t===6){el('circle',{cx:x+9,cy:y-9,r:4,fill:'#fff3b0'},g);el('path',{d:'M'+(x-15)+','+(y+8)+' q8,-10 16,0 q7,-8 14,0',stroke:'#b8902f',"stroke-width":2.4,fill:'none'},g);}
+}
+function building(g,k,x,y,col){
+  var st={fill:col,stroke:'#fff',"stroke-width":2.2,"stroke-linejoin":'round'};
+  el('circle',{cx:x,cy:y+2,r:k>=4?19:k>=2?17:14,fill:'#000',opacity:0.45},g);
+  if(k===1)el('polygon',Object.assign({points:(x-9)+','+(y+9)+' '+(x-9)+','+(y-2)+' '+x+','+(y-11)+' '+(x+9)+','+(y-2)+' '+(x+9)+','+(y+9)},st),g);
+  else if(k===2){el('polygon',Object.assign({points:(x-13)+','+(y+10)+' '+(x-13)+','+(y-3)+' '+(x-4)+','+(y-12)+' '+(x+4)+','+(y-3)+' '+(x+13)+','+(y-3)+' '+(x+13)+','+(y+10)},st),g);}
+  else if(k===3){el('path',Object.assign({d:'M'+(x-11)+','+(y+10)+' L'+(x-11)+','+(y-1)+' A11,11 0 0 1 '+(x+11)+','+(y-1)+' L'+(x+11)+','+(y+10)+' Z'},st),g);el('line',{x1:x,y1:y-12,x2:x,y2:y-17,stroke:'#fff',"stroke-width":2},g);}
+  else if(k===4){el('path',Object.assign({d:'M'+(x-15)+','+(y+11)+' V'+(y-10)+' h5 v4 h4 v-4 h4 v4 h4 v-4 h5 V'+(y+11)+' Z'},st),g);el('rect',{x:x-3,y:y+3,width:6,height:8,fill:'#0008'},g);}
+  else if(k===5){el('path',Object.assign({d:'M'+(x-15)+','+(y+11)+' L'+(x-15)+','+(y+1)+' A15,13 0 0 1 '+(x+15)+','+(y+1)+' L'+(x+15)+','+(y+11)+' Z'},st),g);el('line',{x1:x,y1:y-12,x2:x,y2:y-21,stroke:'#fff',"stroke-width":2.4},g);el('circle',{cx:x,cy:y-22,r:2.6,fill:'#fff'},g);}
+}
+
+/* ---------- rendering ---------- */
+function render(){if(!G)return;renderMap();renderTurn();renderMine();renderPlayers();renderCults();renderTiles();renderLog();}
+function hexActions(LL,h){return LL.filter(function(a){return a.h===h;});}
+function renderMap(){
+  var svg=$('map');svg.innerHTML='';
+  var W=30*2+13*HW+HW/2, H=30*2+S*2+8*1.5*S;
+  svg.setAttribute('viewBox','0 0 '+W.toFixed(0)+' '+H.toFixed(0));
+  var LL=L(), hl={}, brHL=[];
+  if(myTurn()){
+    if(G.pending.length){LL.forEach(function(a){if(a.h>=0)hl[a.h]=1;});}
+    else if(ui.verb==='bridge'){LL.forEach(function(a){if(a.t==='br'&&brHL.indexOf(a.i)<0)brHL.push(a.i);});}
+    else LL.forEach(function(a){if(a.h!=null&&a.h>=0)hl[a.h]=1;});
+  }
+  var M=E.mapOf(G);
+  el('rect',{x:0,y:0,width:W,height:H,rx:16,fill:'#1d3b52'},svg);
+  for(var h=0;h<E.GEO.N;h++){
+    var P0=hpos(h),t=G.terr[h],g=el('g',{'class':'hex'+(hl[h]?' hl':'')+(ui.sel===h?' sel':''),'data-h':h},svg);
+    if(t<0){el('polygon',{points:hexPts(P0.x,P0.y,S+0.6),fill:'#2f6f9a'},g);el('path',{d:'M'+(P0.x-12)+','+(P0.y+2)+' q6,-5 12,0 t12,0',stroke:'#9fd3f0',"stroke-width":1.6,fill:'none',opacity:0.6},g);continue;}
+    el('polygon',{points:hexPts(P0.x,P0.y,S-1),fill:E.TERR[t].c,'class':'hb',stroke:'#1a140c',"stroke-width":2},g);
+    if(M.terr[h]!==t)el('polygon',{points:hexPts(P0.x,P0.y,S-6),fill:'none',stroke:'#ffffff30',"stroke-width":2,"stroke-dasharray":'4 4'},g);
+    var o=G.own[h];
+    if(o>=0){building(g,G.bt[h],P0.x,P0.y,G.players[o].color);if(G.town[h])el('text',{x:P0.x+18,y:P0.y-16,'font-size':13},g,'⭐');}
+    else art(g,t,P0.x,P0.y);
+    (function(hh){g.addEventListener('click',function(){onHex(hh);});})(h);
+  }
+  // bridges
+  G.bridges.forEach(function(b){var s=G.mapB[b.i],A=hpos(s.a),B=hpos(s.b);el('line',{x1:A.x,y1:A.y,x2:B.x,y2:B.y,stroke:'#2a1b0b',"stroke-width":11,"stroke-linecap":'round',opacity:0.9},svg);el('line',{x1:A.x,y1:A.y,x2:B.x,y2:B.y,stroke:G.players[b.p].color,"stroke-width":6,"stroke-linecap":'round'},svg);});
+  brHL.forEach(function(i){var s=G.mapB[i],A=hpos(s.a),B=hpos(s.b),g=el('g',{'class':'brs','data-b':i},svg);
+    el('line',{x1:A.x,y1:A.y,x2:B.x,y2:B.y,stroke:'#ffe27a',"stroke-width":9,"stroke-dasharray":'8 6',"stroke-linecap":'round'},g);
+    el('circle',{cx:(A.x+B.x)/2,cy:(A.y+B.y)/2,r:14,fill:'#ffe27a',opacity:0.35},g);
+    g.addEventListener('click',function(ev){ev.stopPropagation();onBridge(i);});});
+  // redraw buildings on top of bridges where needed
+  G.bridges.forEach(function(b){var s=G.mapB[b.i];[s.a,s.b].forEach(function(x){if(G.own[x]>=0){var P0=hpos(x);var g=el('g',{'pointer-events':'none'},svg);building(g,G.bt[x],P0.x,P0.y,G.players[G.own[x]].color);}});});
+  $('roundLbl').textContent=G.round?('Round '+G.round+' of '+G.maxRound):'Setup';
+}
+function onHex(h){
+  if(!myTurn())return;
+  var LL=hexActions(L(),h);
+  if(!LL.length){ui.sel=null;render();return;}
+  if(G.pending.length&&LL.length===1){doAct(LL[0]);return;}
+  ui.sel=h;ui.verb=null;render();
+}
+function onBridge(i){
+  if(!myTurn())return;
+  var LL=L().filter(function(a){return a.t==='br'&&a.i===i;});
+  if(LL.length===1){doAct(LL[0]);return;}
+  ui.selB=i;render();
+}
+function btn(c,txt,fn,cls){var b=document.createElement('button');b.className='btn '+(cls||'');b.textContent=txt;b.addEventListener('click',fn);c.appendChild(b);return b;}
+function note(c,txt){var d=document.createElement('div');d.className='lab';d.style.fontWeight='600';d.textContent=txt;c.appendChild(d);}
+function hexLabel(h){var t=G.terr[h],o=G.own[h];return (t<0?'River':E.TERR[t].n)+(o>=0?' · '+G.players[o].name+'\u2019s '+E.BNAME[G.bt[h]]:'');}
+var PEND_T={place:'Place a starting Hut',bonus:'Pick your first boon',leech:'Take power?',cult:'Choose a circle',favor:'Choose a Blessing',town:'You founded a Town! Choose a charter',ordain:'Ordination',spades:'Use your shovels'};
+function renderTurn(){
+  var t=$('tTitle'),h=$('tHelp'),c=$('ctl'),sub=$('sub');c.innerHTML='';sub.innerHTML='';
+  $('turnCard').className='card'+(myTurn()?' mine':'');
+  if(G.over){var W=G.players[G.winner];t.textContent='Game over';h.innerHTML=(G.winners.length>1?'<b>Tie</b> at '+W.vp+' VP.':(W.human?'<b>You win</b> with ':'<b>'+esc(W.name)+'</b> wins with ')+W.vp+' VP.');btn(c,'Show final scores',showOver,'primary');showHint(false);return;}
+  var p=E.actor(G),P=G.players[p];
+  if(p!==me()){t.textContent=P.name+' is thinking…';h.innerHTML=G.pending.length?esc(PEND_T[G.pending[0].type]||''):'';showHint(false);return;}
+  var LL=L();
+  if(G.pending.length){
+    var pd=G.pending[0];t.textContent=PEND_T[pd.type]||'Decide';
+    if(pd.type==='place')h.innerHTML='Tap a glowing <b>'+E.TERR[G.players[me()].terr].n+'</b> space on the map.';
+    else if(pd.type==='leech'){var fr=G.players[pd.from];h.innerHTML=esc(fr.name)+' built next to you. You may take <b>'+Math.min(pd.amt,E.capacity(P),P.vp+1)+' power</b> (it costs 1 VP less than the power taken).';}
+    else if(pd.type==='spades')h.innerHTML='You have <b>'+pd.n+' shovel'+(pd.n>1?'s':'')+'</b>. Tap a glowing space to dig it toward '+E.TERR[P.terr].n+(pd.build?', and you may build one Hut on a space you finish':'')+'.';
+    else if(pd.type==='cult')h.innerHTML='Step '+pd.n+' up a circle.';
+    else h.innerHTML='';
+    var list=LL.filter(function(a){return !(a.h>=0);});
+    list.forEach(function(a){var b=btn(sub,E.describe(G,a),function(){doAct(a);},'opt2'+((a.t==='leech'&&a.y)?' primary':''));});
+    if(ui.sel!=null){var ha=hexActions(LL,ui.sel);if(ha.length){note(sub,hexLabel(ui.sel)+':');ha.forEach(function(a){btn(sub,E.describe(G,a),function(){doAct(a);},'opt2 primary');});}}
+    showHint(true);return;
+  }
+  t.textContent='Your turn · round '+G.round;
+  var S0=E.curScore(G);
+  h.innerHTML='Round tile: <b>'+esc(S0.n)+'</b> ('+esc(E.tileText(S0.id,G.round===G.maxRound))+'). Tap a glowing space, or pick an action below.';
+  var groups=[['priest','Sage → circle',function(a){return a.t==='pr';}],['pact','Power actions',function(a){return a.t==='pa';}],['bridge','Bridge',function(a){return a.t==='br';}],['special','Special actions',function(a){return a.t==='sp'&&a.h==null;}],['convert','Convert',function(a){return a.t==='cv';}],['pass','Pass',function(a){return a.t==='pass';}]];
+  var sh=LL.find(function(a){return a.t==='ship';}),dg=LL.find(function(a){return a.t==='dig';});
+  if(sh)btn(c,'⛵ Sailing',function(){doAct(sh);}).title=E.describe(G,sh);
+  if(dg)btn(c,'⛏ Digging',function(){doAct(dg);}).title=E.describe(G,dg);
+  groups.forEach(function(gr){var any=LL.filter(gr[2]);if(!any.length)return;btn(c,gr[1]+(gr[0]==='pass'?'…':''),function(){ui.verb=ui.verb===gr[0]?null:gr[0];ui.sel=null;ui.selB=null;render();},(ui.verb===gr[0]?'on ':'')+(gr[0]==='pass'?'warn':''));});
+  if(sh)note(c,'Sailing: '+E.describe(G,sh));
+  if(dg)note(c,'Digging: '+E.describe(G,dg));
+  if(ui.sel!=null){var ha=hexActions(LL,ui.sel);note(sub,hexLabel(ui.sel)+(ha.length?':':' · nothing to do here'));ha.forEach(function(a){btn(sub,E.describe(G,a),function(){doAct(a);},'opt2'+(a.b?' primary':''));});}
+  else if(ui.verb==='bridge'){
+    if(ui.selB!=null){LL.filter(function(a){return a.t==='br'&&a.i===ui.selB;}).forEach(function(a){btn(sub,E.describe(G,a),function(){doAct(a);},'opt2 primary');});}
+    else note(sub,'Tap a glowing dashed bridge spot on the map.');
+  }
+  else if(ui.verb){var gr=groups.find(function(x){return x[0]===ui.verb;});var acts=LL.filter(gr[2]);
+    if(ui.verb==='pact'&&(LL.some(function(a){return a.src==='pa5'||a.src==='pa6';})))note(sub,'The 1 Shovel and 2 Shovels power actions are on the map: tap a space.');
+    acts.forEach(function(a){btn(sub,E.describe(G,a),function(){doAct(a);},'opt2'+(a.t==='pass'?' warn':''));});
+    if(ui.verb==='convert')note(sub,'Conversions are free and do not end your turn.');}
+  showHint(true);
+}
+function showHint(on){
+  var hd=$('hint');
+  if(!on||!cfg.hints||!G.opts.hints){hd.className='';return;}
+  var k=JSON.stringify([G.round,G.cur,G.pending.length,G.log.length]);
+  if(ui.hintKey===k&&ui.hint){hd.className='show';hd.textContent='💡 Hint: '+ui.hint;return;}
+  ui.hintKey=k;ui.hint=null;hd.className='show';hd.textContent='💡 Hint: thinking…';
+  setTimeout(function(){if(!G||ui.hintKey!==k)return;try{var a=E.hint(G);ui.hint=a?E.describe(G,a)+(a.h>=0?' ('+hexLabel(a.h)+')':''):'—';}catch(e){ui.hint='—';}if(ui.hintKey===k){hd.textContent='💡 Hint: '+ui.hint;}},30);
+}
+function playerHTML(P,p,full){
+  var F=E.FAC[P.fac],bc=P.bc,ab='';
+  var s='<div class="pl'+(E.actor(G)===p&&!G.over?' cur':'')+'"><div class="dot" style="background:'+P.color+'"></div><div style="flex:1;min-width:0">';
+  s+='<div><span class="pn">'+esc(P.name)+'</span>'+(P.human?'':'<span class="tag">'+E.DIFF[P.difficulty].n+'</span>')+(P.passed?'<span class="tag">passed</span>':'')+' <span style="float:right;font-weight:900;color:var(--accent)">'+P.vp+' VP</span></div>';
+  s+='<div class="strat">'+F.i+' <b>'+esc(F.n)+'</b> <i>· '+E.TERR[P.terr].n+'</i></div>';
+  if(!P.human){var ST=E.STRAT[P.strategy];s+='<div class="strat">'+ST.i+' <b>'+esc(ST.n)+'</b>'+(P.stratRandom?' <i>(random)</i>':'')+' <i>— '+esc(ST.d)+'</i></div>';}
+  s+='<div class="stats"><b>'+P.w+'</b>👷 <b>'+P.c+'</b>💰 <b>'+P.p+'</b>🙏 <span class="pools" title="power pools I / II / III"><span>'+P.b[0]+'</span><span>'+P.b[1]+'</span><span>'+P.b[2]+'</span></span>';
+  s+=' · '+(F.ship?'⛵'+E.shipLevel(G,P):(P.fac==='delve'?'tunnels':'glide '+(1+(P.shBuilt?1:0)+(P.carpetPlus||0))))+(F.dig?' · ⛏'+E.rate(P)+'👷/shovel':' · 🙏/shovel')+'<br>';
+  s+='🏠'+bc[1]+' 🏪'+bc[2]+' ⛪'+bc[3]+(P.shBuilt?' 🏰':'')+(P.saBuilt?' 🕌':'')+' · '+E.CULTS.map(function(C,i){return C.i+P.cult[i];}).join(' ')+(P.keys?' · 🔑'+P.keys:'')+'<br>';
+  if(P.bon>=0)s+='<span class="chip">'+E.BONUS[P.bon].i+' '+esc(E.BONUS[P.bon].n)+'</span>';
+  P.favs.forEach(function(f){s+='<span class="chip" title="'+esc(E.FAVOR[f].d||'')+'">'+esc(E.FAVOR[f].n)+'</span>';});
+  P.towns.forEach(function(k){s+='<span class="chip">⭐ '+esc(E.TOWN[k].n)+'</span>';});
+  s+='</div>';
+  if(full){var I=E.income(G,p),B=E.bonusInc(P.bon);s+='<div class="stats">Next income: <b>'+(I.w+B.w)+'</b>👷 <b>'+(I.c+B.c)+'</b>💰 <b>'+(I.p+B.p)+'</b>🙏 <b>'+(I.pw+B.pw)+'</b>⚡ · left: 🏠'+(8-bc[1])+' 🏪'+(4-bc[2])+' ⛪'+(3-bc[3])+' · bridges '+P.bridgesLeft+'</div>';}
+  s+='<details'+(full?' open':'')+'><summary>Faction powers</summary>'+esc(F.a1)+'<br>'+esc(F.a2)+'</details>';
+  return s+'</div></div>';
+}
+function renderMine(){var p=me();if(p<0){$('mine').innerHTML='';return;}var P=G.players[p];$('myFac').textContent=E.FAC[P.fac].n;$('mine').innerHTML=playerHTML(P,p,true);}
+function renderPlayers(){var s='';G.order&&G.order.length?G.order.forEach(function(p){s+=playerHTML(G.players[p],p,false);}):G.players.forEach(function(P,p){s+=playerHTML(P,p,false);});$('players').innerHTML=s;}
+function renderCults(){
+  var svg=$('cultSvg');svg.innerHTML='';
+  E.CULTS.forEach(function(C,c){var x0=c*100+6,w=88;
+    el('rect',{x:x0,y:4,width:w,height:236,rx:10,fill:C.c,opacity:0.22},svg);
+    el('text',{x:x0+w/2,y:20,'font-size':14,'class':'lbl'},svg,C.i+' '+C.n);
+    for(var v=0;v<=10;v++){var y=228-v*19.5;el('line',{x1:x0+4,y1:y,x2:x0+w-4,y2:y,stroke:'#ffffff22'},svg);el('text',{x:x0+10,y:y+4,'font-size':10,fill:'#d8cbb0',"text-anchor":'middle'},svg,String(v));
+      var here=G.players.filter(function(P){return P.cult[c]===v;});here.forEach(function(P,k){el('circle',{cx:x0+26+k*13,cy:y,r:6.5,fill:P.color,stroke:'#fff',"stroke-width":1.5},svg);});
+      if(v===3||v===5||v===7||v===10)el('text',{x:x0+w-10,y:y+4,'font-size':9,fill:'#d9b6ff',"text-anchor":'middle'},svg,'+'+({3:1,5:2,7:2,10:3})[v]+'⚡');}
+    for(var s=0;s<4;s++){var sx=x0+12+s*21,sy=262,o=G.slots[c][s];el('rect',{x:sx-9,y:sy-11,width:18,height:22,rx:5,fill:o>=0?G.players[o].color:'#00000055',stroke:'#ffffff55'},svg);el('text',{x:sx,y:sy+4,'font-size':11,"text-anchor":'middle',fill:o>=0?'#000':'#ddd','font-weight':800},svg,o>=0?'🙏':String(E.ORDER_SLOTS[s]));}
+  });
+  el('text',{x:200,y:292,'font-size':11,fill:'#c2b49a',"text-anchor":'middle'},svg,'Order slots: +3 / +2 / +2 / +2 (the sage stays)');
+}
+function renderTiles(){
+  var s='';G.tiles.forEach(function(id,i){var T=E.SCORE[id];s+='<div class="tile'+(i+1===G.round?' now':'')+(i+1<G.round?' done':'')+'"><b>R'+(i+1)+' · '+esc(T.n)+'</b><br>'+esc(E.tileText(id,i+1===G.maxRound))+'</div>';});$('tiles').innerHTML=s;
+  s='';G.pool.forEach(function(b){s+='<div class="bon"><b>'+E.BONUS[b.id].i+' '+esc(E.BONUS[b.id].n)+'</b>'+(b.coins?' <span class="coin">+'+b.coins+'💰</span>':'')+'<br>'+esc(E.bonusText(b.id))+'</div>';});
+  G.players.forEach(function(P){if(P.bon>=0)s+='<div class="bon" style="opacity:.6"><b>'+E.BONUS[P.bon].i+' '+esc(E.BONUS[P.bon].n)+'</b> · held by '+esc(P.name)+'<br>'+esc(E.bonusText(P.bon))+'</div>';});
+  $('bonus').innerHTML=s;
+  $('pact').innerHTML=E.PACT.map(function(A,i){return '<span class="'+(G.pact[i]?'taken':'')+'">'+A.pw+'⚡ '+esc(A.n)+'</span>';}).join('');
+  $('favs').innerHTML='<span style="font-size:12px;color:var(--muted)">Blessings left: </span>'+E.FAVOR.map(function(f,i){return '<span class="chip" title="'+esc(f.d||'')+'">'+esc(f.n)+' '+E.CULTS[f.cult].i+'+'+f.s+' ×'+G.favLeft[i]+'</span>';}).join('');
+  $('towns').innerHTML='<span style="font-size:12px;color:var(--muted)">Charters left: </span>'+E.TOWN.map(function(t,i){return '<span class="chip" title="'+esc(E.townText(i))+'">⭐ '+t.vp+' VP ×'+G.townLeft[i]+'</span>';}).join('');
+}
+function renderLog(){var d=$('log');d.innerHTML=G.log.slice(-160).map(function(l){return '<div class="'+l.c+'">'+esc(l.t)+'</div>';}).join('');d.scrollTop=d.scrollHeight;}
+
+/* ---------- acting and the bot loop ---------- */
+function doAct(a){
+  if(!myTurn())return;
+  try{E.act(G,a);}catch(e){toast(e.message);return;}
+  ui.sel=null;ui.verb=null;ui.selB=null;ui.hint=null;ui.hintKey='';
+  render();loop();
+}
+function loop(){
+  clearTimeout(ui.timer);
+  if(!G)return;
+  if(G.over){ui.busy=false;render();setTimeout(showOver,300);return;}
+  var p=E.actor(G);
+  if(p===me()){ui.busy=false;render();return;}
+  ui.busy=true;render();
+  ui.timer=setTimeout(function(){
+    var g0=G;var a=E.botAction(G);if(G!==g0)return;
+    try{E.act(G,a);}catch(e){console.error(e);toast('Bot error: '+e.message);ui.busy=false;return;}
+    loop();
+  },G.pending.length&&G.pending[0].type==='leech'?Math.min(SPEED[ui.speed],250):SPEED[ui.speed]);
+}
+function showOver(){
+  if(!G||!G.over)return;
+  var cats=[['Start','start'],['Round tiles','tile'],['Blessings & faction','favor','faction','gild'],['Shovels & tunnels','spade','tunnel','glide'],['Sailing & digging','ship','dig'],['Towns','town'],['Passing','pass'],['Power taken','leech'],['Largest realm','area'],['Circle majorities','cult'],['Leftovers','res']];
+  var s='<table class="sc"><tr><th></th>'+G.players.map(function(P){return '<th style="color:'+P.color+'">'+esc(P.name)+'</th>';}).join('')+'</tr>';
+  cats.forEach(function(c){s+='<tr><td>'+c[0]+'</td>'+G.players.map(function(P){var v=0;for(var i=1;i<c.length;i++)v+=P.vb[c[i]]||0;return '<td>'+v+'</td>';}).join('')+'</tr>';});
+  s+='<tr><td>Realm size</td>'+G.final.map(function(f){return '<td>'+f.size+'</td>';}).join('')+'</tr>';
+  s+='<tr class="tot"><td>Total</td>'+G.players.map(function(P){return '<td>'+P.vp+'</td>';}).join('')+'</tr></table>';
+  var W=G.players[G.winner];
+  $('overTitle').textContent=G.winners.length>1?'A tie!':(W.human?'You win!':W.name+' wins');
+  $('overBody').innerHTML='<p>'+G.players.map(function(P){return esc(P.name)+' ('+esc(E.FAC[P.fac].n)+(P.human?'':', '+E.STRAT[P.strategy].n+', '+E.DIFF[P.difficulty].n)+')';}).join(' · ')+'</p>'+s;
+  $('over').classList.add('show');
+}
+
+/* ---------- setup ---------- */
+function facOptions(sel,val){
+  var s='<option value="random">🎲 Random faction</option>';
+  E.TERR.forEach(function(T,t){s+='<optgroup label="'+T.n+'">';E.FAC_KEYS.forEach(function(k){var F=E.FAC[k];if(F.t===t)s+='<option value="'+k+'">'+F.i+' '+F.n+' ('+T.n+')</option>';});s+='</optgroup>';});
+  sel.innerHTML=s;sel.value=val;
+}
+function renderSetup(){
+  ['optN','optFirst','optMap','optQuick','optTiles','optVP','optHints'].forEach(function(id){var k={optN:'n',optFirst:'first',optMap:'map',optQuick:'quick',optTiles:'tiles',optVP:'vp',optHints:'hints'}[id];
+    [].forEach.call($(id).querySelectorAll('button'),function(b){b.classList.toggle('on',String(cfg[k])===b.dataset.v);});});
+  [].forEach.call($('optTips').querySelectorAll('button'),function(b){b.classList.toggle('on',b.dataset.v===(tipsOn?'1':'0'));});
+  facOptions($('myFacSel'),cfg.myFac);
+  $('myFacNote').textContent=cfg.myFac==='random'?'A faction is drawn for you when the game starts.':E.FAC[cfg.myFac].a1;
+  var s='';
+  for(var i=0;i<cfg.n-1;i++){var se=cfg.seats[i];var ST=E.STRAT[se.s];
+    s+='<div class="seat"><div class="sn">🤖 '+E.BOT_NAMES[i]+'</div><select data-seat="'+i+'" data-k="f"></select><select data-seat="'+i+'" data-k="s"><option value="random">🎲 Random strategy</option>'+E.STRAT_KEYS.map(function(k){return '<option value="'+k+'">'+E.STRAT[k].i+' '+E.STRAT[k].n+'</option>';}).join('')+'</select>';
+    s+='<select data-seat="'+i+'" data-k="d">'+Object.keys(E.DIFF).map(function(k){return '<option value="'+k+'">'+E.DIFF[k].n+'</option>';}).join('')+'</select>';
+    s+='<div class="sd">'+(se.s==='random'?'Strategy drawn at random when the game starts.':ST.i+' '+esc(ST.d))+'</div></div>';}
+  $('seats').innerHTML=s;
+  [].forEach.call($('seats').querySelectorAll('select'),function(sel){var i=+sel.dataset.seat,k=sel.dataset.k;
+    if(k==='f')facOptions(sel,cfg.seats[i].f);else sel.value=cfg.seats[i][k];
+    sel.addEventListener('change',function(){cfg.seats[i][k]=sel.value;saveCfg();renderSetup();});});
+}
+['optN','optFirst','optMap','optQuick','optTiles','optVP','optHints'].forEach(function(id){var k={optN:'n',optFirst:'first',optMap:'map',optQuick:'quick',optTiles:'tiles',optVP:'vp',optHints:'hints'}[id];
+  $(id).addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var v=b.dataset.v;cfg[k]=(k==='n'||k==='quick'||k==='hints')?+v:v;saveCfg();renderSetup();});});
+$('myFacSel').addEventListener('change',function(){cfg.myFac=this.value;saveCfg();renderSetup();});
+function openSetup(){renderSetup();$('setup').classList.add('show');}
+function startGame(){
+  var players=[{human:true,faction:cfg.myFac==='random'?null:cfg.myFac}];
+  var used={};if(cfg.myFac!=='random')used[E.FAC[cfg.myFac].t]=1;var clash=[];
+  for(var i=0;i<cfg.n-1;i++){var se=cfg.seats[i];var f=se.f==='random'?null:se.f;if(f&&used[E.FAC[f].t]){clash.push(E.FAC[f].n);f=null;}if(f)used[E.FAC[f].t]=1;
+    players.push({name:E.BOT_NAMES[i],faction:f,strategy:se.s==='random'?null:se.s,difficulty:se.d});}
+  launch(E.newGame({players:players,first:cfg.first,opts:{map:cfg.map,quick:!!cfg.quick,tiles:cfg.tiles,vp:cfg.vp,hints:!!cfg.hints}}),'custom');
+  if(clash.length)toast(clash.join(', ')+' shares a home terrain with another pick, so a random faction was drawn instead.');
+}
+$('startBtn').addEventListener('click',startGame);
+$('setupCancel').addEventListener('click',function(){$('setup').classList.remove('show');if(!G)showTitle();});
+$('newBtn').addEventListener('click',openSetup);
+$('overNew').addEventListener('click',function(){$('over').classList.remove('show');openSetup();});
+$('overClose').addEventListener('click',function(){$('over').classList.remove('show');});
+$('rulesBtn').addEventListener('click',function(){$('rules').classList.add('show');});
+$('rulesClose').addEventListener('click',function(){$('rules').classList.remove('show');});
+$('speedSel').addEventListener('change',function(){ui.speed=this.value;try{localStorage.setItem('terraSpeed',ui.speed);}catch(e){}});
+$('facList').innerHTML=E.TERR.map(function(T,t){return E.FAC_KEYS.filter(function(k){return E.FAC[k].t===t;}).map(function(k){var F=E.FAC[k];return '<p><b>'+F.i+' '+esc(F.n)+'</b> ('+T.n+', start '+F.vp+' VP). '+esc(F.a1)+' '+esc(F.a2)+'</p>';}).join('');}).join('');
+
+/* ---------- polish: title screen, quick mode, tips, result card, stats ---------- */
+var PUBLIC_URL='https://yougitadmin.github.io/omnixr-games/terraimysticai/';
+var MASCOT={GAIa:'🌿',MAIrlin:'🧙',AIvalon:'🏰',KAIrn:'🗿',ThAIne:'⚔️'};
+var FACE=['#2f9e5a','#7a5cff','#e0533a','#9b9ba8','#e5a43a'];
+var TAUNT={expand:'Every empty space has my name on it.',devotee:'The Circles answer to me.',towns:'I don\u2019t build huts. I build towns.',navigator:'Rivers? I call them shortcuts.',leech:'Build next to me. Please. I\u2019m thirsty.',rusher:'My Citadel goes up before your first Hut.',digger:'I\u2019ll reshape this whole valley.',balanced:'I take the best move. Every move.'};
+var WINQ={expand:'My realm. Your view.',devotee:'The Circles have spoken.',towns:'Welcome to my town. Population: me.',navigator:'Should have learned to sail.',leech:'Thanks for all the power!',rusher:'Citadel first. Questions later.',digger:'I moved the earth. You moved nothing.',balanced:'Balance restored. In my favour.'};
+var LOSEQ={expand:'I needed a bigger map.',devotee:'My sages will hear about this.',towns:'My town planner is fired.',navigator:'The river betrayed me.',leech:'You never built next to me!',rusher:'My Citadel deserved better.',digger:'I dug myself into a hole.',balanced:'Recalibrating\u2026'};
+var QUICK={bots:2,opts:{map:'random',quick:true,tiles:'starter',vp:'faction',hints:false}};
+var mode='custom', rivals=pickRivals(), recorded=false;
+function pickRivals(){var k=E.STRAT_KEYS.slice(),r=[];while(r.length<QUICK.bots){var i=Math.floor(Math.random()*k.length);r.push(k.splice(i,1)[0]);}return r;}
+function lsGet(k,d){try{var v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function getStats(){return Object.assign({played:0,wins:0,streak:0,bestStreak:0,bestVP:0,quick:0},lsGet('terraStats',{}));}
+function drawTitle(){
+  var h='';for(var i=0;i<rivals.length;i++){var S=E.STRAT[rivals[i]],nm=E.BOT_NAMES[i];h+='<div class="bot" style="--fc:'+FACE[i]+'"><div class="face">'+MASCOT[nm]+'</div><div class="bn">'+nm+'</div><div class="bl">'+S.i+' '+S.n+'</div><div class="bt">\u201c'+TAUNT[rivals[i]]+'\u201d</div></div>';}
+  $('titleBots').innerHTML=h;
+  var st=getStats();
+  $('titleStats').innerHTML=st.played?['<div class="stat"><b>'+st.played+'</b><span>played</span></div>','<div class="stat"><b>'+st.wins+'</b><span>won</span></div>','<div class="stat"><b>'+st.streak+'</b><span>win streak</span></div>','<div class="stat"><b>'+st.bestVP+'</b><span>best VP</span></div>'].join(''):'<div class="sub">Reshape land, build, climb the Circles. Most VP wins.</div>';
+  $('resumeBtn').style.display=G&&!G.over?'':'none';
+}
+function showTitle(){drawTitle();$('title').classList.add('show');$('over').classList.remove('show');$('setup').classList.remove('show');}
+function hideTitle(){$('title').classList.remove('show');}
+function launch(g,m){
+  clearTimeout(ui.timer);G=g;mode=m;recorded=false;
+  $('setup').classList.remove('show');$('over').classList.remove('show');hideTitle();
+  $('modePill').textContent=mode==='quick'?'⚡ Quick game':'Custom game';
+  ui.sel=null;ui.verb=null;ui.hint=null;ui.hintKey='';
+  render();loop();
+}
+function playNow(){
+  var players=[{human:true,faction:null}];
+  for(var i=0;i<rivals.length;i++)players.push({name:E.BOT_NAMES[i],faction:null,strategy:rivals[i],difficulty:'medium'});
+  launch(E.newGame({players:players,first:'me',opts:Object.assign({},QUICK.opts)}),'quick');
+}
+/* tips */
+var tipsOn=lsGet('terraTips',1)!==0, tipSeen=lsGet('terraTipsSeen',{}), curTip=null;
+function pdT(){return G.pending.length&&E.actor(G)===me()?G.pending[0].type:'';}
+function actNow(){return E.actor(G)===me()&&!G.pending.length&&G.phase==='act';}
+var TIPS=[
+  ['place',function(){return pdT()==='place';},function(){return 'Pick where your first Huts go: tap a glowing '+E.TERR[G.players[me()].terr].n+' space. Spots near rivers and rivals pay off later.';}],
+  ['bonus',function(){return pdT()==='bonus';},function(){return 'Choose a starting Boon. It adds income every round, and some give a special action. You swap it when you pass.';}],
+  ['goal',function(){return G.phase==='act'&&G.round===1;},function(){return 'Goal: most VP after round '+G.maxRound+'. Building, the round tiles, Circles, Towns and the size of your realm all score.';}],
+  ['reshape',function(){return actNow();},function(){return 'Tap a glowing space to dig it to your terrain and settle a Hut. Keep your buildings connected: the biggest realm scores at the end.';}],
+  ['draw',function(){return pdT()==='leech';},function(){return 'A rival built next to you, so you may draw power. Small amounts are cheap (it costs 1 VP less than the power) and fuel the power actions.';}],
+  ['upgrade',function(){return actNow()&&G.round>=2;},function(){return 'Grow Huts into Markets for coins and power, then aim for your Citadel to switch on your faction\u2019s ability.';}],
+  ['circle',function(){return actNow()&&G.round>=2;},function(){return 'Sages sent to Circles pay power now and VP at the end. The round tile also rewards Circle progress.';}],
+  ['town',function(){return actNow()&&G.round>=3;},function(){return 'Four connected buildings with power value 7 or more found a Town: a charter with VP and a key.';}],
+  ['last',function(){return G.phase==='act'&&G.round===G.maxRound&&G.maxRound>1;},function(){return 'Final round! Leftovers are worth little, so spend everything on VP.';}]
+];
+function updateTip(){
+  var box=$('tip');curTip=null;
+  if(G&&!G.over&&tipsOn)for(var i=0;i<TIPS.length;i++){var t=TIPS[i];if(!tipSeen[t[0]]&&t[1]()){curTip=t[0];$('tipText').textContent=t[2]();break;}}
+  box.className=curTip?'show':'';$('tipsBtn').style.opacity=tipsOn?'1':'.45';
+}
+function setTips(on){tipsOn=!!on;lsSet('terraTips',on?1:0);updateTip();}
+$('tipOk').addEventListener('click',function(){if(curTip){tipSeen[curTip]=1;lsSet('terraTipsSeen',tipSeen);}updateTip();});
+$('tipOff').addEventListener('click',function(){setTips(0);toast('Tips off. Tap 💡 to turn them back on.');});
+$('tipsBtn').addEventListener('click',function(){setTips(!tipsOn);toast(tipsOn?'Tips on':'Tips off');});
+$('tipsReset').addEventListener('click',function(){tipSeen={};lsSet('terraTipsSeen',{});setTips(1);renderSetup();toast('Tips will show again');});
+$('optTips').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;setTips(+b.dataset.v);renderSetup();});
+/* result */
+var lastCard='',lastShare='';
+function iWon(){return G.winners.length===1&&G.winner===me();}
+function recordResult(){
+  if(recorded)return [];recorded=true;
+  var P=G.players[me()],won=iWon(),st=getStats(),badges=[];
+  st.played++;if(mode==='quick')st.quick++;
+  if(won){st.wins++;st.streak++;if(st.streak>st.bestStreak)st.bestStreak=st.streak;if(st.streak>1)badges.push('🔥 '+st.streak+'-win streak');if(st.wins===1)badges.push('🏅 First win');}else st.streak=0;
+  if(P.vp>st.bestVP){if(st.played>1)badges.push('⭐ New best VP');st.bestVP=P.vp;}
+  lsSet('terraStats',st);return badges;
+}
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath();}
+function drawCard(){
+  var c=document.createElement('canvas');c.width=1200;c.height=630;var x=c.getContext('2d');
+  var g=x.createLinearGradient(0,0,1200,630);g.addColorStop(0,'#0f5a34');g.addColorStop(.55,'#08130e');g.addColorStop(1,'#6a1f0e');x.fillStyle=g;x.fillRect(0,0,1200,630);
+  var R=E.mkRng(G.seed||7);for(var i=0;i<26;i++){var hx=R()*1200,hy=R()*630,s=R()*26+10;x.globalAlpha=.12;x.fillStyle=E.TERR[Math.floor(R()*7)].c;x.beginPath();for(var k=0;k<6;k++){var an=Math.PI/3*k+Math.PI/6;x.lineTo(hx+s*Math.cos(an),hy+s*Math.sin(an));}x.closePath();x.fill();}x.globalAlpha=1;
+  x.font='900 70px system-ui,sans-serif';var parts=[['Terr','#ffb627'],['AI','#4dffb8'],['mystic','#ffb627'],['AI','#4dffb8']],px=60;parts.forEach(function(p){x.fillStyle=p[1];x.fillText(p[0],px,110);px+=x.measureText(p[0]).width;});
+  var won=iWon(),W=G.players[G.winner],tie=G.winners.length>1;
+  x.font='900 54px system-ui,sans-serif';x.fillStyle='#fff';x.fillText(won?'I won! 🏆':tie?'A tie at the top!':W.name+' beat me',60,190);
+  x.font='700 25px system-ui,sans-serif';x.fillStyle='#a8c4b0';x.fillText((mode==='quick'?'Quick game':'Custom game')+' · '+G.maxRound+' rounds · '+G.players.length+' players · '+E.FAC[G.players[me()].fac].n,60,235);
+  var order=G.players.map(function(P,i){return i;}).sort(function(a,b){return G.players[b].vp-G.players[a].vp;}),mx=Math.max.apply(null,G.players.map(function(P){return P.vp;}).concat([1]));
+  var rowH=Math.min(62,300/order.length);
+  order.forEach(function(i,k){var P=G.players[i],y=270+k*rowH;
+    x.fillStyle='#ffffff14';rr(x,60,y,640,rowH-8,12);x.fill();
+    x.fillStyle=P.color;rr(x,60,y,Math.max(60,640*P.vp/mx),rowH-8,12);x.globalAlpha=.6;x.fill();x.globalAlpha=1;
+    x.font='800 '+Math.round(rowH*0.42)+'px system-ui,sans-serif';x.fillStyle='#fff';x.fillText((k+1)+'. '+(P.human?'Me':P.name)+' · '+E.FAC[P.fac].n,78,y+rowH*0.58);
+    x.textAlign='right';x.fillText(P.vp+' VP',684,y+rowH*0.58);x.textAlign='left';});
+  var bi=won?order.find(function(i){return !G.players[i].human;}):(G.winners.find(function(i){return !G.players[i].human;})!=null?G.winners.find(function(i){return !G.players[i].human;}):G.winner);var B=G.players[bi];
+  if(B&&!B.human){var cx=950,cy=320;x.fillStyle=B.color;x.beginPath();x.ellipse(cx,cy,78,78,0,0,7);x.fill();x.lineWidth=6;x.strokeStyle='#fff';x.stroke();
+    x.font='84px system-ui,sans-serif';x.textAlign='center';x.fillText(MASCOT[B.name]||'🤖',cx,cy+30);
+    x.font='800 26px system-ui,sans-serif';x.fillStyle='#fff';x.fillText(B.name,cx,cy+118);
+    var q='\u201c'+(won?LOSEQ:WINQ)[B.strategy]+'\u201d';x.font='italic 600 22px system-ui,sans-serif';x.fillStyle='#ffd27a';
+    var line='',ly=cy+156;q.split(' ').forEach(function(wd){if(x.measureText(line+wd).width>340){x.fillText(line.trim(),cx,ly);ly+=28;line='';}line+=wd+' ';});x.fillText(line.trim(),cx,ly);x.textAlign='left';}
+  x.font='600 22px system-ui,sans-serif';x.fillStyle='#a8c4b0';x.fillText('by OmniXR · myomnixr.com',60,600);
+  x.textAlign='right';x.fillStyle='#4dffb8';x.fillText(PUBLIC_URL.replace(/^https?:\/\//,''),1140,600);x.textAlign='left';
+  return c.toDataURL('image/png');
+}
+function shareText(){var P=G.players[me()],W=G.players[G.winner];
+  return iWon()?'I out-built '+(G.players.length-1)+' AI rivals in TerrAImysticAI with '+P.vp+' VP 🏆 Can you beat them?':W.human?'I tied for the win in TerrAImysticAI with '+P.vp+' VP. Can you break the tie?':W.name+' out-built me in TerrAImysticAI ('+W.vp+' to '+P.vp+' VP). Can you take the land back?';}
+var baseShowOver=showOver;
+showOver=function(){
+  if(!G||!G.over)return;
+  baseShowOver();
+  var won=iWon(),W=G.players[G.winner],badges=recordResult();
+  $('overTitle').textContent=G.winners.length>1?'A tie!':won?'You win! 🏆':W.name+' wins';
+  lastCard=drawCard();$('cardImg').src=lastCard;
+  $('endBadges').innerHTML=badges.map(function(b){return '<span class="badge2">'+b+'</span>';}).join('');
+  lastShare='https://x.com/intent/post?text='+encodeURIComponent(shareText()+' '+PUBLIC_URL);
+  updateTip();
+};
+$('saveCard').addEventListener('click',function(){var a=document.createElement('a');a.href=lastCard;a.download='terraimysticai-result.png';document.body.appendChild(a);a.click();a.remove();});
+$('shareX').addEventListener('click',function(){window.open(lastShare,'_blank','noopener');});
+$('overMenu').addEventListener('click',showTitle);$('menuBtn').addEventListener('click',showTitle);
+$('overAgain').addEventListener('click',function(){if(mode==='quick'){rivals=pickRivals();playNow();}else startGame();});
+$('playNow').addEventListener('click',playNow);
+$('setupBtn').addEventListener('click',function(){openSetup();});
+$('resumeBtn').addEventListener('click',hideTitle);
+$('reroll').addEventListener('click',function(){rivals=pickRivals();drawTitle();});
+$('titleRules').addEventListener('click',function(){$('rules').classList.add('show');});
+var baseRender=render;render=function(){baseRender();updateTip();};
+window.__result=function(){return G&&G.over?{winner:G.winner,won:iWon(),vp:G.players.map(function(P){return P.vp;}),rounds:G.round,maxRound:G.maxRound,mode:mode,map:G.opts.map,card:lastCard.length}:null;};
+window.__shareUrl=function(){return lastShare;};window.__stats=getStats;window.__tip=function(){return curTip;};window.__rivals=function(){return rivals.slice();};window.__playNow=playNow;
+
+window.__game=function(){return G;};window.__E=E;
+window.__ui={act:function(a){E.act(G,a);ui.sel=null;ui.verb=null;render();loop();},busy:function(){return ui.busy;},cfg:function(){return cfg;},start:startGame,setCfg:function(c){Object.assign(cfg,c);saveCfg();},speed:function(v){ui.speed=v;}};
+function boot(){var h=location.hash;
+  if(h==='#setup'){hideTitle();openSetup();}
+  else if(/^#autostart=quick/.test(h))playNow();
+  else showTitle();}
+window.addEventListener('hashchange',boot);
+boot();
+})();
+
+</script>
+</body>
+</html>
