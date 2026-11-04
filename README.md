@@ -13,6 +13,7 @@ Free browser games against AI bots, by OmniXR · https://myomnixr.com
 - chAIss: https://yougitadmin.github.io/omnixr-games/chaiss/
 - strAItego: https://yougitadmin.github.io/omnixr-games/straitego/
 - mAIchu koru: https://yougitadmin.github.io/omnixr-games/maichu-koru/
+- brAIn boru: https://yougitadmin.github.io/omnixr-games/brain-boru/
 
 Each game is one self-contained HTML file that also works offline.
 

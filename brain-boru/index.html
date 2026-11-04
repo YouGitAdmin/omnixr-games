@@ -1,0 +1,1728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1f17">
+<title>brAIn boru</title>
+<meta name="description" content="Win tricks, wed well and beat back the Norse to unite the island. A trick-taking game of kingdoms against AI bots with real personalities and voices. Free, in your browser, no sign-up.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="OmniXR Games">
+<meta property="og:title" content="brAIn boru: out-scheme the AI lords of old Ireland">
+<meta property="og:description" content="Play deeds to win raths, climb the Suitors' Ladder, raise Round Towers and hold off the longships. AI rivals that talk back. Free, offline, no sign-up.">
+<meta property="og:url" content="https://yougitadmin.github.io/omnixr-games/brain-boru/">
+<meta property="og:image" content="https://yougitadmin.github.io/omnixr-games/brain-boru/cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="brAIn boru: a trick-taking game of kingdoms against AI bots">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="brAIn boru: out-scheme the AI lords of old Ireland">
+<meta name="twitter:description" content="Play deeds to win raths, climb the Suitors' Ladder, raise Round Towers and hold off the longships. AI rivals that talk back. Free, offline, no sign-up.">
+<meta name="twitter:image" content="https://yougitadmin.github.io/omnixr-games/brain-boru/cover.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1f17'/%3E%3Cpath d='M14 46 L20 22 L28 34 L32 16 L36 34 L44 22 L50 46Z' fill='%23f2c14e'/%3E%3Crect x='14' y='46' width='36' height='6' rx='2' fill='%23f2c14e'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#0d1f17;--panel:#15291f;--panel2:#1d3529;--ink:#f1efe4;--muted:#a9b8ab;--accent:#f2c14e;--ai:#5fd3a8;--bad:#ff6b6b;--ok:#7ad17f;--S:#e0524a;--B:#4a8fe0;--R:#e8b923;--C:#f2efe6}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Roboto,system-ui,-apple-system,Arial,sans-serif}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;background:radial-gradient(900px 600px at 85% -10%,#1f4a36 0%,transparent 60%),radial-gradient(900px 600px at -10% 110%,#3a2a12 0%,transparent 60%),var(--bg);background-attachment:fixed}
+header{width:100%;max-width:1400px;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;gap:8px;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(22px,5vw,32px);color:var(--accent);font-weight:900;white-space:nowrap;text-shadow:0 0 18px #f2c14e55}
+h1 .ai,.logo .ai{color:var(--ai)}
+h1 small{font-size:12px;color:var(--muted);font-weight:600;margin-left:8px;text-shadow:none}
+.hbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.btn{appearance:none;border:0;border-radius:10px;padding:10px 14px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;background:#2c4a3a;color:var(--ink);touch-action:manipulation}
+.btn:hover{filter:brightness(1.15)}.btn:disabled{opacity:.38;cursor:not-allowed;filter:none}
+.btn.primary{background:var(--accent);color:#2a1d00}.btn.small{padding:7px 10px;font-size:13px}.btn.on{outline:3px solid var(--accent)}
+select.btn{padding:7px 8px;font-size:13px}
+.pill{font-size:12px;font-weight:800;background:#5fd3a822;color:#c8f3e2;border:1px solid #5fd3a866;border-radius:999px;padding:4px 10px;white-space:nowrap}
+main{width:100%;max-width:1400px;display:grid;grid-template-columns:minmax(0,1fr) 460px;grid-template-areas:"map side";gap:10px;padding:0 10px;align-items:start}
+#mapCard{grid-area:map;position:sticky;top:6px}#side{grid-area:side;display:flex;flex-direction:column;gap:8px}
+.card{background:var(--panel);border-radius:14px;padding:10px 12px;box-shadow:0 2px 14px #0005,inset 0 0 0 1px #5fd3a833}
+.card h3{margin:0 0 6px;font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+#map{width:100%;height:auto;display:block;max-height:calc(100vh - 80px);margin:0 auto;touch-action:manipulation}
+#map .tn{font-size:2.15px;font-weight:700;fill:#f1efe4;paint-order:stroke;stroke:#0d1f17;stroke-width:.55px;pointer-events:none}
+#map .kl{font-size:3px;font-weight:900;fill:#fff;opacity:.92;paint-order:stroke;stroke:#00000088;stroke-width:.7px;pointer-events:none;letter-spacing:.2px}
+#map .ks{font-size:2.4px;font-weight:800;pointer-events:none;paint-order:stroke;stroke:#000a;stroke-width:.5px}
+#map .town{cursor:default}#map .town.pick{cursor:pointer}
+#map .town.pick .hl{animation:pulse 1.2s ease-in-out infinite}
+#map .town.sel .hl{stroke:#fff;stroke-width:.9}
+@keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:4px;justify-content:center}
+.legend span{white-space:nowrap}
+#turnCard{border:2px solid #2c4a3a}#turnCard.mine{border-color:var(--accent);box-shadow:0 0 18px #f2c14e44}
+#tTitle{font-weight:800;font-size:17px}
+#tHelp{font-size:14px;color:var(--muted);margin:4px 0 6px;line-height:1.4}#tHelp b{color:var(--ink)}
+.ctl{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:4px}
+.hand{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.dcard{appearance:none;border:0;font:inherit;color:#1a1208;width:74px;min-height:104px;border-radius:10px;padding:4px 5px;display:flex;flex-direction:column;align-items:stretch;gap:2px;cursor:pointer;position:relative;box-shadow:0 3px 8px #0007;background:var(--cc);text-align:left}
+.dcard .v{font-size:24px;font-weight:900;line-height:1}.dcard .su{position:absolute;right:5px;top:4px;font-size:16px}
+.dcard .w{font-size:11px;background:#ffffffb0;border-radius:5px;padding:1px 3px;white-space:nowrap}
+.dcard .l{font-size:10.5px;background:#00000026;border-radius:5px;padding:1px 3px;white-space:nowrap}
+.dcard.sel{outline:4px solid #fff;transform:translateY(-6px)}
+.dcard.dim{opacity:.4;cursor:not-allowed}
+.dcard.mini{width:58px;min-height:78px;cursor:default}.dcard.mini .v{font-size:19px}.dcard.mini .w,.dcard.mini .l{display:none}
+.dcard .who{font-size:10.5px;font-weight:800;background:#000a;color:#fff;border-radius:5px;padding:1px 4px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dcard.win{box-shadow:0 0 0 3px var(--accent),0 0 18px var(--accent)}
+.dcard .tag{font-size:10px;font-weight:800;color:#fff;background:#2e8a5a;border-radius:5px;text-align:center}
+.dcard .tag.no{background:#8a3340}
+.trick{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end;min-height:20px}
+.opts{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.opts .btn{text-align:left}
+.step{display:inline-flex;align-items:center;gap:6px;background:#0005;border-radius:10px;padding:4px 8px}
+#players{display:flex;flex-direction:column;gap:5px}
+.pl{display:grid;grid-template-columns:38px 1fr auto;gap:6px;align-items:center;background:var(--panel2);border-radius:10px;padding:5px 8px;border:2px solid transparent}
+.pl.act{border-color:var(--accent)}.pl.me .nm{color:var(--accent)}
+.pl .fc{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;background:var(--fc);box-shadow:0 0 0 2px #fff;position:relative}
+.pl.speaking .fc{transform:scale(1.12);box-shadow:0 0 0 3px #fff,0 0 14px var(--fc)}
+.pl .nm{font-weight:800;font-size:14px}.pl .st{font-size:11.5px;color:var(--muted)}
+.pl .res{font-size:12.5px;display:flex;gap:7px;flex-wrap:wrap;margin-top:1px}
+.pl .hon{font-size:20px;font-weight:900;color:var(--accent);text-align:right;line-height:1}.pl .hon small{display:block;font-size:10px;color:var(--muted);font-weight:700}
+#tracks{font-size:13px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.trk{background:var(--panel2);border-radius:10px;padding:6px 8px}
+.trk b{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:2px}
+.ladder{display:flex;gap:2px;align-items:flex-end;margin-top:3px}
+.rung{flex:1;min-width:0;border-radius:4px;background:#ffffff14;text-align:center;font-size:10px;padding:2px 0;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:38px;justify-content:flex-end}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--fc);box-shadow:0 0 0 1.5px #fff;display:inline-block;vertical-align:middle}
+#feed{height:min(30vh,300px);overflow:auto;font-size:13.5px;line-height:1.38;display:flex;flex-direction:column;gap:5px;padding-right:4px}
+.msg{display:flex;gap:7px;align-items:flex-start}
+.msg .av{width:26px;height:26px;flex:0 0 26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;background:var(--fc);border:2px solid #fff}
+.msg .bb{background:#28463a;border-radius:4px 12px 12px 12px;padding:5px 9px;max-width:88%}.msg .bb b{font-size:12px;color:var(--fc)}
+.msg.nar .bb{background:none;color:var(--accent);font-style:italic;padding:2px 4px}
+.msg.lg .bb{background:none;color:var(--muted);padding:0 4px;font-size:12.5px}
+#tip{display:none;margin-top:8px;background:linear-gradient(90deg,#5fd3a822,#f2c14e22);border:1px solid #5fd3a866;border-radius:12px;padding:8px 10px;font-size:13.5px;align-items:center;gap:8px}
+#tip.show{display:flex}#tip .tx{flex:1;line-height:1.35}#tip .btn{padding:6px 9px;font-size:12.5px}
+.modal{position:fixed;inset:0;background:#000b;display:none;align-items:flex-start;justify-content:center;z-index:20;overflow:auto;padding:16px 8px}
+.modal.show{display:flex}
+.mbox{background:var(--panel);border-radius:14px;padding:16px;max-width:780px;width:100%;box-shadow:0 10px 40px #000a}
+.mbox h2{margin:0 0 10px;color:var(--accent)}.mbox h4{margin:14px 0 4px;color:var(--ai)}
+.mbox p,.mbox li{line-height:1.45;font-size:14.5px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:7px 0}
+.lab2{min-width:120px;font-weight:700;font-size:14px}
+.opt{display:inline-flex;flex-wrap:wrap;border-radius:10px;overflow:hidden;border:1px solid #3b5a4a}
+.opt button{appearance:none;border:0;background:#2c4a3a;color:var(--ink);font:inherit;font-weight:700;font-size:14px;padding:9px 12px;cursor:pointer}
+.opt button.on{background:var(--accent);color:#2a1d00}
+.twnote{font-size:12.5px;color:var(--muted);flex-basis:100%;margin-left:128px}
+.seatRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--panel2);border-radius:10px;padding:6px 8px;margin:5px 0}
+.seatRow .tk{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;border:2px solid #fff}
+.seatRow b{min-width:70px}.seatRow .sd{font-size:12.5px;color:var(--muted);flex:1;min-width:150px}
+.tws{display:flex;flex-wrap:wrap;gap:6px}
+.twchip{appearance:none;border:2px solid #3b5a4a;background:#1b3328;color:var(--muted);border-radius:10px;padding:6px 9px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:left;max-width:340px}
+.twchip.on{border-color:var(--accent);color:var(--ink);background:#2c4a3a}.twchip small{display:block;font-weight:500;font-size:11.5px}
+table.res{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}table.res th{text-align:left;color:var(--muted);font-size:11.5px;padding:4px 3px}table.res td{padding:5px 3px;border-top:1px solid #ffffff14}
+table.res tr.win td:first-child{color:var(--accent);font-weight:800}
+#cardImg{width:100%;border-radius:12px;display:block;margin:6px 0;box-shadow:0 6px 22px #000a}
+.badge2{display:inline-block;background:#f2c14e22;border:1px solid #f2c14e77;border-radius:999px;padding:3px 10px;margin:2px;font-size:13px;font-weight:800}
+.screen{position:fixed;inset:0;z-index:15;overflow:auto;display:none;background:radial-gradient(700px 520px at 75% -5%,#2b6a4c 0%,transparent 65%),radial-gradient(700px 500px at 0% 100%,#4a3512 0%,transparent 60%),var(--bg)}
+.screen.show{display:block}
+.tWrap{max-width:720px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 16px 28px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
+.crownBig{font-size:64px;line-height:1;filter:drop-shadow(0 0 20px #f2c14e88);margin-top:6px}
+.logo{font-size:clamp(50px,14vw,92px);font-weight:900;line-height:1;margin:0;color:var(--accent);text-shadow:0 0 28px #f2c14e77,0 5px 0 #6a4a00}
+.logo .ai{text-shadow:0 0 28px #5fd3a8aa,0 5px 0 #1d5a44}
+.pitch{font-size:clamp(18px,4.6vw,24px);font-weight:800;max-width:600px;margin:0}.pitch em{color:var(--ai);font-style:normal}
+.bots{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;max-width:520px}
+.bot{background:#ffffff0d;border:2px solid #ffffff1a;border-radius:16px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bot .face{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;background:var(--fc);box-shadow:0 0 0 3px #ffffffaa,0 0 20px var(--fc)}
+.bot .bn{font-weight:900;font-size:17px}.bot .bl{font-size:12px;color:var(--muted)}.bot .bt{font-size:13px;font-style:italic;line-height:1.3}
+.bigPlay{font-size:26px!important;font-weight:900;padding:18px 54px!important;border-radius:999px!important;background:linear-gradient(180deg,#ffe8a8,#f2b42e)!important;color:#2a1600!important;box-shadow:0 6px 0 #8a5a00,0 0 32px #f2c14e88;animation:pulse2 1.8s ease-in-out infinite}
+.bigPlay:active{transform:translateY(3px);box-shadow:0 3px 0 #8a5a00}
+@keyframes pulse2{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.sub{font-size:14px;color:var(--muted)}
+.statsRow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.stat{background:#ffffff10;border-radius:12px;padding:8px 12px;min-width:76px}.stat b{display:block;font-size:20px;color:var(--accent)}.stat span{font-size:11.5px;color:var(--muted)}
+.credit{font-size:13px;color:var(--muted)}.credit a{color:var(--muted)}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#2e6a4f;color:#fff;padding:10px 14px;border-radius:10px;font-weight:700;display:none;z-index:30;max-width:92vw;text-align:center}
+#toast.show{display:block}
+footer{margin:16px 0 18px;color:var(--muted);font-size:13px}footer a{color:var(--muted)}
+@media (max-width:900px){
+  main{grid-template-columns:1fr;grid-template-areas:"map" "side";padding:0 6px}
+  #mapCard{position:static;padding:4px 3px}#map{max-height:none}main{padding:0 4px}
+  #modePill{display:none}
+  header{padding:6px 8px}h1 small{display:none}
+  .twnote{margin-left:0}.lab2{min-width:100%}
+  .btn{padding:9px 11px;font-size:14px}
+  .dcard{width:66px;min-height:96px}.dcard .w,.dcard .l{font-size:10px}
+  #feed{height:34vh}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>br<span class="ai">AI</span>n boru<small>by OmniXR</small></h1>
+  <div class="hbar"><span class="pill" id="modePill"></span><span class="pill" id="roundPill"></span>
+    <button class="btn small" id="voiceBtn" title="Voices" aria-label="Voices">🔊</button><button class="btn small" id="tipsBtn" title="Tips">💡</button><button class="btn small" id="rulesBtn" title="Rules">📖</button><button class="btn small" id="menuBtn" title="Menu">☰</button></div>
+</header>
+<main>
+  <section class="card" id="mapCard"><svg id="map" viewBox="2 0 92 122" role="img" aria-label="Map of the island"></svg>
+    <div class="legend"><span>⚔️ red rath = Sword</span><span>🔔 blue = Bell</span><span>💍 yellow = Ring</span><span>🏰 ring = Round Tower</span><span>⛵ = Longphort</span><span>🚩 = Banner</span></div></section>
+  <section id="side">
+    <div class="card" id="turnCard"><div id="tTitle"></div><div id="tHelp"></div><div id="tBody"></div><div class="ctl" id="ctl"></div>
+      <div id="tip"><span>💡</span><span class="tx" id="tipText"></span><button class="btn" id="tipOk">Got it</button><button class="btn" id="tipOff">Tips off</button></div></div>
+    <div class="card"><h3><span>Lords</span><span id="banTxt"></span></h3><div id="players"></div></div>
+    <div class="card"><h3><span>Shore, Abbey and Ladder</span><span id="matchTxt"></span></h3><div id="tracks"></div></div>
+    <div class="card"><h3><span>Court talk</span><span class="sub" id="voiceTxt"></span></h3><div id="feed" aria-live="polite"></div></div>
+  </section>
+</main>
+<footer>brAIn boru · by OmniXR · <a href="https://myomnixr.com" target="_blank" rel="noopener">myomnixr.com</a></footer>
+
+<div class="modal" id="setup"><div class="mbox">
+  <h2>New game of br<span style="color:var(--ai)">AI</span>n boru</h2>
+  <div class="row"><label class="lab2">Bots</label><div class="opt" id="optN"></div><div class="twnote">You plus 2 to 4 bots. 3 players play 3 rounds; 4 or 5 players play 4.</div></div>
+  <div id="seats"></div>
+  <div class="row"><label class="lab2">Difficulty</label><div class="opt" id="optDiff"><button data-v="easy">Easy</button><button data-v="medium">Medium</button><button data-v="hard">Hard</button></div><div class="twnote">Hard bots remember the draft and every deed played, work out what each rival is likely holding, play each trick through in their heads before choosing, and gang up on whoever is ahead.</div></div>
+  <div class="row"><label class="lab2">Who goes first</label><div class="opt" id="optFirst"><button data-v="me">Me</button><button data-v="random">Random</button></div><div class="twnote">First to found a rath and first to hold the Banner.</div></div>
+  <div class="row"><label class="lab2">Map</label><div class="opt" id="optMap"><button data-v="random">Random</button><button data-v="classic">Classic island</button></div><div class="twnote">Random scatters new raths, roads and kingdom sizes every game. Classic is our fixed layout of the island.</div></div>
+  <h4>Optional twists</h4>
+  <div class="tws" id="twists"></div>
+  <h4>Help</h4>
+  <div class="row"><label class="lab2">Voices</label><div class="opt" id="optVoice"><button data-v="1">On</button><button data-v="0">Off</button></div><div class="twnote" id="voiceNote"></div></div>
+  <div class="row"><label class="lab2">Speech speed</label><div class="opt" id="optSpeed"><button data-v="0.8">Slow</button><button data-v="1">Normal</button><button data-v="1.25">Fast</button><button data-v="1.5">Faster</button></div></div>
+  <div class="row"><label class="lab2">Bot pace</label><div class="opt" id="optPace"><button data-v="slow">Relaxed</button><button data-v="normal">Normal</button><button data-v="fast">Quick</button></div></div>
+  <div class="row"><label class="lab2">Tips during play</label><div class="opt" id="optTips"><button data-v="1">On</button><button data-v="0">Off</button></div><button class="btn small" id="tipsReset">Show tips again</button></div>
+  <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn" id="setupCancel">Cancel</button><button class="btn primary" id="startBtn">Start game</button></div>
+</div></div>
+
+<div class="modal" id="over"><div class="mbox"><h2 id="overTitle">Game over</h2>
+  <div id="overSub" class="sub"></div>
+  <img id="cardImg" alt="Result card">
+  <div id="endBadges"></div>
+  <div class="row"><button class="btn primary" id="saveCard">💾 Save image</button><button class="btn" id="shareX">𝕏 Share on X</button></div>
+  <div style="overflow-x:auto"><table class="res" id="resTable"></table></div>
+  <div class="row" style="justify-content:flex-end"><button class="btn" id="overClose">Look at the map</button><button class="btn" id="overMenu">Menu</button><button class="btn primary" id="overAgain">Play again</button></div>
+  <div class="credit" style="text-align:center;margin-top:8px">brAIn boru · by OmniXR · myomnixr.com</div>
+</div></div>
+
+<div class="modal" id="rules"><div class="mbox">
+  <h2>How to play</h2>
+  <p>Around the year 1000 the island is split into eight kingdoms and every lord wants to rule them all, as Brian Boru once did. You win Honour by holding the most raths in kingdoms, by marrying well, by fighting off the Norse and by pleasing the Abbey. Most Honour after the last round wins.</p>
+  <h4>A round</h4>
+  <ol>
+    <li><b>Longship and Match.</b> A longship puts Raiders on the Shore, and a new Match waits at the top of the Suitors’ Ladder. The last round’s Match is always Ragnhild, the Jarl’s daughter.</li>
+    <li><b>Draft.</b> You get a pack of deeds. Keep two, pass the rest to the left, and repeat until every deed is taken. (The Quick deal twist skips this.)</li>
+    <li><b>Tricks.</b> Whoever holds the 🚩 Banner picks an empty rath and leads a deed of that rath’s colour (or a wild 👑 Crown). Everyone else plays any deed. The highest deed in the rath’s colour, counting Crowns, wins. Then everyone acts from the lowest deed up: the winner uses the deed’s top line (always taking the rath and the Banner), everyone else picks one of its bottom lines. Tricks go on until each lord has one deed left, which is thrown away.</li>
+    <li><b>Upkeep.</b> In order: the highest lord on the Ladder makes the Match and drops to the bottom, and everyone else gets the gift on their rung. If any Raiders are left on the Shore, the lord holding the fewest Raiders loses a rath to a Norse ⛵ Longphort. The lord holding the most Raiders gets 1 Glory and then 1 Honour per Glory. The lord with the most Offerings builds a 🏰 Round Tower (the rath counts double) and takes the Banner, and anyone else with 4 or more Offerings builds one too. Last, each kingdom whose seal is open goes to the lord with the most raths there.</li>
+  </ol>
+  <h4>Deed symbols</h4>
+  <div id="symList"></div>
+  <h4>Kingdom seals</h4>
+  <p>Each kingdom shows <b>open-at / worth</b>. Once that many of its raths are filled (by anyone, Norse included), its seal opens. An open seal goes to the lord with the most raths there and only changes hands when someone has strictly more. Round Towers count as two raths.</p>
+  <h4>Final scoring</h4>
+  <ul><li>Every seal you hold scores its worth. An open seal still on the board gives half its worth (rounded down) to each lord tied for most raths there.</li>
+  <li>1 Honour per Glory. 1 Honour for the most Silver (no ties). 1 Honour for holding the Banner.</li>
+  <li>Breadth: raths in 3 to 4 kingdoms score 1, 5 score 3, 6 score 5, 7 score 7, all 8 score 10.</li>
+  <li>Ties go to whoever holds more seals, then more Matches.</li></ul>
+  <div class="row" style="justify-content:flex-end"><button class="btn primary" id="rulesClose">Close</button></div>
+</div></div>
+
+<div class="screen" id="title"><div class="tWrap">
+  <div class="crownBig">👑</div>
+  <h1 class="logo">br<span class="ai">AI</span>n boru</h1>
+  <p class="pitch">Win the tricks. Wed well. Beat back the longships.<br><em>Out-scheme the AI lords and unite the island.</em></p>
+  <div class="sub">A trick-taking game of kingdoms with talking bots. About 10 minutes for a quick game.</div>
+  <div class="bots" id="titleBots"></div>
+  <button class="btn bigPlay" id="playNow">▶ Play now</button>
+  <div class="sub" id="quickNote"></div>
+  <div class="statsRow" id="titleStats"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><button class="btn" id="resumeBtn" style="display:none">↩ Resume game</button><button class="btn" id="setupBtn">⚙ Setup</button><button class="btn" id="reroll">🔀 New rivals</button><button class="btn" id="titleRules">📖 Rules</button></div>
+  <div class="credit">brAIn boru · by OmniXR · <a href="https://myomnixr.com" target="_blank" rel="noopener">myomnixr.com</a></div>
+</div></div>
+<div id="toast"></div>
+<script>
+// brAIn boru engine: trick-taking area control in early medieval Ireland, against bots with play styles. Pure logic, no DOM.
+// All names, card text and rules wording are our own. by OmniXR · myomnixr.com
+(function (root) {
+'use strict';
+var E = {};
+
+/* ---------------- random ---------------- */
+function mkRng(seed) { var a = seed >>> 0; return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+E.mkRng = mkRng;
+function rnd(G) { G.rs = (G.rs + 0x6D2B79F5) >>> 0; var t = G.rs; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }
+function ri(G, n) { return Math.floor(rnd(G) * n); }
+function shuffle(G, a) { for (var i = a.length - 1; i > 0; i--) { var j = ri(G, i + 1), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function shuffleR(R, a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(R() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function gauss(G) { var u = rnd(G) || 1e-9, v = rnd(G); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+
+/* ---------------- our terms ---------------- */
+E.TERMS = {
+  rath: 'Rath', kingdom: 'Kingdom', seal: 'Kingship seal', banner: 'Banner', silver: 'Silver', glory: 'Glory', points: 'Honour',
+  raider: 'Raider', shore: 'the Shore', longship: 'Longship', longphort: 'Longphort', ladder: 'Suitors\u2019 Ladder', match: 'Match',
+  abbey: 'the Abbey', offering: 'Offering', tower: 'Round Tower', march: 'March', drive: 'Drive out', breadth: 'Breadth'
+};
+// Suits. Our names; the colours map to the three upkeep tracks plus a wild suit.
+E.SUITS = {
+  S: { n: 'Sword', i: '⚔️', col: '#e0524a', d: 'Sword deeds fight the Norse: take Raiders off the Shore.' },
+  B: { n: 'Bell', i: '🔔', col: '#4a8fe0', d: 'Bell deeds win favour at the Abbey: place Offerings.' },
+  R: { n: 'Ring', i: '💍', col: '#e8b923', d: 'Ring deeds arrange marriages: climb the Suitors\u2019 Ladder.' },
+  C: { n: 'Crown', i: '👑', col: '#f2efe6', d: 'Crown deeds are wild: they count as the colour of any rath.' }
+};
+E.SYM = {
+  take: { i: '🏰', n: 'Take the rath and the Banner' },
+  silver: { i: '🪙', n: '+1 Silver' },
+  pay: { i: '💸', n: 'Pay 1 Silver (or lose 2 Honour if you have none)' },
+  glory: { i: '✨', n: '+1 Glory' },
+  raid: { i: '🪓', n: 'Take a Raider from the Shore (2 Silver buys one more)' },
+  offer: { i: '🕯️', n: 'Place an Offering at the Abbey (2 Silver buys one more)' },
+  court: { i: '💌', n: 'Climb one rung of the Suitors\u2019 Ladder (2 Silver buys one more)' },
+  march: { i: '🥾', n: 'You may pay 5 Silver to March into an empty rath joined by a road to one of yours' },
+  drive: { i: '🛡️', n: 'Drive the Norse out of one Longphort (its rath goes back to its owner)' }
+};
+
+/* ---------------- deeds (25 cards, values 1 to 25) ---------------- */
+var SUIT_VALUES = { R: [1, 4, 8, 12, 16, 20, 25], S: [2, 5, 9, 11, 15, 19, 23], B: [3, 6, 10, 14, 17, 21, 24], C: [7, 13, 18, 22] };
+function rep(s, k) { var a = []; for (var i = 0; i < k; i++) a.push(s); return a; }
+function buildCards() {
+  var cards = [];
+  Object.keys(SUIT_VALUES).forEach(function (s) {
+    SUIT_VALUES[s].forEach(function (v) {
+      var pri, k = v <= 8 ? 3 : v <= 16 ? 2 : 1, sec;
+      if (s === 'C') pri = v === 7 ? ['take', 'glory'] : v === 13 ? ['take', 'silver'] : v === 18 ? ['take'] : ['take', 'pay'];
+      else pri = v <= 6 ? ['take', 'silver', 'silver'] : v <= 12 ? ['take', 'silver'] : v <= 18 ? ['take'] : v <= 22 ? ['take', 'pay'] : ['take', 'pay', 'pay'];
+      if (s === 'S') sec = [rep('raid', k), rep('silver', k).concat(['march'])];
+      else if (s === 'B') sec = [rep('offer', k), rep('silver', k).concat(['drive'])];
+      else if (s === 'R') sec = [rep('court', k), rep('silver', k).concat(['march'])];
+      else sec = [rep('silver', k), v === 7 ? ['glory', 'silver'] : ['glory']];
+      cards.push({ id: cards.length, v: v, s: s, pri: pri, sec: sec });
+    });
+  });
+  cards.sort(function (a, b) { return a.v - b.v; }); cards.forEach(function (c, i) { c.id = i; });
+  return cards;
+}
+E.CARDS = buildCards();
+E.cardText = function (c) {
+  var f = function (a) { var m = {}; a.forEach(function (x) { m[x] = (m[x] || 0) + 1; }); return Object.keys(m).map(function (x) { return E.SYM[x].i + (m[x] > 1 ? '×' + m[x] : ''); }).join(' '); };
+  return { win: f(c.pri), lose: c.sec.map(f) };
+};
+E.symWords = function (a) {
+  var m = {}, order = []; a.forEach(function (x) { if (!m[x]) order.push(x); m[x] = (m[x] || 0) + 1; });
+  var W = { take: function () { return 'take the rath'; }, silver: function (k) { return '+' + k + ' Silver'; }, pay: function (k) { return 'pay ' + k + ' Silver'; }, glory: function (k) { return '+' + k + ' Glory'; },
+    raid: function (k) { return 'take ' + k + ' Raider' + (k > 1 ? 's' : ''); }, offer: function (k) { return k + ' Offering' + (k > 1 ? 's' : ''); }, court: function (k) { return 'climb ' + k + ' rung' + (k > 1 ? 's' : ''); },
+    march: function () { return 'may March (5 Silver)'; }, drive: function () { return 'drive out a Longphort'; } };
+  return order.map(function (x) { return W[x](m[x]); }).join(', ');
+};
+
+/* ---------------- kingdoms and the map ---------------- */
+// Eight historical over-kingdoms of Ireland around the year 1000. Names are history, the layout is ours.
+E.KINGDOMS = [
+  { n: 'Ailech', cx: 46, cy: 16 }, { n: 'Ulaid', cx: 77, cy: 26 }, { n: 'Airgialla', cx: 60, cy: 32 }, { n: 'Connacht', cx: 28, cy: 47 },
+  { n: 'Mide', cx: 54, cy: 51 }, { n: 'Laigin', cx: 72, cy: 66 }, { n: 'Osraige', cx: 58, cy: 77 }, { n: 'Mumu', cx: 38, cy: 92 }
+];
+E.KCOL = ['#7fb069', '#d08c60', '#b388eb', '#6fb7c9', '#e6c36a', '#e07a9a', '#9aa5b1', '#c9a26b'];
+var NAMES = [
+  ['Grianan', 'Inishowen', 'Derry', 'Raphoe', 'Donegal', 'Tory', 'Lifford', 'Moville', 'Kilmacrenan', 'Fahan'],
+  ['Antrim', 'Carrickfergus', 'Bangor', 'Downpatrick', 'Newry', 'Dunseverick', 'Larne', 'Strangford', 'Dromore', 'Lecale'],
+  ['Dungannon', 'Clogher', 'Armagh', 'Monaghan', 'Emain', 'Louth', 'Clones', 'Tynan', 'Donaghmore', 'Errigal'],
+  ['Sligo', 'Killala', 'Cruachan', 'Roscommon', 'Cong', 'Tuam', 'Galway', 'Athenry', 'Aran', 'Boyle'],
+  ['Kells', 'Tara', 'Uisneach', 'Clonmacnoise', 'Trim', 'Slane', 'Durrow', 'Fore', 'Kildalkey', 'Ardbraccan'],
+  ['Dublin', 'Naas', 'Kildare', 'Glendalough', 'Ferns', 'Wexford', 'Arklow', 'Wicklow', 'Carlow', 'Leighlin'],
+  ['Aghaboe', 'Freshford', 'Kilkenny', 'Gowran', 'Seir Kieran', 'Callan', 'Inistioge', 'Kells Priory', 'Rathdowney'],
+  ['Kincora', 'Limerick', 'Cashel', 'Lismore', 'Waterford', 'Cork', 'Killarney', 'Ardfert', 'Emly', 'Youghal']
+];
+E.OUTLINE = [[48,2],[56,6],[62,3],[72,6],[82,10],[88,18],[86,28],[80,34],[84,42],[80,48],[82,58],[84,70],[80,80],[76,88],[70,94],[60,100],[50,104],[40,110],[30,116],[18,118],[10,112],[14,104],[8,98],[14,90],[10,82],[18,76],[14,70],[22,64],[14,58],[10,50],[16,44],[12,36],[20,32],[28,30],[26,22],[34,16],[40,10]];
+var CLASSIC = [ // [kingdom, name, colour, x, y]
+  [0,'Inishowen','R',54,9],[0,'Derry','S',60,16],[0,'Grianan','B',48,14],[0,'Donegal','S',36,22],[0,'Raphoe','R',46,23],
+  [1,'Antrim','B',72,15],[1,'Carrickfergus','S',80,21],[1,'Bangor','R',83,30],[1,'Downpatrick','B',78,38],[1,'Newry','S',71,41],
+  [2,'Dungannon','R',63,26],[2,'Clogher','B',54,31],[2,'Armagh','S',66,34],[2,'Monaghan','R',58,39],
+  [3,'Sligo','B',33,32],[3,'Killala','R',22,38],[3,'Roscommon','S',39,46],[3,'Cruachan','R',30,44],[3,'Cong','S',20,53],[3,'Tuam','B',30,56],[3,'Galway','R',25,64],
+  [4,'Kells','B',59,46],[4,'Tara','R',67,49],[4,'Uisneach','S',50,52],[4,'Clonmacnoise','B',43,59],
+  [5,'Dublin','S',76,53],[5,'Naas','B',70,59],[5,'Kildare','R',63,63],[5,'Glendalough','S',76,65],[5,'Ferns','B',71,76],[5,'Wexford','R',75,85],
+  [6,'Aghaboe','S',55,68],[6,'Freshford','B',59,76],[6,'Kilkenny','R',63,84],
+  [7,'Kincora','R',40,72],[7,'Limerick','S',31,75],[7,'Cashel','B',47,82],[7,'Lismore','S',52,92],[7,'Waterford','B',63,93],[7,'Cork','R',40,101],[7,'Killarney','S',22,103]
+];
+function inPoly(x, y, P) { var c = false; for (var i = 0, j = P.length - 1; i < P.length; j = i++) { var a = P[i], b = P[j]; if (((a[1] > y) !== (b[1] > y)) && (x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0])) c = !c; } return c; }
+function segX(a, b, c, d) { // proper crossing of segments ab and cd
+  function o(p, q, r) { return Math.sign((q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])); }
+  return o(a, b, c) * o(a, b, d) < 0 && o(c, d, a) * o(c, d, b) < 0;
+}
+function buildRoads(towns, R) {
+  var edges = [], n = towns.length;
+  var cand = [];
+  for (var i = 0; i < n; i++) for (var j = i + 1; j < n; j++) { var dx = towns[i].x - towns[j].x, dy = towns[i].y - towns[j].y, d = Math.sqrt(dx * dx + dy * dy); if (d < 15.5) cand.push([d + (R ? R() * 2 : 0), i, j]); }
+  cand.sort(function (a, b) { return a[0] - b[0]; });
+  var deg = towns.map(function () { return 0; });
+  cand.forEach(function (c) {
+    var i = c[1], j = c[2]; if (deg[i] >= 3 || deg[j] >= 3) return;
+    var A = [towns[i].x, towns[i].y], B = [towns[j].x, towns[j].y];
+    for (var e = 0; e < edges.length; e++) { var f = edges[e]; if (f[0] === i || f[0] === j || f[1] === i || f[1] === j) continue; if (segX(A, B, [towns[f[0]].x, towns[f[0]].y], [towns[f[1]].x, towns[f[1]].y])) return; }
+    // roughly 60% of near pairs get a road, so the network is sparse like old tracks
+    if (R && R() < 0.3 && deg[i] > 0 && deg[j] > 0) return;
+    edges.push([i, j]); deg[i]++; deg[j]++;
+  });
+  // every rath gets at least one road: link loners to the nearest rath whose road would not cross another
+  towns.forEach(function (T, i) {
+    if (deg[i]) return;
+    var order = towns.map(function (U, j) { return [(U.x - T.x) * (U.x - T.x) + (U.y - T.y) * (U.y - T.y), j]; }).filter(function (a) { return a[1] !== i; }).sort(function (a, b) { return a[0] - b[0]; });
+    for (var o = 0; o < order.length; o++) {
+      var j = order[o][1], A = [T.x, T.y], B = [towns[j].x, towns[j].y], cross = false;
+      for (var e = 0; e < edges.length; e++) { var f = edges[e]; if (f[0] === i || f[0] === j || f[1] === i || f[1] === j) continue; if (segX(A, B, [towns[f[0]].x, towns[f[0]].y], [towns[f[1]].x, towns[f[1]].y])) { cross = true; break; } }
+      if (!cross) { edges.push([i, j]); deg[i]++; deg[j]++; break; }
+    }
+  });
+  towns.forEach(function (t) { t.adj = []; });
+  edges.forEach(function (e) { towns[e[0]].adj.push(e[1]); towns[e[1]].adj.push(e[0]); });
+  return edges;
+}
+function finishKingdoms(towns) {
+  return E.KINGDOMS.map(function (K, k) {
+    var ts = towns.filter(function (t) { return t.k === k; }), sz = ts.length;
+    var cx = ts.reduce(function (s, t) { return s + t.x; }, 0) / (sz || 1), cy = ts.reduce(function (s, t) { return s + t.y; }, 0) / (sz || 1);
+    return { id: k, n: K.n, size: sz, th: Math.max(2, Math.ceil(sz * 0.62)), val: Math.max(3, sz), cx: cx, cy: cy };
+  });
+}
+E.makeMap = function (kind, seed) {
+  var towns = [], R = mkRng((seed || 1) * 7 + 3);
+  if (kind === 'classic') {
+    CLASSIC.forEach(function (c, i) { towns.push({ id: i, k: c[0], name: c[1], col: c[2], x: c[3], y: c[4] }); });
+    var edges = buildRoads(towns, null);
+    return { kind: 'classic', towns: towns, roads: edges, kingdoms: finishKingdoms(towns) };
+  }
+  // Random: jitter the kingdom seats, scatter raths over the island, give each kingdom 3 to 7 raths.
+  var seats = E.KINGDOMS.map(function (K) { return [K.cx + (R() - 0.5) * 10, K.cy + (R() - 0.5) * 10]; });
+  var total = 38 + Math.floor(R() * 6), pts = [], tries = 0;
+  while (pts.length < total && tries < 20000) {
+    tries++; var x = 8 + R() * 82, y = 3 + R() * 115;
+    if (!inPoly(x, y, E.OUTLINE)) continue;
+    var ok = true; for (var q = 0; q < pts.length; q++) { var dx = pts[q][0] - x, dy = pts[q][1] - y; if (dx * dx + dy * dy < 7.2 * 7.2) { ok = false; break; } }
+    // keep a margin from the coast
+    var near = false; for (var a = -3; a <= 3 && !near; a += 3) for (var b = -3; b <= 3; b += 3) if (!inPoly(x + a, y + b, E.OUTLINE)) { near = true; break; }
+    if (ok && !near) pts.push([x, y]);
+  }
+  pts.forEach(function (p, i) {
+    var best = 0, bd = 1e9; seats.forEach(function (s, k) { var d = (s[0] - p[0]) * (s[0] - p[0]) + (s[1] - p[1]) * (s[1] - p[1]); if (d < bd) { bd = d; best = k; } });
+    towns.push({ id: i, k: best, x: Math.round(p[0] * 10) / 10, y: Math.round(p[1] * 10) / 10 });
+  });
+  // rebalance: kingdoms need 3 to 7 raths
+  for (var pass = 0; pass < 60; pass++) {
+    var cnt = E.KINGDOMS.map(function (K, k) { return towns.filter(function (t) { return t.k === k; }).length; });
+    var lo = cnt.findIndex(function (c) { return c < 3; }), hi = cnt.findIndex(function (c) { return c > 7; });
+    if (lo < 0 && hi < 0) break;
+    if (lo >= 0) { // pull the nearest rath from a kingdom that can spare one
+      var bt = null, bd2 = 1e9; towns.forEach(function (t) { if (cnt[t.k] <= 3 || t.k === lo) return; var d = (seats[lo][0] - t.x) * (seats[lo][0] - t.x) + (seats[lo][1] - t.y) * (seats[lo][1] - t.y); if (d < bd2) { bd2 = d; bt = t; } });
+      if (bt) bt.k = lo;
+    } else { // push the farthest rath of an oversized kingdom to its nearest other kingdom
+      var far = null, fd = -1; towns.forEach(function (t) { if (t.k !== hi) return; var d = (seats[hi][0] - t.x) * (seats[hi][0] - t.x) + (seats[hi][1] - t.y) * (seats[hi][1] - t.y); if (d > fd) { fd = d; far = t; } });
+      var nk = -1, nd = 1e9; seats.forEach(function (s, k) { if (k === hi || cnt[k] >= 7) return; var d = (s[0] - far.x) * (s[0] - far.x) + (s[1] - far.y) * (s[1] - far.y); if (d < nd) { nd = d; nk = k; } });
+      if (nk >= 0) far.k = nk; else break;
+    }
+  }
+  // names and colours: balanced colours inside each kingdom
+  E.KINGDOMS.forEach(function (K, k) {
+    var ts = towns.filter(function (t) { return t.k === k; }), pool = shuffleR(R, NAMES[k].slice()), cols = shuffleR(R, ['S', 'B', 'R']);
+    ts.forEach(function (t, i) { t.name = pool[i % pool.length] + (i >= pool.length ? ' ' + (i - pool.length + 2) : ''); t.col = cols[i % 3]; });
+  });
+  var e2 = buildRoads(towns, R);
+  return { kind: 'random', towns: towns, roads: e2, kingdoms: finishKingdoms(towns) };
+};
+E.BREADTH = [0, 0, 0, 1, 1, 3, 5, 7, 10]; // by number of kingdoms with at least one of your raths
+
+/* ---------------- matches, longships, ladder ---------------- */
+E.MATCHES = [
+  { n: 'Órlaith the Fair', pts: 4, glory: 1, k: [] },
+  { n: 'Donnchad of the Harp', pts: 2, glory: 0, k: [7] },
+  { n: 'Sadb the Wise', pts: 2, glory: 2, k: [] },
+  { n: 'Fergal the Generous', pts: 5, glory: 0, k: [] },
+  { n: 'Muirenn of the Isles', pts: 0, glory: 0, k: [3, 1] },
+  { n: 'Cormac the Bold', pts: 1, glory: 1, k: [5] },
+  { n: 'Gráinne of the Ships', pts: 3, glory: 0, k: [0] },
+  { n: 'Conall the Quiet', pts: 1, glory: 1, k: [4] }
+];
+E.DAUGHTER = { n: 'Ragnhild, the Jarl\u2019s daughter', daughter: true,
+  opts: { shield: { n: 'Shield-pact', d: 'At claims and at the end, Norse-held raths count as yours for kingdom majorities (not for Breadth).' },
+    trade: { n: 'Trade-pact', d: 'At the end, Norse-held raths count as yours for Breadth (not for majorities).' },
+    spurn: { n: 'Send her home', d: 'Gain 4 Honour now.' } } };
+E.LONGSHIPS = [2, 3, 3, 4, 4, 5, 6];
+// Rungs of the Suitors' Ladder (0 is the bottom). Rewards go to everyone who did not make the match.
+E.LADDER = [[], [], ['silver'], ['silver'], ['glory'], ['silver', 'silver'], ['glory'], ['rath'], ['glory', 'silver']];
+E.LADDER_TOP = E.LADDER.length - 1;
+
+/* ---------------- play styles and bots ---------------- */
+E.STYLES = {
+  warlord: { n: 'Warlord', i: '⚔️', d: 'Wins tricks with big deeds and grabs raths to rule whole kingdoms.', w: { kingdom: 1.3, rath: 1.3, keep: 0.8, silver: 0.9 } },
+  matchmaker: { n: 'Matchmaker', i: '💍', d: 'Climbs the Suitors\u2019 Ladder and lives on dowries.', w: { ladder: 1.5, raid: 1.1 } },
+  abbot: { n: 'Abbot', i: '⛪', d: 'Pours Offerings into the Abbey and builds Round Towers.', w: { abbey: 1.5, tower: 1.4, raid: 1.1 } },
+  hunter: { n: 'Norse-hunter', i: '🪓', d: 'Hoards Raiders to turn back the longships and stack up Glory.', w: { raid: 1.3, glory: 1.05 } },
+  merchant: { n: 'Merchant', i: '🪙', d: 'Takes the silver, then buys the extra steps when they count.', w: { silver: 1.35, keep: 1.1, kingdom: 1.05 } },
+  wanderer: { n: 'Wanderer', i: '🧭', d: 'Plants a rath in every corner of the island for the Breadth bonus.', w: { breadth: 1.8, kingdom: 0.85 } },
+  schemer: { n: 'Schemer', i: '🦊', d: 'Ducks tricks, takes the side deals and blocks whoever is ahead.', w: { block: 1.8, keep: 1.2, rath: 0.9 } },
+  balanced: { n: 'Balanced', i: '⚖️', d: 'Weighs every option evenly and plays the board as it is.', w: {} }
+};
+E.STYLE_KEYS = Object.keys(E.STYLES);
+E.DIFF = { easy: { n: 'Easy', noise: 2.2, rand: 0.25, block: 0, count: 0 }, medium: { n: 'Medium', noise: 0.6, rand: 0.05, block: 0.25, count: 1 }, hard: { n: 'Hard', noise: 0, rand: 0, block: 0.65, count: 2, style: 0.4, mc: 6, top: 6, ftop: 8, budget: 150 } };
+// Hard also remembers the draft and every deed played, deals out the hidden hands in a few sampled worlds and plays each candidate trick through (see mcChoose).
+E.BOT_NAMES = ['AIdan', 'MAIve', 'NiAIll', 'CAIthal', 'EithnAI'];
+E.MASCOTS = ['🦅', '🦊', '🐺', '🐗', '🦉'];
+E.COLORS = ['#f4f1ea', '#ff8c42', '#b57bff', '#3ddc84', '#ff5fa2']; // kept clear of the three rath colours
+E.MY_MASCOT = '🛡️';
+E.MIN_BOTS = 2; E.MAX_BOTS = 4;
+E.TWISTS = {
+  quickdeal: { n: 'Quick deal', d: 'Skip the draft: your hand is simply dealt.' },
+  fierce: { n: 'Fierce Norse', d: 'Every longship carries 2 more Raiders.' },
+  rich: { n: 'Full coffers', d: 'Everyone starts with 6 Silver instead of 3.' },
+  pious: { n: 'Generous Abbey', d: 'A Round Tower needs only 3 Offerings instead of 4.' }
+};
+E.QUICK = { bots: 2, rounds: 2 };
+
+/* ---------------- game setup ---------------- */
+E.newGame = function (o) {
+  o = o || {};
+  var seed = o.seed != null ? o.seed : Math.floor(Math.random() * 1e9);
+  var G = { rs: seed >>> 0, seed: seed, opts: { map: o.map || 'random', twists: Object.assign({}, o.twists || {}), quick: !!o.quick }, log: [], ev: [] };
+  var ps = o.players || [{ name: 'You', human: true }, { name: E.BOT_NAMES[0] }, { name: E.BOT_NAMES[1] }];
+  G.n = ps.length;
+  G.players = ps.map(function (p, i) {
+    var bi = E.BOT_NAMES.indexOf(p.name);
+    var style = p.human ? null : (p.style && E.STYLES[p.style] ? p.style : E.STYLE_KEYS[ri(G, E.STYLE_KEYS.length)]);
+    return { name: p.name, human: !!p.human, style: style, diff: p.human ? null : (E.DIFF[p.diff] ? p.diff : (E.DIFF[o.diff] ? o.diff : 'medium')),
+      mascot: p.mascot || (p.human ? E.MY_MASCOT : E.MASCOTS[bi >= 0 ? bi : i % 5]), color: E.COLORS[i % 5],
+      silver: G.opts.twists.rich ? 6 : 3, glory: 1, pts: 10, ladder: 0, raiders: 0, offer: 0, hand: [], picked: [], matches: [], pact: null };
+  });
+  G.map = E.makeMap(G.opts.map, seed);
+  var T = G.map.towns.length;
+  G.owner = []; G.viking = []; G.tower = [];
+  for (var t = 0; t < T; t++) { G.owner.push(-1); G.viking.push(false); G.tower.push(false); }
+  G.seal = G.map.kingdoms.map(function () { return { up: false, holder: -1 }; });
+  G.rounds = o.quick ? E.QUICK.rounds : (G.n === 3 ? 3 : 4);
+  var m = shuffle(G, E.MATCHES.map(function (x, i) { return i; })).slice(0, G.rounds - 1);
+  G.matchDeck = m; G.curMatch = null;
+  G.longDeck = shuffle(G, E.LONGSHIPS.slice());
+  G.round = 0; G.shore = 0; G.lastShip = 0;
+  var first = o.first === 'me' ? Math.max(0, G.players.findIndex(function (p) { return p.human; })) : (o.first != null && o.first !== 'random' && !isNaN(+o.first) ? +o.first : ri(G, G.n));
+  G.first = first; G.banner = first; G.activeTown = -1;
+  G.trick = null; G.played = []; G.queue = []; G.over = false; G.final = null;
+  G.phase = 'setup'; G.setupLeft = G.n; G.setupTurn = first;
+  G.pending = { type: 'setup', p: first };
+  log(G, 'Each lord places a first rath, in a kingdom nobody else has entered.');
+  return G;
+};
+var YOUV = /\bYou (found|play|win|raise|take|choose|lead|claim|wrest|make|gain|share|earn|march|drive)s\b/g;
+function log(G, t, ev) { t = t.replace(YOUV, 'You $1'); G.log.push(t); if (ev) { ev.t = t; G.ev.push(ev); } else G.ev.push({ k: 'log', t: t }); }
+E.tower4 = function (G) { return G.opts.twists.pious ? 3 : 4; };
+
+/* ---------------- counting ---------------- */
+function tw(G, t) { return G.tower[t] ? 2 : 1; }
+// Majority counts in kingdom k. Index n = the Norse. A Shield-pact folds Norse raths into that player's count.
+function kCounts(G, k, forClaims) {
+  var c = []; for (var i = 0; i <= G.n; i++) c.push(0);
+  var sh = forClaims ? shieldHolder(G) : -1;
+  G.map.towns.forEach(function (T, t) {
+    if (T.k !== k || G.owner[t] < 0) return;
+    if (G.viking[t]) { if (sh >= 0) c[sh] += tw(G, t); else c[G.n] += tw(G, t); }
+    else c[G.owner[t]] += tw(G, t);
+  });
+  return c;
+}
+E.kCounts = function (G, k) { return kCounts(G, k, true); };
+function shieldHolder(G) { for (var i = 0; i < G.n; i++) if (G.players[i].pact === 'shield') return i; return -1; }
+function filled(G, k) { var f = 0; G.map.towns.forEach(function (T, t) { if (T.k === k && G.owner[t] >= 0) f += tw(G, t); }); return f; }
+E.filled = filled;
+function kingdomsHeld(G, p, withTrade) {
+  var s = {}; var trade = withTrade && G.players[p].pact === 'trade';
+  G.map.towns.forEach(function (T, t) { if (G.owner[t] < 0) return; if (G.viking[t]) { if (trade) s[T.k] = 1; } else if (G.owner[t] === p) s[T.k] = 1; });
+  return Object.keys(s).length;
+}
+E.kingdomsHeld = kingdomsHeld;
+function rathsOf(G, p) { var a = []; for (var t = 0; t < G.owner.length; t++) if (G.owner[t] === p && !G.viking[t]) a.push(t); return a; }
+E.rathsOf = rathsOf;
+function emptyTowns(G) { var a = []; for (var t = 0; t < G.owner.length; t++) if (G.owner[t] < 0) a.push(t); return a; }
+E.emptyTowns = emptyTowns;
+function marchTargets(G, p) {
+  var res = [], seen = {};
+  rathsOf(G, p).forEach(function (f) { G.map.towns[f].adj.forEach(function (to) { if (G.owner[to] < 0 && !seen[to]) { seen[to] = 1; res.push(to); } }); });
+  return res;
+}
+E.marchTargets = marchTargets;
+function longphorts(G) { var a = []; for (var t = 0; t < G.owner.length; t++) if (G.viking[t]) a.push(t); return a; }
+E.longphorts = longphorts;
+
+/* ---------------- legal moves ---------------- */
+function qualifies(G, card, town) { var c = E.CARDS[card]; return c.s === 'C' || c.s === G.map.towns[town].col; }
+E.qualifies = qualifies;
+E.legalLeads = function (G, p) {
+  var P = G.players[p], res = [], et = emptyTowns(G);
+  et.forEach(function (t) { P.hand.forEach(function (c) { if (qualifies(G, c, t)) res.push({ town: t, card: c }); }); });
+  if (!res.length) et.forEach(function (t) { P.hand.forEach(function (c) { res.push({ town: t, card: c }); }); }); // nothing matches: lead anything
+  return res;
+};
+E.setupTowns = function (G, p) {
+  var used = {}; G.map.towns.forEach(function (T, t) { if (G.owner[t] >= 0 && G.owner[t] !== p) used[T.k] = 1; });
+  return emptyTowns(G).filter(function (t) { return !used[G.map.towns[t].k]; });
+};
+function hasSym(a, s) { return a.indexOf(s) >= 0; }
+function count(a, s) { return a.filter(function (x) { return x === s; }).length; }
+// All full plans for resolving a lost trick with card c: {opt, extra, march, drive}
+E.plans = function (G, p, card) {
+  var P = G.players[p], C = E.CARDS[card], res = [];
+  C.sec.forEach(function (syms, oi) {
+    var silverAfter = P.silver + count(syms, 'silver');
+    var ext = 0, buy = hasSym(syms, 'raid') ? 'raid' : hasSym(syms, 'offer') ? 'offer' : hasSym(syms, 'court') ? 'court' : null;
+    if (buy) {
+      var base = count(syms, buy), cap = Math.floor(silverAfter / 2);
+      if (buy === 'raid') cap = Math.min(cap, Math.max(0, G.shore - base));
+      if (buy === 'court') cap = Math.min(cap, Math.max(0, E.LADDER_TOP - P.ladder - base));
+      ext = Math.max(0, cap);
+    }
+    var drives = hasSym(syms, 'drive') ? longphorts(G) : [];
+    var marches = hasSym(syms, 'march') && silverAfter >= 5 ? marchTargets(G, p) : [];
+    for (var e = 0; e <= ext; e++) {
+      if (drives.length) drives.forEach(function (d) { res.push({ opt: oi, extra: e, march: -1, drive: d }); });
+      else { res.push({ opt: oi, extra: e, march: -1, drive: -1 }); marches.forEach(function (m) { res.push({ opt: oi, extra: e, march: m, drive: -1 }); }); }
+    }
+  });
+  return res;
+};
+E.buyKind = function (syms) { return hasSym(syms, 'raid') ? 'raid' : hasSym(syms, 'offer') ? 'offer' : hasSym(syms, 'court') ? 'court' : null; };
+
+/* ---------------- effects ---------------- */
+function paySilver(G, p, k) { var P = G.players[p]; for (var i = 0; i < k; i++) { if (P.silver > 0) P.silver--; else P.pts = Math.max(0, P.pts - 2); } }
+function climb(G, p, k) {
+  var P = G.players[p]; P.ladder = Math.min(E.LADDER_TOP, P.ladder + k);
+  while (P.ladder > 0 && G.players.some(function (Q, q) { return q !== p && Q.ladder === P.ladder; })) P.ladder--;
+}
+function takeRaiders(G, p, k) { var t = Math.min(k, G.shore); G.shore -= t; G.players[p].raiders += t; return t; }
+function claimTown(G, p, t) { if (t < 0 || G.owner[t] >= 0) return false; G.owner[t] = p; G.viking[t] = false; return true; }
+// Apply a resolved deed. won: primary; else plan (from E.plans).
+function applyDeed(G, p, card, won, plan, quiet) {
+  var P = G.players[p], C = E.CARDS[card], syms = won ? C.pri : C.sec[plan.opt], out = { p: p, card: card, won: won, syms: syms, plan: plan };
+  var buy = won ? null : E.buyKind(syms);
+  syms.forEach(function (s) {
+    if (s === 'take') { if (G.activeTown >= 0) claimTown(G, p, G.activeTown); G.banner = p; }
+    else if (s === 'silver') P.silver++;
+    else if (s === 'pay') paySilver(G, p, 1);
+    else if (s === 'glory') P.glory++;
+    else if (s === 'raid') out.gotRaid = (out.gotRaid || 0) + takeRaiders(G, p, 1);
+    else if (s === 'offer') P.offer++;
+    else if (s === 'court') climb(G, p, 1);
+    else if (s === 'march') { if (plan && plan.march >= 0 && P.silver >= 5 && G.owner[plan.march] < 0 && marchTargets(G, p).indexOf(plan.march) >= 0) { P.silver -= 5; claimTown(G, p, plan.march); out.marched = plan.march; } }
+    else if (s === 'drive') { var lp = longphorts(G); if (lp.length) { var d = plan && lp.indexOf(plan.drive) >= 0 ? plan.drive : lp[0]; G.viking[d] = false; out.drove = d; } }
+  });
+  if (buy && plan && plan.extra > 0) {
+    var e = Math.min(plan.extra, Math.floor(P.silver / 2));
+    if (buy === 'raid') e = Math.min(e, G.shore);
+    if (buy === 'court') { var before = P.ladder; e = Math.min(e, E.LADDER_TOP - P.ladder); }
+    P.silver -= 2 * e;
+    if (buy === 'raid') takeRaiders(G, p, e); else if (buy === 'offer') P.offer += e; else if (buy === 'court') climb(G, p, e);
+    out.extra = e;
+  }
+  if (buy === 'court') { /* re-settle ladder once after the whole action */ climb(G, p, 0); }
+  return out;
+}
+E.applyDeed = applyDeed;
+
+/* ---------------- flow ---------------- */
+E.actor = function (G) { return G.pending ? G.pending.p : -1; };
+E.act = function (G, a) {
+  var q = G.pending; if (!q || G.over) return false;
+  var P = G.players[q.p];
+  if (q.type === 'setup') {
+    var ok = E.setupTowns(G, q.p); var t = ok.indexOf(a.town) >= 0 ? a.town : ok[0];
+    claimTown(G, q.p, t); log(G, nm(G, q.p) + ' founds a first rath at ' + G.map.towns[t].name + ' (' + G.map.kingdoms[G.map.towns[t].k].n + ').', { k: 'setup', p: q.p, town: t });
+    G.setupLeft--; if (G.setupLeft > 0) { G.pending = { type: 'setup', p: (q.p + 1) % G.n }; return true; }
+    startRound(G); return true;
+  }
+  if (q.type === 'draft') {
+    var pack = G.packs[q.p], picks = (a.cards || []).filter(function (c, i, arr) { return pack.indexOf(c) >= 0 && arr.indexOf(c) === i; }).slice(0, 2);
+    var need = Math.min(2, pack.length);
+    while (picks.length < need) { var rest = pack.filter(function (c) { return picks.indexOf(c) < 0; }); picks.push(rest[0]); }
+    if (G.dlog) G.dlog.push({ p: q.p, pass: G.draftPass, pack: pack.slice(), picks: picks.slice() });
+    picks.forEach(function (c) { P.picked.push(c); pack.splice(pack.indexOf(c), 1); });
+    G.draftDone[q.p] = true; advanceDraft(G); return true;
+  }
+  if (q.type === 'lead') {
+    var L = E.legalLeads(G, q.p), m = L.find(function (x) { return x.town === a.town && x.card === a.card; }) || L[0];
+    if (!m) { endActions(G); return true; }
+    G.activeTown = m.town; P.hand.splice(P.hand.indexOf(m.card), 1);
+    G.trick = { leader: q.p, town: m.town, plays: [{ p: q.p, card: m.card }] }; if (G.plays) G.plays.push({ p: q.p, card: m.card });
+    log(G, nm(G, q.p) + ' raises the Banner over ' + G.map.towns[m.town].name + ' and lead' + vs(G, q.p) + ' ' + cardName(m.card) + '.', { k: 'lead', p: q.p, town: m.town, card: m.card });
+    nextFollower(G); return true;
+  }
+  if (q.type === 'follow') {
+    var c = P.hand.indexOf(a.card) >= 0 ? a.card : P.hand[0];
+    P.hand.splice(P.hand.indexOf(c), 1); G.trick.plays.push({ p: q.p, card: c }); if (G.plays) G.plays.push({ p: q.p, card: c });
+    log(G, nm(G, q.p) + ' plays ' + cardName(c) + '.', { k: 'play', p: q.p, card: c });
+    nextFollower(G); return true;
+  }
+  if (q.type === 'resolve') {
+    var won = q.won, plan = won ? null : (a.plan || E.plans(G, q.p, q.card)[0]);
+    var out = applyDeed(G, q.p, q.card, won, plan);
+    G.played.push(q.card);
+    log(G, describeDeed(G, out), { k: 'deed', p: q.p, card: q.card, won: won, out: out });
+    nextResolve(G); return true;
+  }
+  if (q.type === 'place') {
+    var opts = q.towns.filter(function (t) { return G.owner[t] < 0; }); var tt = opts.indexOf(a.town) >= 0 ? a.town : opts[0];
+    if (tt != null && tt >= 0) { claimTown(G, q.p, tt); log(G, nm(G, q.p) + ' takes ' + G.map.towns[tt].name + ' (' + q.why + ').', { k: 'place', p: q.p, town: tt, why: q.why }); }
+    G.pending = null; runQueue(G); return true;
+  }
+  if (q.type === 'longphort') {
+    var lt = q.towns.indexOf(a.town) >= 0 ? a.town : q.towns[0];
+    G.viking[lt] = true; log(G, 'The Norse seize ' + G.map.towns[lt].name + ' from ' + nm(G, q.victim) + ' and build a Longphort there.', { k: 'longphort', p: q.victim, by: q.p, town: lt });
+    G.pending = null; runQueue(G); return true;
+  }
+  if (q.type === 'tower') {
+    var ot = q.towns.indexOf(a.town) >= 0 ? a.town : q.towns[0];
+    G.tower[ot] = true; P.offer = 0; log(G, nm(G, q.p) + ' raises a Round Tower at ' + G.map.towns[ot].name + '. It now counts double.', { k: 'tower', p: q.p, town: ot });
+    G.pending = null; runQueue(G); return true;
+  }
+  if (q.type === 'daughter') {
+    var ch = E.DAUGHTER.opts[a.choice] ? a.choice : 'spurn';
+    if (ch === 'spurn') { P.pts += 4; P.pact = null; } else P.pact = ch;
+    log(G, nm(G, q.p) + ' chooses ' + E.DAUGHTER.opts[ch].n + '.', { k: 'daughter', p: q.p, choice: ch });
+    G.pending = null; runQueue(G); return true;
+  }
+  return false;
+};
+function vs(G, p) { return G.players[p].human ? '' : 's'; }
+function nm(G, p) { return G.players[p].human ? 'You' : G.players[p].name; }
+E.nm = nm;
+function cardName(c) { var C = E.CARDS[c]; return E.SUITS[C.s].n + ' ' + C.v; }
+E.cardName = cardName;
+function describeDeed(G, o) {
+  var s = nm(G, o.p) + (o.won ? ' wins with ' + cardName(o.card) + ': ' : ' (' + cardName(o.card) + '): ');
+  if (o.won) s += 'take' + vs(G, o.p) + ' ' + (G.activeTown >= 0 ? G.map.towns[G.activeTown].name : 'the Banner') + (o.syms.length > 1 ? ', ' + E.symWords(o.syms.slice(1)) : '');
+  else { s += E.symWords(o.syms.filter(function (x) { return x !== 'march' && x !== 'drive'; })); if (o.extra) s += ', +' + o.extra + ' more for Silver'; if (o.marched != null) s += ', march' + (G.players[o.p].human ? '' : 'e') + vs(G, o.p) + ' to ' + G.map.towns[o.marched].name; if (o.drove != null) s += ', drive' + vs(G, o.p) + ' the Norse out of ' + G.map.towns[o.drove].name; }
+  return s.replace(/: $/, '') + '.';
+}
+function startRound(G) {
+  G.round++; G.phase = 'prep';
+  var ship = G.longDeck.shift(); if (ship == null) ship = 3;
+  ship += (G.n >= 4 ? 1 : 0) + (G.n >= 5 ? 1 : 0) + (G.opts.twists.fierce ? 2 : 0);
+  G.shore = ship; G.lastShip = ship;
+  G.curMatch = G.matchDeck.length ? G.matchDeck.shift() : 'D';
+  log(G, 'Round ' + G.round + ' of ' + G.rounds + '. A longship lands ' + ship + ' Raiders on the Shore. On the Ladder: ' + E.matchName(G.curMatch) + '.', { k: 'round', round: G.round, ship: ship, match: G.curMatch });
+  // deal
+  var deck = shuffle(G, E.CARDS.map(function (c) { return c.id; })), per = G.n === 3 ? 8 : G.n === 4 ? 6 : 5;
+  G.packs = []; G.players.forEach(function (P) { P.hand = []; P.picked = []; });
+  for (var i = 0; i < G.n; i++) G.packs.push(deck.splice(0, per));
+  G.played = []; G.trick = null; G.activeTown = -1; G.dlog = []; G.plays = []; G.per = per;
+  if (G.opts.twists.quickdeal) { G.players.forEach(function (P, i) { P.hand = G.packs[i].sort(byV); }); G.packs = null; beginActions(G); return; }
+  G.phase = 'draft'; G.draftPass = 0; G.draftDone = G.players.map(function () { return false; });
+  advanceDraft(G);
+}
+function byV(a, b) { return a - b; }
+E.matchName = function (m) { return m === 'D' ? E.DAUGHTER.n : E.MATCHES[m] ? E.MATCHES[m].n : 'nobody'; };
+function advanceDraft(G) {
+  for (;;) {
+    for (var i = 0; i < G.n; i++) {
+      var p = (G.first + i) % G.n; if (G.draftDone[p]) continue;
+      var pack = G.packs[p];
+      if (pack.length <= 2) { if (G.dlog) G.dlog.push({ p: p, pass: G.draftPass, pack: pack.slice(), picks: pack.slice() }); pack.forEach(function (c) { G.players[p].picked.push(c); }); G.packs[p] = []; G.draftDone[p] = true; continue; }
+      G.pending = { type: 'draft', p: p, pack: pack.slice() }; return;
+    }
+    // everyone picked this pass: pass to the left
+    var any = G.packs.some(function (pk) { return pk.length; });
+    if (!any) { G.players.forEach(function (P) { P.hand = P.picked.slice().sort(byV); P.picked = []; }); G.packs = null; beginActions(G); return; }
+    var np = []; for (var j = 0; j < G.n; j++) np[(j + 1) % G.n] = G.packs[j];
+    G.packs = np; G.draftPass++; G.draftDone = G.players.map(function () { return false; });
+  }
+}
+function beginActions(G) { G.phase = 'trick'; G.trickNo = 0; startTrick(G); }
+function startTrick(G) {
+  var L = G.players[G.banner];
+  if (L.hand.length <= 1 || !emptyTowns(G).length) { endActions(G); return; }
+  G.trickNo++; G.activeTown = -1; G.trick = null;
+  G.pending = { type: 'lead', p: G.banner };
+}
+function nextFollower(G) {
+  var T = G.trick, k = T.plays.length;
+  if (k < G.n) { G.pending = { type: 'follow', p: (T.leader + k) % G.n }; return; }
+  // decide the winner
+  var best = -1, bv = -1; T.plays.forEach(function (pl, i) { if (qualifies(G, pl.card, T.town) && E.CARDS[pl.card].v > bv) { bv = E.CARDS[pl.card].v; best = i; } });
+  if (best < 0) best = 0;
+  T.winner = T.plays[best].p;
+  T.order = T.plays.slice().sort(function (a, b) { return E.CARDS[a.card].v - E.CARDS[b.card].v; }).map(function (pl) { return pl.p; });
+  T.ri = 0;
+  log(G, nm(G, T.winner) + ' win' + (G.players[T.winner].human ? '' : 's') + ' the trick for ' + G.map.towns[T.town].name + '.', { k: 'win', p: T.winner, town: T.town, card: T.plays[best].card });
+  nextResolve(G);
+}
+function nextResolve(G) {
+  var T = G.trick;
+  if (T.ri >= T.order.length) { G.trick.done = true; G.pending = null; G.lastTrick = T; startTrick(G); return; }
+  var p = T.order[T.ri++], card = T.plays.find(function (pl) { return pl.p === p; }).card;
+  G.pending = { type: 'resolve', p: p, card: card, won: p === T.winner };
+}
+function endActions(G) {
+  G.players.forEach(function (P) { if (P.hand.length) { G.played = G.played.concat(P.hand); P.hand = []; } });
+  G.phase = 'upkeep'; G.pending = null; G.trick = null; G.activeTown = -1;
+  upkeep(G);
+}
+// Upkeep runs as a queue of steps; steps may ask a player for a decision (G.pending) before continuing.
+function upkeep(G) {
+  G.queue = [marriageStep, ladderRewards, battleStep, spoilsStep, churchStep1, churchStep2, churchStep3, claimStep, endRound];
+  runQueue(G);
+}
+function runQueue(G) {
+  while (!G.pending && G.queue.length && !G.over) { var f = G.queue.shift(); f(G); }
+}
+function marriageStep(G) {
+  var top = -1, tv = 0; G.players.forEach(function (P, i) { if (P.ladder > tv) { tv = P.ladder; top = i; } });
+  // ties are impossible above the bottom rung
+  G.matchWinner = top;
+  if (top < 0) { log(G, 'Nobody climbed the Ladder. ' + E.matchName(G.curMatch) + ' leaves the court.', { k: 'nomatch' }); return; }
+  var P = G.players[top], m = G.curMatch;
+  P.matches.push(m);
+  log(G, nm(G, top) + ' make' + (P.human ? '' : 's') + ' a match with ' + E.matchName(m) + '!', { k: 'match', p: top, match: m });
+  if (m === 'D') { G.pending = { type: 'daughter', p: top }; }
+  else {
+    var M = E.MATCHES[m]; P.pts += M.pts; P.glory += M.glory;
+    // dowry raths, one decision each (queued in front)
+    var steps = M.k.map(function (k) { return function (G) { var ts = emptyTowns(G).filter(function (t) { return G.map.towns[t].k === k; }); if (ts.length) G.pending = { type: 'place', p: top, towns: ts, why: 'dowry in ' + G.map.kingdoms[k].n }; }; });
+    G.queue = steps.concat(G.queue);
+  }
+  G.ladderWinnerPrev = top;
+}
+function ladderRewards(G) {
+  var steps = [];
+  G.players.forEach(function (P, i) {
+    if (i === G.matchWinner) return;
+    var r = E.LADDER[P.ladder] || [];
+    r.forEach(function (s) {
+      if (s === 'silver') P.silver++; else if (s === 'glory') P.glory++;
+      else if (s === 'rath') steps.push(function (G) { var ts = emptyTowns(G); if (ts.length) G.pending = { type: 'place', p: i, towns: ts, why: 'a suitor\u2019s gift' }; });
+    });
+    if (r.length) log(G, nm(G, i) + ' gain' + (P.human ? '' : 's') + ' a suitor\u2019s gift: ' + r.map(function (s) { return s === 'rath' ? 'a rath anywhere' : E.symWords([s]); }).join(', ') + '.', { k: 'gift', p: i });
+  });
+  if (G.matchWinner >= 0) G.players[G.matchWinner].ladder = 0;
+  G.queue = steps.concat(G.queue);
+}
+function battleStep(G) {
+  if (G.shore <= 0) { log(G, 'Every Raider was driven off. The Norse are repelled!', { k: 'repelled' }); return; }
+  var mn = Math.min.apply(null, G.players.map(function (P) { return P.raiders; })), mx = Math.max.apply(null, G.players.map(function (P) { return P.raiders; }));
+  var losers = [], tops = [];
+  G.players.forEach(function (P, i) { if (P.raiders === mn) losers.push(i); if (P.raiders === mx) tops.push(i); });
+  var chooser = tops.length === 1 && losers.indexOf(tops[0]) < 0 ? tops[0] : -1;
+  log(G, G.shore + ' Raider' + (G.shore > 1 ? 's' : '') + ' still on the Shore: the Norse attack ' + losers.map(function (i) { return nm(G, i); }).join(' and ') + '.', { k: 'raid', losers: losers });
+  var steps = losers.map(function (v) { return function (G) { var ts = rathsOf(G, v); if (!ts.length) return; G.pending = { type: 'longphort', p: chooser >= 0 ? chooser : v, victim: v, towns: ts }; }; });
+  G.queue = steps.concat(G.queue);
+  G.shore = 0;
+}
+function spoilsStep(G) {
+  G.shore = 0;
+  var mx = Math.max.apply(null, G.players.map(function (P) { return P.raiders; }));
+  if (mx <= 0) return;
+  var tops = G.players.map(function (P, i) { return i; }).filter(function (i) { return G.players[i].raiders === mx; });
+  if (tops.length === 1) { var P = G.players[tops[0]]; P.glory++; P.pts += P.glory; P.raiders = 0; log(G, nm(G, tops[0]) + ' lead' + (P.human ? '' : 's') + ' the fight: +1 Glory, then ' + P.glory + ' Honour (1 per Glory).', { k: 'spoils', p: tops[0], gain: P.glory }); }
+  var mx2 = Math.max.apply(null, G.players.map(function (P) { return P.raiders; }));
+  if (mx2 <= 0) return;
+  G.players.forEach(function (P, i) { if (P.raiders === mx2) { P.pts += 1; P.raiders--; log(G, nm(G, i) + ' share' + (P.human ? '' : 's') + ' the spoils: +1 Honour.', { k: 'spoils2', p: i }); } });
+}
+function towerTowns(G, p) { return rathsOf(G, p).filter(function (t) { return !G.tower[t]; }); }
+E.towerTowns = towerTowns;
+function churchStep1(G) {
+  var mx = Math.max.apply(null, G.players.map(function (P) { return P.offer; }));
+  if (mx <= 0) return;
+  var tops = G.players.map(function (P, i) { return i; }).filter(function (i) { return G.players[i].offer === mx; });
+  if (tops.length !== 1) { log(G, 'The Abbey cannot choose between ' + tops.map(function (i) { return nm(G, i); }).join(' and ') + '.', { k: 'abbeytie' }); return; }
+  var p = tops[0]; G.banner = p;
+  log(G, 'The Abbey favours ' + nm(G, p) + ' and hands over the Banner.', { k: 'abbey', p: p });
+  var ts = towerTowns(G, p);
+  if (ts.length) G.pending = { type: 'tower', p: p, towns: ts }; else G.players[p].offer = 0;
+}
+function churchStep2(G) {
+  var mx = Math.max.apply(null, G.players.map(function (P) { return P.offer; }));
+  if (mx <= 0) return;
+  G.players.forEach(function (P, i) { if (P.offer === mx) { P.pts++; P.offer--; log(G, nm(G, i) + ' earn' + (P.human ? '' : 's') + ' the Abbey\u2019s blessing: +1 Honour.', { k: 'bless', p: i }); } });
+}
+function churchStep3(G) {
+  var steps = [];
+  for (var j = 0; j < G.n; j++) (function (p) {
+    steps.push(function (G) { var P = G.players[p]; if (P.offer >= E.tower4(G)) { var ts = towerTowns(G, p); if (ts.length) G.pending = { type: 'tower', p: p, towns: ts }; } });
+  })((G.banner + j) % G.n);
+  G.queue = steps.concat(G.queue);
+}
+function claimStep(G) {
+  G.map.kingdoms.forEach(function (K, k) {
+    var S = G.seal[k];
+    if (!S.up && filled(G, k) >= K.th) { S.up = true; log(G, 'The ' + K.n + ' seal is broken open (' + K.th + ' raths filled). It is worth ' + K.val + '.', { k: 'sealup', kingdom: k }); }
+    if (!S.up) return;
+    var c = kCounts(G, k, true), mx = Math.max.apply(null, c), who = c.map(function (v, i) { return i; }).filter(function (i) { return c[i] === mx; });
+    if (mx <= 0 || who.length !== 1) return;
+    var w = who[0] === G.n ? -1 : who[0];
+    if (S.holder !== w) { var prev = S.holder; S.holder = w; log(G, w < 0 ? 'The Norse hold the most of ' + K.n + ': its seal goes back to the board.' : nm(G, w) + (prev >= 0 ? ' wrest' + (G.players[w].human ? '' : 's') + ' the ' + K.n + ' seal from ' + nm(G, prev) : ' claim' + (G.players[w].human ? '' : 's') + ' the ' + K.n + ' seal') + ' (' + K.val + ').', { k: 'seal', p: w, prev: prev, kingdom: k }); }
+  });
+}
+function endRound(G) {
+  if (G.round >= G.rounds) { finalScore(G); return; }
+  // the Banner holder leads first next round
+  startRound(G);
+}
+E.scoreBreakdown = function (G) {
+  var n = G.n, res = G.players.map(function (P) { return { pts: P.pts, silver: 0, banner: 0, glory: P.glory, seals: 0, shared: 0, breadth: 0, kingdoms: 0, total: 0 }; });
+  var mxS = Math.max.apply(null, G.players.map(function (P) { return P.silver; })), tS = G.players.filter(function (P) { return P.silver === mxS; }).length;
+  if (tS === 1) res[G.players.findIndex(function (P) { return P.silver === mxS; })].silver = 1;
+  res[G.banner].banner = 1;
+  G.map.kingdoms.forEach(function (K, k) {
+    var S = G.seal[k]; if (!S.up) return;
+    if (S.holder >= 0) { res[S.holder].seals += K.val; return; }
+    var c = kCounts(G, k, true).slice(0, n), mx = Math.max.apply(null, c); if (mx <= 0) return;
+    c.forEach(function (v, i) { if (v === mx) res[i].shared += Math.floor(K.val / 2); });
+  });
+  G.players.forEach(function (P, i) { var kh = kingdomsHeld(G, i, true); res[i].kingdoms = kh; res[i].breadth = E.BREADTH[kh]; });
+  res.forEach(function (r) { r.total = r.pts + r.silver + r.banner + r.glory + r.seals + r.shared + r.breadth; });
+  return res;
+};
+function finalScore(G) {
+  var b = E.scoreBreakdown(G);
+  var order = G.players.map(function (P, i) { return i; }).sort(function (a, c) {
+    if (b[c].total !== b[a].total) return b[c].total - b[a].total;
+    var sa = G.seal.filter(function (S) { return S.holder === a; }).length, sc = G.seal.filter(function (S) { return S.holder === c; }).length;
+    if (sc !== sa) return sc - sa; return G.players[c].matches.length - G.players[a].matches.length;
+  });
+  var w0 = order[0], winners = order.filter(function (i) { var sa = G.seal.filter(function (S) { return S.holder === i; }).length, s0 = G.seal.filter(function (S) { return S.holder === w0; }).length; return b[i].total === b[w0].total && sa === s0 && G.players[i].matches.length === G.players[w0].matches.length; });
+  G.final = { breakdown: b, order: order, winners: winners };
+  G.over = true; G.phase = 'over'; G.pending = null;
+  log(G, 'The High Kingship goes to ' + winners.map(function (i) { return nm(G, i); }).join(' and ') + ' with ' + b[w0].total + ' Honour.', { k: 'over', winners: winners });
+}
+E.winner = function (G) { return G.final ? G.final.winners[0] : -1; };
+
+/* ---------------- bot brain ---------------- */
+function W(G, p, key) { var P = G.players[p]; if (!P.style) return 1; var w = E.STYLES[P.style].w[key]; if (w == null) return 1; var mix = E.DIFF[P.diff || 'medium'].style; return 1 + (w - 1) * (mix == null ? 1 : mix); }
+function clone(G) {
+  return { n: G.n, map: G.map, opts: G.opts, players: G.players.map(function (P) { return Object.assign({}, P, { hand: P.hand.slice(), matches: P.matches.slice() }); }),
+    owner: G.owner.slice(), viking: G.viking.slice(), tower: G.tower.slice(), seal: G.seal.map(function (S) { return { up: S.up, holder: S.holder }; }),
+    shore: G.shore, banner: G.banner, activeTown: G.activeTown, round: G.round, rounds: G.rounds, curMatch: G.curMatch, rs: G.rs, phase: G.phase };
+}
+E.clone = clone;
+var MATCH_VAL = 5.5;
+E.TUNE = { raid: 1, abbey: 1, ladder: 1, kingdom: 1, silver: 1, breadth: 1, rath: 1 };
+// Projected final Honour for p from where things stand, with style weights. Used to compare options.
+// One pass over the map for the counts proj needs (same numbers as kCounts, filled, kingdomsHeld, rathsOf and towerTowns).
+function stats(G) {
+  var n = G.n, nk = G.map.kingdoms.length, c = [], f = [], held = [], rc = [], hasT = [], sh = shieldHolder(G), i, k;
+  for (k = 0; k < nk; k++) { var a = []; for (i = 0; i <= n; i++) a.push(0); c.push(a); f.push(0); }
+  for (i = 0; i < n; i++) { held.push({}); rc.push(0); hasT.push(false); }
+  var vk = {}, towns = G.map.towns;
+  for (var t = 0; t < towns.length; t++) {
+    var o = G.owner[t]; if (o < 0) continue;
+    k = towns[t].k; var w = G.tower[t] ? 2 : 1; f[k] += w;
+    if (G.viking[t]) { vk[k] = 1; if (sh >= 0) c[k][sh] += w; else c[k][n] += w; }
+    else { c[k][o] += w; held[o][k] = 1; rc[o]++; if (!G.tower[t]) hasT[o] = true; }
+  }
+  var kh = held.map(function (h, p) { if (G.players[p].pact === 'trade') Object.keys(vk).forEach(function (x) { h[x] = 1; }); return Object.keys(h).length; });
+  return { c: c, f: f, kh: kh, rc: rc, hasT: hasT };
+}
+function proj(G, p, styled, TU, ST) {
+  ST = ST || stats(G);
+  var P = G.players[p]; TU = TU || E.TUNE; var w = function (k) { return (styled ? W(G, p, k) : 1) * (TU[k] || 1); }, n = G.n;
+  var left = G.rounds - G.round + (G.phase === 'upkeep' ? 0 : 1); // upkeeps still to come including this one
+  var last = G.round >= G.rounds;
+  var v = P.pts + P.glory * w('glory');
+  // silver
+  v += P.silver * 0.38 * w('silver');
+  if (last) { var mxo = 0; G.players.forEach(function (Q, q) { if (q !== p) mxo = Math.max(mxo, Q.silver); }); if (P.silver > mxo) v += 0.8; }
+  if (G.banner === p) v += last ? 0.9 : 0.6;
+  // ladder: the match goes to whoever is highest at upkeep
+  var mxL = 0; G.players.forEach(function (Q, q) { if (q !== p) mxL = Math.max(mxL, Q.ladder); });
+  if (P.ladder > mxL) v += w('ladder') * MATCH_VAL * Math.min(0.95, 0.5 + 0.12 * (P.ladder - mxL));
+  else { var rw = E.LADDER[P.ladder] || []; v += w('ladder') * (rw.length ? (rw[0] === 'rath' ? 1.8 : rw.length * 0.9) : 0) * 0.8 + 0.15 * P.ladder; }
+  // raiders: spoils and the threat of a Longphort
+  var mxR = 0, mnR = 99; G.players.forEach(function (Q, q) { if (q !== p) { mxR = Math.max(mxR, Q.raiders); mnR = Math.min(mnR, Q.raiders); } });
+  var rv = P.raiders * 0.25;
+  if (P.raiders > mxR) rv += P.glory + 1 + 0.4; else if (P.raiders === mxR && P.raiders > 0) rv += 0.8;
+  if (G.shore > 0 && P.raiders <= mnR) rv -= (P.raiders < mnR ? 2.6 : 1.8) * Math.min(1, 0.4 + G.shore * 0.15);
+  v += rv * w('raid');
+  // abbey
+  var mxO = 0; G.players.forEach(function (Q, q) { if (q !== p) mxO = Math.max(mxO, Q.offer); });
+  var hasT = ST.hasT[p], av = P.offer * 0.2;
+  if (P.offer > mxO) av += (hasT ? 2.2 * w('tower') : 0) + 0.7; else if (P.offer === mxO && P.offer > 0) av += 0.6;
+  if (P.offer >= E.tower4(G) && hasT && P.offer <= mxO) av += 1.8 * w('tower');
+  v += av * w('abbey');
+  // kingdoms
+  var kv = 0, sh = shieldHolder(G);
+  G.map.kingdoms.forEach(function (K, k) {
+    var c = ST.c[k], mine = c[p], S = G.seal[k];
+    var others = 0; for (var i = 0; i <= n; i++) if (i !== p) others = Math.max(others, c[i]);
+    var f = ST.f[k], flip = S.up ? 1 : (last ? (G.phase === 'upkeep' && f >= K.th ? 1 : Math.max(0.05, (f + 2) / K.th - 0.6)) : Math.min(1, 0.35 + 0.65 * f / K.th));
+    flip = Math.max(0, Math.min(1, flip));
+    var share = 0;
+    if (mine > others) share = 1 - (mine - others === 1 && !last ? 0.18 : 0);
+    else if (mine === others && mine > 0) share = S.holder === p ? 0.75 : 0.42;
+    else if (S.holder === p) share = 0.3;
+    else if (mine === others - 1 && mine > 0) share = 0.12;
+    kv += K.val * share * flip;
+  });
+  v += kv * w('kingdom');
+  // breadth and raths
+  var kh = ST.kh[p], mine2 = ST.rc[p];
+  v += (E.BREADTH[kh] + (kh < 8 ? (E.BREADTH[Math.min(8, kh + 1)] - E.BREADTH[kh]) * 0.25 : 0)) * w('breadth');
+  v += mine2 * 0.25 * w('rath');
+  return v;
+}
+E.proj = proj;
+function util(G, p) {
+  var P = G.players[p], D = E.DIFF[P.diff || 'medium'], TU = D.tune, ST = stats(G), mine = proj(G, p, true, TU, ST), best = -1e9;
+  var lam = D.block * W(G, p, 'block');
+  if (lam > 0) { for (var q = 0; q < G.n; q++) if (q !== p) best = Math.max(best, proj(G, q, false, TU, ST)); return mine - lam * best; }
+  return mine;
+}
+E.util = util;
+function noisy(G, p, x) { var D = E.DIFF[G.players[p].diff || 'medium']; return D.noise ? x + gauss(G) * D.noise : x; }
+function bestOf(G, p, opts, score) {
+  var D = E.DIFF[G.players[p].diff || 'medium'];
+  if (D.rand && rnd(G) < D.rand) return opts[ri(G, opts.length)];
+  var best = opts[0], bs = -1e18; opts.forEach(function (o) { var s = noisy(G, p, score(o)); if (s > bs) { bs = s; best = o; } });
+  return best;
+}
+// Value of keeping a deed for later tricks (strong deeds win raths later)
+function keepVal(G, p, card, tricksLeft) {
+  if (tricksLeft <= 1) return 0;
+  var C = E.CARDS[card], P = G.players[p]; if (!P.diff || E.DIFF[P.diff].count === 0) return 0;
+  return (Math.pow(C.v / 25, 2) * 2.2 + (C.s === 'C' ? 0.9 : 0)) * W(G, p, 'keep') * Math.min(1, (tricksLeft - 1) / 3 + 0.4);
+}
+// Chance nobody after me beats this card in this trick
+function pHold(G, p, card, town, laterPlayers, curBest) {
+  var C = E.CARDS[card]; if (!qualifies(G, card, town) || C.v <= curBest) return 0;
+  var D = E.DIFF[G.players[p].diff || 'medium'];
+  if (!laterPlayers.length) return 1;
+  if (D.count === 0) return Math.max(0.15, 1 - 0.18 * laterPlayers.length - (25 - C.v) * 0.02);
+  var known = {}; G.players[p].hand.forEach(function (c) { known[c] = 1; }); known[card] = 1;
+  if (G.trick) G.trick.plays.forEach(function (pl) { known[pl.card] = 1; });
+  if (D.count >= 2) G.played.forEach(function (c) { known[c] = 1; });
+  var unseen = 0, higher = 0;
+  E.CARDS.forEach(function (X) { if (known[X.id]) return; unseen++; if ((X.s === 'C' || X.s === G.map.towns[town].col) && X.v > C.v) higher++; });
+  var K = 0; laterPlayers.forEach(function (q) { K += G.players[q].hand.length; });
+  if (unseen <= 0) return 1;
+  // hypergeometric: none of the K hidden cards in later hands is a higher qualifier
+  var pr = 1; for (var i = 0; i < Math.min(K, unseen); i++) pr *= Math.max(0, (unseen - higher - i) / (unseen - i));
+  return 1 - (1 - pr) * 0.88; // they may choose not to spend it
+}
+function afterDeed(G, p, card, won, plan, town) {
+  var H = clone(G); if (town != null) H.activeTown = town;
+  var P = H.players[p]; var i = P.hand.indexOf(card); if (i >= 0) P.hand.splice(i, 1);
+  applyDeed(H, p, card, won, plan, true);
+  return H;
+}
+function bestPlan(G, p, card, town) {
+  var plans = E.plans(G, p, card), best = null, bs = -1e18;
+  plans.forEach(function (pl) { var s = util(afterDeed(G, p, card, false, pl, town), p); if (s > bs) { bs = s; best = pl; } });
+  return { plan: best, v: bs };
+}
+E.botAction = function (G) {
+  var q = G.pending; if (!q) return null; var p = q.p, P = G.players[p];
+  if (P.human && !P.diff) P.diff = 'medium'; // autoplay for tests
+  if (q.type === 'setup') {
+    var ts = E.setupTowns(G, p);
+    return { type: 'setup', town: bestOf(G, p, ts, function (t) { var H = clone(G); H.owner[t] = p; return util(H, p) + G.map.towns[t].adj.filter(function (a) { return G.owner[a] < 0; }).length * 0.15 + G.map.kingdoms[G.map.towns[t].k].val * 0.05; }) };
+  }
+  if (q.type === 'draft') return { type: 'draft', cards: draftPick(G, p, q.pack) };
+  var tricksLeft = P.hand.length; // includes the card about to be played
+  if (q.type === 'lead') {
+    var L = E.legalLeads(G, p), others = []; for (var i = 1; i < G.n; i++) others.push((p + i) % G.n);
+    var base = util(G, p), townV = {}, loseV = {}, winB = {};
+    L.forEach(function (m) {
+      if (townV[m.town] == null) { var H = clone(G); H.owner[m.town] = p; H.banner = p; townV[m.town] = util(H, p) - base; }
+      if (loseV[m.card] == null) { loseV[m.card] = bestPlan(G, p, m.card, m.town).v - base; var H2 = afterDeed(G, p, m.card, true, null, -1); winB[m.card] = util(H2, p) - base; }
+    });
+    var lsc = function (m) { var ph = pHold(G, p, m.card, m.town, others, -1); return ph * (townV[m.town] + winB[m.card]) + (1 - ph) * loseV[m.card] - keepVal(G, p, m.card, tricksLeft); };
+    var Dl = E.DIFF[P.diff || 'medium'];
+    if (Dl.mc && G.plays) {
+      var top = L.map(function (m) { return { m: m, s: lsc(m) }; }).sort(function (a, b) { return b.s - a.s; }).slice(0, Dl.top || 6).map(function (x) { return x.m; });
+      var mv2 = mcChoose(G, p, top, function (H, m) { var Q = H.players[p]; Q.hand.splice(Q.hand.indexOf(m.card), 1); return simTrick(H, p, p, m.town, [{ p: p, card: m.card }]).v - keepVal(G, p, m.card, tricksLeft); });
+      return { type: 'lead', town: mv2.town, card: mv2.card };
+    }
+    var mv = bestOf(G, p, L, lsc);
+    return { type: 'lead', town: mv.town, card: mv.card };
+  }
+  if (q.type === 'follow') {
+    var T = G.trick, later = []; for (var k = T.plays.length + 1; k < G.n; k++) later.push((T.leader + k) % G.n);
+    var cur = -1; T.plays.forEach(function (pl) { if (qualifies(G, pl.card, T.town)) cur = Math.max(cur, E.CARDS[pl.card].v); });
+    var b0 = util(G, p);
+    var fsc = function (c) {
+      var ph = pHold(G, p, c, T.town, later, cur), lv = bestPlan(G, p, c, T.town).v - b0, wv = 0;
+      if (ph > 0) wv = util(afterDeed(G, p, c, true, null, T.town), p) - b0;
+      return ph * wv + (1 - ph) * lv - keepVal(G, p, c, tricksLeft);
+    };
+    var Df = E.DIFF[P.diff || 'medium'];
+    if (Df.mc && G.plays && later.length) {
+      var ftop = P.hand.map(function (c) { return { c: c, s: fsc(c) }; }).sort(function (a, b) { return b.s - a.s; }).slice(0, Df.ftop || 8).map(function (x) { return x.c; });
+      var fc = mcChoose(G, p, ftop, function (H, c) { var Q = H.players[p]; Q.hand.splice(Q.hand.indexOf(c), 1); return simTrick(H, p, T.leader, T.town, T.plays.map(function (x) { return { p: x.p, card: x.card }; }).concat([{ p: p, card: c }])).v - keepVal(G, p, c, tricksLeft); });
+      return { type: 'follow', card: fc };
+    }
+    if (Df.mc && G.plays) { // last to play: resolve exactly
+      var fc2 = bestOf(G, p, P.hand.slice(), function (c) { var H = detState(G, p, G.players.map(function () { return []; })); H.players[p].hand.splice(H.players[p].hand.indexOf(c), 1); return simTrick(H, p, T.leader, T.town, T.plays.map(function (x) { return { p: x.p, card: x.card }; }).concat([{ p: p, card: c }])).v - keepVal(G, p, c, tricksLeft); });
+      return { type: 'follow', card: fc2 };
+    }
+    var card = bestOf(G, p, P.hand.slice(), fsc);
+    return { type: 'follow', card: card };
+  }
+  if (q.type === 'resolve') {
+    if (q.won) return { type: 'resolve' };
+    var pls = E.plans(G, p, q.card);
+    return { type: 'resolve', plan: bestOf(G, p, pls, function (pl) { return util(afterDeed(G, p, q.card, false, pl, null), p); }) };
+  }
+  if (q.type === 'place') return { type: 'place', town: bestOf(G, p, q.towns, function (t) { var H = clone(G); H.owner[t] = p; return util(H, p); }) };
+  if (q.type === 'tower') return { type: 'tower', town: bestOf(G, p, q.towns, function (t) { var H = clone(G); H.tower[t] = true; H.players[p].offer = 0; return util(H, p); }) };
+  if (q.type === 'longphort') {
+    if (q.p === q.victim) return { type: 'longphort', town: bestOf(G, p, q.towns, function (t) { var H = clone(G); H.viking[t] = true; return util(H, p); }) };
+    return { type: 'longphort', town: bestOf(G, p, q.towns, function (t) { var H = clone(G); H.viking[t] = true; return util(H, p) - proj(H, q.victim, false) * 0.5; }) };
+  }
+  if (q.type === 'daughter') {
+    var ch = bestOf(G, p, ['shield', 'trade', 'spurn'], function (c) { var H = clone(G); H.phase = 'upkeep'; if (c === 'spurn') H.players[p].pts += 4; else H.players[p].pact = c; var b = E.scoreBreakdown(H); return b[p].total + (c === 'shield' ? 0.6 : 0); });
+    return { type: 'daughter', choice: ch };
+  }
+  return null;
+};
+/* ---------------- Hard: card memory and sampled lookahead ---------------- */
+// Opponents as Hard pictures them: Medium's judgement without the noise. Hidden from the difficulty list.
+Object.defineProperty(E.DIFF, '_model', { enumerable: false, value: { n: 'Model', noise: 0, rand: 0, block: 0.25, count: 1 } });
+// Deal the cards Hard cannot see, consistent with everything Hard saw: the packs it drafted from, where it passed them, and every deed played this round.
+function sampleHands(G, me, R) {
+  var n = G.n, per = G.per || 0, hands = [], mine = {}, played = {}, byP = [], q, k, i;
+  for (q = 0; q < n; q++) { hands.push([]); byP.push([]); }
+  (G.plays || []).forEach(function (pl) { played[pl.card] = pl.p; byP[pl.p].push(pl.card); });
+  (G.dlog || []).forEach(function (d) { if (d.p === me) mine[d.pass] = d; });
+  var passes = 0; while (per - 2 * passes > 0) passes++;
+  var take = function (k) { return Math.min(2, per - 2 * k); };
+  var picks = [], slots = []; for (q = 0; q < n; q++) { picks.push([]); slots.push(0); }
+  var seen = {}; Object.keys(mine).forEach(function (k) { mine[k].pack.forEach(function (c) { seen[c] = 1; }); });
+  var haveDraft = Object.keys(mine).length > 0;
+  function deal(cards, caps) { // caps: [{q, cap}] ; played cards go to their player first
+    cards = shuffleR(R, cards.slice()); var left = [];
+    cards.forEach(function (c) { var o = played[c]; if (o != null && o !== me) { var s = caps.find(function (x) { return x.q === o && x.cap > 0; }); if (s) { s.cap--; picks[o].push(c); return; } } left.push(c); });
+    left.forEach(function (c) { var s = caps.filter(function (x) { return x.cap > 0; }); if (!s.length) return; var x = s[0]; x.cap--; picks[x.q].push(c); });
+  }
+  if (haveDraft) for (var j = 0; j < n; j++) {
+    var obs = []; for (k = 0; k < passes; k++) if ((j + k) % n === me && mine[k]) obs.push(k);
+    if (!obs.length) { for (k = 0; k < passes; k++) slots[(j + k) % n] += take(k); continue; }
+    for (k = 0; k < obs[0]; k++) slots[(j + k) % n] += take(k);
+    for (i = 0; i < obs.length; i++) {
+      var d = mine[obs[i]], rem = d.pack.filter(function (c) { return d.picks.indexOf(c) < 0; }), nx = i + 1 < obs.length ? obs[i + 1] : passes;
+      var nextPack = i + 1 < obs.length ? mine[obs[i + 1]].pack : [];
+      var D = rem.filter(function (c) { return nextPack.indexOf(c) < 0; }), caps = [];
+      for (k = obs[i] + 1; k < nx; k++) caps.push({ q: (j + k) % n, cap: take(k) });
+      deal(D, caps);
+    }
+  } else for (q = 0; q < n; q++) if (q !== me) slots[q] = per;
+  // cards Hard never saw fill the hidden slots (what is left over was never dealt)
+  var ns = E.CARDS.map(function (c) { return c.id; }).filter(function (c) { return !seen[c] && G.players[me].hand.indexOf(c) < 0 && played[c] !== me; });
+  var caps2 = []; for (q = 0; q < n; q++) if (q !== me && slots[q]) caps2.push({ q: q, cap: slots[q] });
+  deal(ns, caps2);
+  var ok = true;
+  for (q = 0; q < n; q++) {
+    if (q === me) { hands[q] = G.players[me].hand.slice(); continue; }
+    hands[q] = picks[q].filter(function (c) { return byP[q].indexOf(c) < 0; });
+    if (hands[q].length !== G.players[q].hand.length || byP[q].some(function (c) { return picks[q].indexOf(c) < 0; })) ok = false;
+  }
+  if (ok) return hands;
+  // fallback: shuffle every unseen card into the hidden hands
+  var pool = E.CARDS.map(function (c) { return c.id; }).filter(function (c) { return played[c] == null && G.players[me].hand.indexOf(c) < 0 && (G.played || []).indexOf(c) < 0; });
+  shuffleR(R, pool);
+  for (q = 0; q < n; q++) if (q !== me) hands[q] = pool.splice(0, G.players[q].hand.length);
+  hands.fallback = true; return hands;
+}
+E.sampleHands = sampleHands;
+function detState(G, me, hands) {
+  var H = clone(G); H.played = (G.played || []).slice();
+  for (var q = 0; q < G.n; q++) if (q !== me) { H.players[q].hand = hands[q].slice(); H.players[q].diff = '_model'; }
+  return H;
+}
+// Play out the rest of this trick in a sampled world and resolve it. Returns Hard's utility afterwards.
+function simTrick(H, me, leader, town, plays) {
+  var n = H.n; H.activeTown = town;
+  for (var k = plays.length; k < n; k++) {
+    var q = (leader + k) % n; H.trick = { leader: leader, town: town, plays: plays }; H.pending = { type: 'follow', p: q };
+    var c = E.botAction(H).card, P = H.players[q]; P.hand.splice(P.hand.indexOf(c), 1); plays.push({ p: q, card: c });
+  }
+  var best = 0, bv = -1; plays.forEach(function (pl, i) { if (qualifies(H, pl.card, town) && E.CARDS[pl.card].v > bv) { bv = E.CARDS[pl.card].v; best = i; } });
+  var win = plays[best].p; H.trick = null; H.pending = null;
+  plays.slice().sort(function (a, b) { return E.CARDS[a.card].v - E.CARDS[b.card].v; }).forEach(function (pl) {
+    if (pl.p === win) applyDeed(H, pl.p, pl.card, true, null, true);
+    else applyDeed(H, pl.p, pl.card, false, bestPlan(H, pl.p, pl.card, town).plan, true);
+    H.played.push(pl.card);
+  });
+  return { v: util(H, me), win: win };
+}
+function mcRng(G, salt) { return mkRng((G.rs ^ (salt * 2654435761)) >>> 0); }
+function mcChoose(G, p, cands, run) { // cands: moves, run(H, move) -> value. Same sampled worlds for every move.
+  var D = E.DIFF[G.players[p].diff], K = D.mc || 8, R = mcRng(G, G.trickNo * 31 + G.round * 7 + (G.trick ? G.trick.plays.length : 0) + 1);
+  var tot = cands.map(function () { return 0; }), t0 = Date.now(), budget = D.budget || 150;
+  if (cands.length < 2) return cands[0];
+  for (var s = 0; s < K; s++) {
+    if (s >= 3 && Date.now() - t0 > budget) break; // slow device: settle for fewer worlds
+    var hands = sampleHands(G, p, R);
+    cands.forEach(function (m, i) { tot[i] += run(detState(G, p, hands), m); });
+  }
+  var bi = 0; for (var i = 1; i < cands.length; i++) if (tot[i] > tot[bi]) bi = i;
+  return cands[bi];
+}
+function draftPick(G, p, pack) {
+  var P = G.players[p], D = E.DIFF[P.diff || 'medium'];
+  var have = P.picked.concat([]);
+  function cv(c) {
+    var C = E.CARDS[c], v = Math.pow(C.v / 25, 1.6) * 3 * W(G, p, 'rath') * (C.s === 'C' ? 1.35 : 1);
+    var k = C.v <= 8 ? 3 : C.v <= 16 ? 2 : 1, sec = 0;
+    if (C.s === 'S') sec = k * 0.55 * W(G, p, 'raid'); else if (C.s === 'B') sec = k * 0.55 * W(G, p, 'abbey'); else if (C.s === 'R') sec = k * 0.6 * W(G, p, 'ladder'); else sec = k * 0.4 * W(G, p, 'silver');
+    var s = Math.max(v, sec) + Math.min(v, sec) * 0.3;
+    // spread across suits so you can lead on many raths
+    var same = have.filter(function (h) { return E.CARDS[h].s === C.s; }).length; s -= same * 0.25 * (D.count ? 1 : 0);
+    return s;
+  }
+  var res = [];
+  for (var i = 0; i < Math.min(2, pack.length); i++) {
+    var rest = pack.filter(function (c) { return res.indexOf(c) < 0; });
+    var c = bestOf(G, p, rest, cv); res.push(c); have.push(c);
+  }
+  return res;
+}
+
+/* ---------------- headless play (tests and bench) ---------------- */
+E._t = { marriageStep: marriageStep, ladderRewards: ladderRewards, battleStep: battleStep, spoilsStep: spoilsStep, churchStep1: churchStep1, churchStep2: churchStep2, churchStep3: churchStep3, claimStep: claimStep, runQueue: runQueue, climb: climb, finalScore: finalScore };
+E.autoplay = function (G, max) { var s = 0; max = max || 20000; while (!G.over && G.pending && s < max) { E.act(G, E.botAction(G)); s++; } return s; };
+
+if (typeof module !== 'undefined' && module.exports) module.exports = E; else root.BrainBoruEngine = E;
+})(this);
+
+</script>
+<script>
+(function(){
+'use strict';
+var E=window.BrainBoruEngine,$=function(id){return document.getElementById(id);};
+var PUBLIC_URL='https://yougitadmin.github.io/omnixr-games/brain-boru/';
+function lsGet(k,d){try{var v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function toast(m){var t=$('toast');t.textContent=m;t.className='show';clearTimeout(toast.t);toast.t=setTimeout(function(){t.className='';},2800);}
+var cfg=loadCfg();
+function loadCfg(){
+  var d={bots:3,diff:'medium',first:'me',map:'random',seats:E.BOT_NAMES.slice(0,4).map(function(){return 'random';}),twists:{},pace:'normal'};
+  var c=lsGet('brainboruSetup',null);
+  if(c){['bots','diff','first','map','pace'].forEach(function(k){if(c[k]!=null)d[k]=c[k];});
+    if(Array.isArray(c.seats))c.seats.slice(0,4).forEach(function(s,i){if(s==='random'||E.STYLES[s])d.seats[i]=s;});
+    if(c.twists)Object.keys(E.TWISTS).forEach(function(k){d.twists[k]=!!c.twists[k];});}
+  d.bots=Math.max(E.MIN_BOTS,Math.min(E.MAX_BOTS,+d.bots||3));if(!E.DIFF[d.diff])d.diff='medium';if(d.map!=='classic')d.map='random';if(['slow','normal','fast'].indexOf(d.pace)<0)d.pace='normal';
+  return d;
+}
+function saveCfg(){lsSet('brainboruSetup',cfg);}
+var G=null,mode='custom',recorded=false;
+var ui={sel:{},fast:false,gen:0,evSeen:0,busy:false,speaking:-1,lastLine:{},recent:[],lineCount:0};
+var PACE={slow:1100,normal:700,fast:300};
+function D(ms){return ui.fast?0:ms;}
+function later(fn,ms){var g=ui.gen;setTimeout(function(){if(g===ui.gen)fn();},D(ms));}
+function me(){return G?Math.max(0,G.players.findIndex(function(p){return p.human;})):0;}
+function NAME(j){return G.players[j].human?'You':G.players[j].name;}
+var SU=E.SUITS;
+
+/* ---------------- voices (browser speech, offline, no keys) ---------------- */
+var VPROF={AIdan:{g:'m',a:'ie',pitch:0.75,rate:0.95},MAIve:{g:'f',a:'gb',pitch:1.2,rate:1.02},NiAIll:{g:'m',a:'gb',pitch:1.05,rate:1.1},CAIthal:{g:'m',a:'us',pitch:0.6,rate:0.88},EithnAI:{g:'f',a:'au',pitch:1.4,rate:1.08}};
+var NARR={g:'m',a:'gb',pitch:0.85,rate:0.92};
+var vc={on:lsGet('brainboruVoice',1)!==0,speed:+lsGet('brainboruVoiceSpeed',1)||1,unlocked:false,voices:[],map:{},q:[],busy:false,cur:null,log:[]};
+function SS(){return typeof window.speechSynthesis!=='undefined'&&typeof window.SpeechSynthesisUtterance!=='undefined'?window.speechSynthesis:null;}
+var FEM=/female|woman|samantha|victoria|karen|moira|tessa|fiona|serena|susan|zira|hazel|libby|sonia|natasha|aria|jenny|michelle|emma|olivia|amy|kate|veena|heera|neerja|catherine|allison|ava|nicky|emily|orla/i;
+var MAL=/\bmale|\bman\b|daniel|alex|fred|oliver|thomas|george|ryan|guy|david|mark|james|arthur|rishi|aaron|eric|christopher|liam|william|tom|lee|gordon|ravi|prabhat|connor/i;
+function vGender(v){var n=v.name||'';return FEM.test(n)?'f':MAL.test(n)?'m':'?';}
+function vAccent(v){var l=(v.lang||'').toLowerCase().replace('_','-');return l.indexOf('en-gb')===0?'gb':l.indexOf('en-au')===0?'au':l.indexOf('en-in')===0?'in':l.indexOf('en-ie')===0?'ie':l.indexOf('en-us')===0?'us':'xx';}
+function loadVoices(){var s=SS();if(!s)return;var all=[];try{all=s.getVoices()||[];}catch(e){}var en=all.filter(function(v){return /^en/i.test(v.lang||'');});vc.voices=en.length?en:all;assignVoices();}
+function assignVoices(){
+  vc.map={};var pool=vc.voices.filter(function(v){return !vc.bad[v.name];}),used={};if(!pool.length)return;
+  E.BOT_NAMES.concat(['_nar']).forEach(function(name){var pr=name==='_nar'?NARR:VPROF[name];
+    var score=function(v){return (used[v.name]?0:100)+(vGender(v)===pr.g?20:vGender(v)==='?'?5:0)+(vAccent(v)===pr.a?10:0)+(v.localService?15:0);};
+    var best=null,bs=-1;pool.forEach(function(v){var x=score(v);if(x>bs){bs=x;best=v;}});
+    if(best){vc.map[name]=best;used[best.name]=(used[best.name]||0)+1;}});
+}
+function voiceFor(name){var pr=VPROF[name]||NARR;return {voice:vc.map[VPROF[name]?name:'_nar']||null,pitch:pr.pitch,rate:Math.max(0.5,Math.min(2,pr.rate*vc.speed))};}
+function cleanSpeech(t){return String(t).replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}\u{20E3}\u{2190}-\u{21FF}\u{2300}-\u{23FF}]/gu,'').replace(/\bAI\b/g,'A.I.').replace(/brAIn boru/gi,'Brain Boru').replace(/([a-z])AI([a-z]*)/g,function(m,a,b){return a+'ai'+b;}).replace(/\s+/g,' ').trim();}
+function voiceActive(){return vc.on&&!!SS();}
+// prio 2 = narrator, 1 = key bot line, 0 = chatter (dropped when the queue is busy)
+function speakLine(name,text,prio){
+  if(!voiceActive())return;var t=cleanSpeech(text);if(!t)return;
+  if(!prio&&(vc.busy||vc.q.length))return;
+  if(prio===1&&vc.q.length>2)return;
+  vSay(name,t);
+}
+function vHookStart(it){var idx=G?G.players.findIndex(function(P){return P.name===it.name&&!P.human;}):-1;ui.speaking=idx;if(G)renderPlayers();}
+function vHookEnd(){var was=ui.speaking;ui.speaking=-1;if(G&&was!==-1)renderPlayers();}
+function vDrain(){}
+function VTEST(){return E.BOT_NAMES.concat(['_nar']);}
+function vTestLine(n){return n==='_nar'?'And I am the narrator. The court is listening.':'Hi, I am '+n+'. The high crown will be mine.';}
+/* ---- robust speech core (shared by the OmniXR voice games) ----
+   Why it is built this way:
+   - Chrome only lets a page speak after a real user gesture (click / touchend / keydown; touchstart and a touch pointerdown do NOT count),
+     so the first speak() happens synchronously inside such a gesture.
+   - Chrome's engine can be left paused or wedged: cancel() before the first speak, resume() before every speak and while speaking,
+     and pause()+resume() on desktop for lines longer than ~10 s (Chrome cuts them at ~15 s).
+   - Utterances are kept in vc.keep so they are not garbage-collected before onend fires.
+   - Some engines never fire onend/onerror, or (in-app previews / Android WebView) say nothing at all: every line has a
+     length-based timeout, after which the engine is cancelled and the queue moves on. If nothing has ever started we tell the player.
+   - Never wait for voiceschanged: speak with the default voice when getVoices() is empty, and never set .voice to null.
+   - A voice that errors (network voices offline, missing voice data) is dropped and the line is retried with the default voice. */
+var VIS_ANDROID=/Android/i.test((navigator&&navigator.userAgent)||'');
+vc.keep=[];vc.started=0;vc.silent=0;vc.lastCancel=0;vc.bad={};vc.pumpT=0;vc.warn='';vc.lastErr='';vc.testing=false;
+var VMISSING='Voices need a browser like Chrome or Edge. This one (often an in-app preview) can\u2019t speak, so the bots stay silent here.';
+var VSILENT='No sound from this browser\u2019s speech. Voices need a browser like Chrome or Edge: open the game there (not an in-app preview) and check your volume.';
+function vDur(t,r){return Math.min(20000,2500+t.length*95/(r||1));}
+function vCancel(s){try{s.cancel();}catch(e){}vc.lastCancel=Date.now();}
+function vSay(name,text){vc.q.push({name:name,text:text});vPump();}
+function vPump(){
+  var s=SS();if(!s||vc.busy)return;
+  if(!vc.q.length){vDrain();return;}
+  var gap=Date.now()-vc.lastCancel;
+  if(gap<120){if(!vc.pumpT)vc.pumpT=setTimeout(function(){vc.pumpT=0;vPump();},120-gap);return;} // Chrome can drop a speak() issued right after cancel()
+  var it=vc.q.shift(),u=new SpeechSynthesisUtterance(it.text),p=voiceFor(it.name);
+  if(p.voice&&!it.plain&&!vc.bad[p.voice.name])u.voice=p.voice;
+  u.lang=(u.voice&&u.voice.lang)||'en-US';u.pitch=p.pitch;u.rate=p.rate;u.volume=1;
+  vc.busy=true;vc.cur=u;vc.keep.push(u);if(vc.keep.length>12)vc.keep.shift();
+  vc.log.push({name:it.name,text:it.text,voice:u.voice?u.voice.name:'',pitch:u.pitch,rate:u.rate});if(vc.log.length>300)vc.log.shift();
+  var started=false;
+  var fin=function(why){if(vc.cur!==u)return;clearTimeout(u._t);vc.cur=null;vc.busy=false;
+    if(why==='timeout'){if(!started)vSilent('no-start');vCancel(s);} // wedged engine: clear it so the next line can play
+    vHookEnd(it);vPump();};
+  u.onstart=function(){started=true;u._st=u._pr=Date.now();vc.started++;vOk();};
+  u.onend=function(){fin('end');};
+  u.onerror=function(e){var er=(e&&e.error)||'error';vc.lastErr=er;
+    if(er!=='interrupted'&&er!=='canceled'){
+      if(u.voice&&!it.plain&&/voice-unavailable|network|synthesis-failed|language-unavailable/.test(er)){vc.bad[u.voice.name]=1;assignVoices();vc.q.unshift({name:it.name,text:it.text,plain:true});}
+      else if(er==='not-allowed'){vc.unlocked=false;vSilent(er);} // no gesture yet: the next tap unlocks
+      else vSilent(er);}
+    fin('error');};
+  u._t=setTimeout(function(){fin('timeout');},ui.fast?60:vDur(it.text,u.rate));
+  vHookStart(it);
+  try{if(s.paused)s.resume();}catch(e){}
+  try{s.speak(u);}catch(e){vSilent('throw');fin('error');return;}
+  try{if(s.paused)s.resume();}catch(e){}
+}
+function vStop(){var s=SS();vc.q=[];var was=vc.busy;vc.cur=null;vc.busy=false;clearTimeout(vc.pumpT);vc.pumpT=0;
+  if(s){var act=was;try{act=act||s.speaking||s.pending;}catch(e){}if(act)vCancel(s);}
+  vHookEnd(null);}
+function vSilent(r){vc.silent++;if(vc.started)return; // it has spoken before: a one-off glitch, not a dead engine
+  if(r==='not-allowed'){vWarn('Tap anywhere to turn the voices on.');return;}
+  if(vc.silent>=2||!vc.voices.length||/synthesis-unavailable|audio-hardware|throw/.test(r))vWarn(VSILENT);}
+function vOk(){if(vc.warn){vc.warn='';vRefreshWarn();}}
+function vWarn(t){if(vc.warn===t)return;var first=!vc.warn;vc.warn=t;vRefreshWarn();if(first&&typeof toast==='function')try{toast(t);}catch(e){}}
+function vRefreshWarn(){var w=$('voiceWarn');if(!w)return;var t=!SS()?VMISSING:vc.on?vc.warn:'';w.textContent=t?'\uD83D\uDD07 '+t:'';w.style.display=t?'block':'none';}
+// The first real gesture: cancel any stale engine state, resume, and speak (silently) inside the gesture so Chrome lets the page talk.
+function unlockSpeech(){if(vc.unlocked)return;var s=SS();if(!s)return;vc.unlocked=true;
+  if(!vc.busy){try{s.cancel();}catch(e){}}
+  try{s.resume();}catch(e){}
+  try{var u=new SpeechSynthesisUtterance('');u.volume=0;u.lang='en-US';vc.keep.push(u);s.speak(u);}catch(e){}
+  loadVoices();if(vc.q.length&&!vc.busy)vPump();}
+['pointerup','touchend','click','keydown'].forEach(function(ev){window.addEventListener(ev,unlockSpeech,{capture:true,passive:true});});
+(function(){var s=SS();if(!s)return;loadVoices();
+  try{if(s.addEventListener)s.addEventListener('voiceschanged',loadVoices);else s.onvoiceschanged=loadVoices;}catch(e){}
+  [250,800,2000,4500,9000].forEach(function(t){setTimeout(function(){if(!vc.voices.length)loadVoices();},t);}); // voiceschanged may never fire
+  setInterval(function(){if(!vc.busy)return;try{if(s.paused)s.resume();else if(!VIS_ANDROID&&vc.cur&&vc.cur._pr&&Date.now()-vc.cur._pr>10000&&s.speaking){vc.cur._pr=Date.now();s.pause();s.resume();}}catch(e){}},2000);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)try{s.resume();}catch(e){}});})();
+// Test voices: one line per bot plus the narrator. Runs inside the tap, so the first line starts right away.
+function testVoices(){
+  if(!SS()){vRefreshWarn();if(typeof toast==='function')toast(VMISSING);vTestNote(VMISSING);return;}
+  if(!vc.on)setVoice(true);
+  unlockSpeech();stopSpeech();vc.testing=true;
+  var c0=vc.started,names=VTEST();
+  names.forEach(function(n){vc.q.push({name:n,text:vTestLine(n)});});
+  vTestNote('Playing one line from each of the '+names.length+' voices\u2026');vPump();
+  var g=Date.now();setTimeout(function(){vc.testing=false;
+    if(vc.started>c0)vTestNote('Speech is working. If you still hear nothing, turn up the volume (and switch off silent mode on a phone).');
+    else{vWarn(VSILENT);vTestNote(VSILENT);}},ui.fast?400:6000);}
+function vTestNote(t){var n=$('voiceTestNote');if(n)n.textContent=t;}
+function vUI(){
+  var css=document.createElement('style');css.textContent='.vwarn{display:none;margin:10px auto 0;max-width:440px;padding:9px 12px;border-radius:10px;background:#5a2330;color:#fff;font-size:14px;line-height:1.35;text-align:center}.vtestRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}.vtestRow span{font-size:13px;opacity:.85;flex:1;min-width:160px}';document.head.appendChild(css);
+  var pn=$('playNow');if(pn&&!$('voiceWarn')){var w=document.createElement('div');w.id='voiceWarn';w.className='vwarn';w.setAttribute('role','status');pn.parentNode.insertBefore(w,pn.nextSibling);}
+  var vb=$('voiceBtn');if(vb&&!$('voiceTestTop')){var b=document.createElement('button');b.id='voiceTestTop';b.type='button';b.className=vb.className;b.title='Test voices';b.setAttribute('aria-label','Test voices');b.textContent='\uD83D\uDDE3';b.onclick=testVoices;vb.parentNode.insertBefore(b,vb.nextSibling);}
+  var vn=$('voiceNote');if(vn&&!$('voiceTest')){var r=document.createElement('div');r.className='vtestRow';r.innerHTML='<button class="btn small sm" type="button" id="voiceTest">\uD83D\uDDE3 Test voices</button><span id="voiceTestNote"></span>';vn.parentNode.insertBefore(r,vn.nextSibling);$('voiceTest').onclick=testVoices;}
+  vRefreshWarn();}
+window.__vcore={state:function(){return {unlocked:vc.unlocked,started:vc.started,silent:vc.silent,warn:vc.warn,keep:vc.keep.length,busy:vc.busy,queued:vc.q.length,lastErr:vc.lastErr,voices:vc.voices.length,bad:Object.keys(vc.bad)};},test:testVoices,names:function(){return VTEST();},
+  warnText:function(){var w=$('voiceWarn');return w&&w.style.display!=='none'?w.textContent:'';}};
+function stopSpeech(){vStop();}
+function pumpSpeech(){vPump();}
+function setVoice(on){vc.on=!!on;lsSet('brainboruVoice',on?1:0);if(!on)stopSpeech();updateVoiceBtn();}
+function updateVoiceBtn(){var b=$('voiceBtn');b.textContent=vc.on?'\uD83D\uDD0A':'\uD83D\uDD07';b.title=vc.on?'Voices on (tap to mute)':'Voices off (tap to unmute)';b.setAttribute('aria-pressed',vc.on?'true':'false');$('voiceTxt').textContent=vc.on?(SS()?'🔊 voices on':'no speech in this browser'):'🔇 muted';vRefreshWarn();}
+$('voiceBtn').onclick=function(){setVoice(!vc.on);if(!SS()){toast(VMISSING);return;}toast(vc.on?'Voices on':'Voices muted');if(vc.on){unlockSpeech();speakLine('_nar','Voices on.',2);}};
+function narrate(t){speakLine('_nar',t,2);}
+
+/* ---------------- bot lines ---------------- */
+// {t} rath, {k} kingdom, {v} victim, {n} number. Each style has its own voice; generic lines fill gaps.
+var LINES={
+  warlord:{lead:['{t} is mine. Try and stop me.','Banner up over {t}. Who dares?','I march on {t}.'],win:['Steel settles it. {t} is mine.','Another rath under my banner.','{t} kneels to me.','That is how a king takes land.'],seize:['The Norse take {v}\u2019s weakest wall. Good.','{t} burns. Should have held a sword, {v}.'],seized:['They took {t}! I will have it back.','Curse the longships!'],seal:['{k} is mine, every hill of it.','Kneel, {k}.'],tower:['A tower? Fine. Towers fall.'],match:['A useful marriage. More spears for me.'],spoils:['The Norse fear my axe.']},
+  matchmaker:{lead:['Shall we dance for {t}?','{t}, darling. Lovely spot.'],win:['{t}! A fine wedding gift.','How sweet, a rath of my own.'],match:['A perfect match! I knew it.','Wedding bells for me again!','Another happy union. Mostly for me.','Did nobody else want to get married?'],climb:['Up the Ladder I go.','My suitors are lining up.','One rung closer to a wedding.'],seized:['They raided my dowry!'],seal:['{k} will make a lovely wedding present.'],spoils:['Even the Norse love a wedding.']},
+  abbot:{lead:['Let us bless {t}.','{t} needs a good abbey.'],win:['Heaven grants me {t}.','A rath for the faithful.'],offer:['Another candle for the Abbey.','The bells ring for me.','Piety pays, slowly.'],tower:['A Round Tower rises. Count it twice.','My tower will outlast all of you.','Built to the glory of the Abbey.'],seized:['Raiders at my gate! Forgive them? Never.'],seal:['{k} is blessed with my rule.'],spoils:['Even an abbot can swing an axe.']},
+  hunter:{lead:['{t}. Watch the coast while I take it.','I lead for {t}.'],win:['{t} is safe with me.','Got it. Now, those longships.'],raid:['Another Norseman down.','Leave the raiders to me.','More axes, fewer Norse.','The Shore is mine to clear.'],seize:['The Norse found you, {v}. Should have fought.','No raiders, no walls, {v}.'],spoils:['Glory to the shield wall!','That is how you turn back a longship.','The sea runs red. I take the glory.'],seized:['Me? Raided? Impossible.'],seal:['{k} sleeps safe under my watch.']},
+  merchant:{lead:['{t}. A sound investment.','Let us do business over {t}.'],win:['Bought and paid for.','{t} at a bargain.','Profitable trick.'],silver:['Silver in the purse.','Coin first, glory later.','Money talks.'],seized:['Do you know what that rath cost me?'],seal:['{k} has a new landlord.'],spoils:['Glory is cheaper by the dozen.'],march:['I bought my way into {t}.']},
+  wanderer:{lead:['Never been to {t}. Let us go.','{t}, a new corner of the map.'],win:['Another corner of the island.','{t}. Add it to the travels.','I get around.'],march:['A short walk to {t}.','On the road to {t}.'],seized:['They took {t}. I will wander elsewhere.'],seal:['{k}? I have friends there too.'],spoils:['Glory on every road.']},
+  schemer:{lead:['{t}. Or is it a trap?','Go on, take {t}. I dare you.'],win:['Oh, did I win that? How unexpected.','{t}. Just as I planned.'],duck:['Win it if you like. I will take the side deal.','Low card. On purpose, of course.','Keep your rath. I prefer the details.'],seize:['How sad for you, {v}.','The Norse and I agree on {v}.'],seized:['A setback. Temporary.'],seal:['{k}. All according to plan.'],spoils:['I let the others bleed first.']},
+  balanced:{lead:['{t} looks good to me.','I will try {t}.'],win:['{t}. A steady gain.','Fair trick, fairly won.'],seized:['We should have stopped those raiders together.'],seal:['{k} is mine for now.'],spoils:['A good day on the Shore.'],match:['A sensible match.']}
+};
+var GEN={win:['{t} is mine.','Mine.','A fine rath.'],seize:['Unlucky, {v}.'],seized:['Not my rath!','Blast it.'],seal:['{k} bows to me.'],tower:['My tower stands tall.'],match:['A wedding!'],spoils:['Glory to me.'],crown:['Crowns beat everything.','The crown decides.'],steal:['Sorry, {v}. That rath is mine now.','Too slow, {v}.'],gameWin:['The island is mine.','Bow to your High King.','A good day to be king.'],gameLose:['Next time the crown is mine.','Well played. This time.','I demand a rematch.']};
+var TAUNT={warlord:'I take raths. You take notes.',matchmaker:'Every wedding brings me land. Jealous?',abbot:'My towers will outlast your kingdoms.',hunter:'You fight each other. I fight the Norse.',merchant:'Everything has a price. Even you.',wanderer:'One rath in every kingdom. Starting with yours.',schemer:'Win the trick. I will take everything else.',balanced:'Steady hands win crowns.'};
+function fill(t,o){return t.replace(/\{(\w)\}/g,function(m,k){return o[k]!=null?o[k]:'';});}
+function pickLine(p,kind,o){
+  var P=G.players[p];if(!P||P.human)return null;var L=(LINES[P.style]||{})[kind]||[],g=GEN[kind]||[];var pool=L.concat(L).concat(g);if(!pool.length)return null;
+  var key=P.name,used=ui.lastLine[key]||[];var fresh=pool.filter(function(x){return used.indexOf(x)<0&&ui.recent.indexOf(x)<0;});if(!fresh.length)fresh=pool.filter(function(x){return ui.recent.indexOf(x)<0;});if(!fresh.length)fresh=pool;
+  var last=ui.recent[ui.recent.length-1];if(fresh.length>1)fresh=fresh.filter(function(x){return x!==last;});
+  var t=fresh[Math.floor(Math.random()*fresh.length)];used.push(t);if(used.length>Math.max(2,Math.floor(pool.length/2)))used.shift();ui.lastLine[key]=used;ui.recent.push(t);if(ui.recent.length>6)ui.recent.shift();
+  return fill(t,o||{});
+}
+function botSay(p,kind,o,prob,prio){
+  if(p<0||!G.players[p]||G.players[p].human)return false;if(prob!=null&&Math.random()>prob)return false;
+  var t=pickLine(p,kind,o);if(!t)return false;ui.lineCount++;addFeed('bot',t,p);speakLine(G.players[p].name,t,prio||0);return true;
+}
+
+/* ---------------- feed ---------------- */
+function addFeed(kind,text,p){
+  var f=$('feed'),d=document.createElement('div');
+  if(kind==='bot'){var P=G.players[p];d.className='msg';d.style.setProperty('--fc',P.color);d.innerHTML='<div class="av">'+P.mascot+'</div><div class="bb"><b>'+esc(P.name)+'</b><br>'+esc(text)+'</div>';}
+  else{d.className='msg '+(kind==='nar'?'nar':'lg');d.innerHTML='<div class="bb">'+esc(text)+'</div>';}
+  f.appendChild(d);while(f.children.length>160)f.removeChild(f.firstChild);f.scrollTop=f.scrollHeight;
+}
+function tn(t){return G.map.towns[t].name;}
+function kn(k){return G.map.kingdoms[k].n;}
+// Turn new engine events into feed lines, narration and bot chatter.
+function digest(){
+  var evs=G.ev.slice(ui.evSeen);ui.evSeen=G.ev.length;var spoke=false;
+  evs.forEach(function(e){
+    var k=e.k;
+    if(k==='round'){addFeed('nar','⛵ '+e.t);narrate('Round '+e.round+' of '+G.rounds+'. A longship lands '+e.ship+' raiders. On the Ladder, '+E.matchName(e.match)+'.');return;}
+    if(k==='play'||k==='lead'){addFeed('log',e.t);if(k==='lead'&&!spoke)spoke=botSay(e.p,'lead',{t:tn(e.town)},0.3);
+      if(k==='play'&&E.CARDS[e.card].s==='C'&&!spoke)spoke=botSay(e.p,'crown',{},0.25);return;}
+    if(k==='win'){addFeed('log','🏆 '+e.t);if(!spoke)spoke=botSay(e.p,'win',{t:tn(e.town)},0.4,0);return;}
+    if(k==='deed'){addFeed('log',e.t);var o=e.out;
+      if(!spoke&&!o.won){var C=E.CARDS[e.card],sy=o.syms;
+        if(o.marched!=null)spoke=botSay(e.p,'march',{t:tn(o.marched)},0.6);
+        else if(sy.indexOf('raid')>=0)spoke=botSay(e.p,'raid',{},0.35);else if(sy.indexOf('offer')>=0)spoke=botSay(e.p,'offer',{},0.35);
+        else if(sy.indexOf('court')>=0)spoke=botSay(e.p,'climb',{},0.35);else if(sy.indexOf('silver')>=0)spoke=botSay(e.p,'silver',{},0.25);
+        if(!spoke&&C.v<=6)spoke=botSay(e.p,'duck',{},0.3);}
+      return;}
+    if(k==='setup'){addFeed('log',e.t);return;}
+    if(k==='match'){addFeed('nar','💍 '+e.t);narrate(NAME(e.p)+' '+(G.players[e.p].human?'make':'makes')+' a match with '+E.matchName(e.match)+'.');botSay(e.p,'match',{},1,1);return;}
+    if(k==='daughter'){addFeed('nar',e.t);return;}
+    if(k==='raid'){addFeed('nar','⚠️ '+e.t);narrate('Raiders left on the shore. The Norse attack.');return;}
+    if(k==='repelled'){addFeed('nar','🛡️ '+e.t);narrate('The Norse are repelled.');return;}
+    if(k==='longphort'){addFeed('nar','⛵ '+e.t);if(!botSay(e.p,'seized',{t:tn(e.town)},0.8,1))botSay(e.by,'seize',{v:NAME(e.p),t:tn(e.town)},0.8,1);return;}
+    if(k==='spoils'){addFeed('nar','🪓 '+e.t);botSay(e.p,'spoils',{},0.7,1);return;}
+    if(k==='tower'){addFeed('nar','🏰 '+e.t);botSay(e.p,'tower',{},0.8,1);return;}
+    if(k==='abbey'||k==='abbeytie'||k==='bless'||k==='gift'||k==='spoils2'||k==='nomatch'||k==='place'){addFeed('nar',e.t);return;}
+    if(k==='sealup'){addFeed('nar','🔓 '+e.t);return;}
+    if(k==='seal'){addFeed('nar','👑 '+e.t);if(e.p>=0){narrate(NAME(e.p)+(G.players[e.p].human?' claim':' claims')+' '+kn(e.kingdom)+'.');botSay(e.p,'seal',{k:kn(e.kingdom)},0.8,1);}return;}
+    if(k==='over'){addFeed('nar','👑 '+e.t);return;}
+    addFeed('log',e.t);
+  });
+}
+
+/* ---------------- map ---------------- */
+var SVGNS='http://www.w3.org/2000/svg';
+function drawMapBase(){
+  var M=G.map,h='';
+  var poly=E.OUTLINE.map(function(p){return p[0]+','+p[1];}).join(' ');
+  h+='<defs><clipPath id="isl"><polygon points="'+poly+'"/></clipPath><radialGradient id="sea" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#174a5a"/><stop offset="1" stop-color="#0a2430"/></radialGradient></defs>';
+  h+='<rect x="0" y="0" width="100" height="122" fill="url(#sea)"/>';
+  h+='<polygon points="'+poly+'" fill="#2f5e3a" stroke="#d9c98f" stroke-width=".6"/>';
+  h+='<g clip-path="url(#isl)" opacity=".42">';M.towns.forEach(function(T){h+='<circle cx="'+T.x+'" cy="'+T.y+'" r="8.2" fill="'+E.KCOL[T.k]+'"/>';});h+='</g>';
+  h+='<g stroke="#e9d9a6" stroke-width=".45" stroke-dasharray="1 .8" opacity=".85">';M.roads.forEach(function(r){var a=M.towns[r[0]],b=M.towns[r[1]];h+='<line x1="'+a.x+'" y1="'+a.y+'" x2="'+b.x+'" y2="'+b.y+'"/>';});h+='</g>';
+  h+='<g id="towns"></g><g id="kLab"></g>';
+  $('map').innerHTML=h;LPOS=null;
+}
+var LPOS=null;
+function inIsl(x,y){var P=E.OUTLINE,c=false;for(var i=0,j=P.length-1;i<P.length;j=i++){var a=P[i],b=P[j];if(((a[1]>y)!==(b[1]>y))&&(x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0]))c=!c;}return c;}
+// Place each kingdom label in open ground inside its own kingdom, clear of raths, their names and other labels.
+function placeLabels(){
+  var M=G.map,boxes=[];M.towns.forEach(function(T){var w=Math.max(6,T.name.length*1.15);boxes.push([T.x-3,T.y-3,T.x+3,T.y+3]);boxes.push([T.x-w/2,T.y+2.6,T.x+w/2,T.y+5.4]);});
+  LPOS=[];
+  M.kingdoms.map(function(K,i){return i;}).sort(function(a,b){return M.kingdoms[a].size-M.kingdoms[b].size;}).forEach(function(k){
+    var K=M.kingdoms[k],w=Math.max(13,K.n.length*1.9),h=6.2,best=null,bs=-1e9;
+    for(var dx=-14;dx<=14;dx+=1.5)for(var dy=-14;dy<=14;dy+=1.5){
+      var x=K.cx+dx,y=K.cy+dy,r=[x-w/2,y-3.2,x+w/2,y+h-3.2];
+      if(r[0]<4||r[2]>94||r[1]<1||r[3]>121)continue;
+      if(!inIsl(x,y))continue;
+      var nt=null,nd=1e9;M.towns.forEach(function(T){var d=(T.x-x)*(T.x-x)+(T.y-y)*(T.y-y);if(d<nd){nd=d;nt=T;}});
+      var sc=-Math.sqrt(dx*dx+dy*dy)*0.35+(nt.k===k?6:-8);
+      boxes.forEach(function(b){var ox=Math.min(r[2],b[2])-Math.max(r[0],b[0]),oy=Math.min(r[3],b[3])-Math.max(r[1],b[1]);if(ox>0&&oy>0)sc-=ox*oy*0.9+4;});
+      if(sc>bs){bs=sc;best={x:x,y:y,r:r};}
+    }
+    LPOS[k]=best||{x:K.cx,y:K.cy};if(best)boxes.push(best.r);
+  });
+}
+function kLabelPos(K){if(!LPOS)placeLabels();var p=LPOS[K.id];return {x:p.x,y:p.y};}
+function renderMap(){
+  if(!G)return;var M=G.map,pick=pickTowns(),sel=ui.sel,h='';
+  M.towns.forEach(function(T,t){
+    var o=G.owner[t],isP=pick.indexOf(t)>=0,cls='town'+(isP?' pick':'')+((sel.town===t||sel.march===t||sel.drive===t)?' sel':'');
+    h+='<g class="'+cls+'" data-t="'+t+'">';
+    if(isP)h+='<circle class="hl" cx="'+T.x+'" cy="'+T.y+'" r="4.2" fill="#f2c14e44" stroke="#f2c14e" stroke-width=".6"/>';
+    if(G.tower[t])h+='<circle cx="'+T.x+'" cy="'+T.y+'" r="3.5" fill="none" stroke="#fff" stroke-width=".9" stroke-dasharray=".9 .5"/>';
+    h+='<circle cx="'+T.x+'" cy="'+T.y+'" r="2.6" fill="'+SU[T.col].col+'" stroke="'+E.KCOL[T.k]+'" stroke-width=".7"/>';
+    if(o>=0)h+='<circle cx="'+T.x+'" cy="'+T.y+'" r="2.05" fill="#14241b" stroke="'+G.players[o].color+'" stroke-width=".75"/><text x="'+T.x+'" y="'+(T.y+0.95)+'" font-size="2.7" text-anchor="middle"'+(G.viking[t]?' opacity=".35"':'')+'>'+G.players[o].mascot+'</text>';
+    if(G.viking[t])h+='<text x="'+(T.x+1.9)+'" y="'+(T.y+0.2)+'" font-size="3.1" text-anchor="middle">⛵</text>';
+    if(G.activeTown===t)h+='<text x="'+(T.x+1.4)+'" y="'+(T.y-2.4)+'" font-size="3.6" text-anchor="middle">🚩</text>';
+    h+='<text class="tn" x="'+T.x+'" y="'+(T.y+4.6)+'" text-anchor="middle">'+esc(T.name)+'</text>';
+    h+='<circle cx="'+T.x+'" cy="'+T.y+'" r="'+(isP?4.6:3)+'" fill="transparent"/></g>';
+  });
+  $('towns').innerHTML=h;
+  var k='';M.kingdoms.forEach(function(K,i){var S=G.seal[i],p=kLabelPos(K),col=S.holder>=0?G.players[S.holder].color:'#fff';
+    k+='<text class="kl" x="'+p.x+'" y="'+p.y+'" text-anchor="middle">'+esc(K.n)+'</text>';
+    k+='<text class="ks" x="'+p.x+'" y="'+(p.y+2.8)+'" text-anchor="middle" fill="'+col+'">'+(S.up?(S.holder>=0?'👑 '+(G.players[S.holder].human?'You':G.players[S.holder].name)+' · '+K.val:'🔓 open · '+K.val):'🔒 '+E.filled(G,i)+'/'+K.th+' · '+K.val)+'</text>';});
+  $('kLab').innerHTML=k;
+}
+$('map').addEventListener('click',function(e){var g=e.target.closest('.town');if(!g)return;tapTown(+g.dataset.t);});
+function myTurn(){return G&&!G.over&&G.pending&&G.players[G.pending.p].human;}
+function pickTowns(){
+  if(!myTurn())return [];var q=G.pending,m=me();
+  if(q.type==='setup')return E.setupTowns(G,m);
+  if(q.type==='lead'){if(ui.sel.card==null)return [];return E.legalLeads(G,m).filter(function(x){return x.card===ui.sel.card;}).map(function(x){return x.town;});}
+  if(q.type==='place'||q.type==='tower'||q.type==='longphort')return q.towns;
+  if(q.type==='resolve'&&!q.won&&ui.sel.opt!=null){var pl=plansFor();var mt=pl.filter(function(x){return x.march>=0;}).map(function(x){return x.march;}),dr=pl.filter(function(x){return x.drive>=0;}).map(function(x){return x.drive;});return dedupe(mt.concat(dr));}
+  return [];
+}
+function phoneScroll(id){if(window.innerWidth>900||ui.fast)return;var el=$(id);if(el&&el.scrollIntoView)try{el.scrollIntoView({behavior:'smooth',block:id==='mapCard'?'start':'center'});}catch(e){}}
+function dedupe(a){return a.filter(function(x,i){return a.indexOf(x)===i;});}
+function plansFor(){var q=G.pending;return E.plans(G,me(),q.card).filter(function(x){return x.opt===ui.sel.opt&&x.extra===(ui.sel.extra||0);});}
+function tapTown(t){
+  if(!myTurn())return;var q=G.pending;if(pickTowns().indexOf(t)<0)return;
+  if(q.type==='setup'||q.type==='place'||q.type==='tower'||q.type==='longphort'){human({type:q.type,town:t});return;}
+  if(q.type==='lead'){human({type:'lead',town:t,card:ui.sel.card});return;}
+  if(q.type==='resolve'){var pl=plansFor();if(pl.some(function(x){return x.drive===t;}))ui.sel.drive=t;else ui.sel.march=ui.sel.march===t?-1:t;render();phoneScroll('turnCard');}
+}
+
+/* ---------------- cards ---------------- */
+function cardHTML(c,o){
+  o=o||{};var C=E.CARDS[c],tx=E.cardText(C),S=SU[C.s];
+  var cls='dcard'+(o.mini?' mini':'')+(o.sel?' sel':'')+(o.dim?' dim':'')+(o.win?' win':'');
+  var tag=o.tag?'<div class="tag'+(o.tagNo?' no':'')+'">'+o.tag+'</div>':'';
+  return '<button class="'+cls+'" data-c="'+c+'" style="--cc:'+S.col+'" title="'+esc(S.n+' '+C.v+'. Win: '+E.symWords(C.pri)+'. Lose: '+C.sec.map(E.symWords).join(' OR '))+'"><span class="v">'+C.v+'</span><span class="su">'+S.i+'</span>'+
+    (o.who?'<div class="who">'+esc(o.who)+'</div>':'')+'<div class="w">'+tx.win+'</div>'+tx.lose.map(function(l){return '<div class="l">'+l+'</div>';}).join('')+tag+'</button>';
+}
+function curBest(){var T=G.trick;if(!T)return -1;var b=-1;T.plays.forEach(function(pl){if(E.qualifies(G,pl.card,T.town))b=Math.max(b,E.CARDS[pl.card].v);});return b;}
+
+/* ---------------- turn panel ---------------- */
+function render(){if(!G)return;renderMap();renderTurn();renderPlayers();renderTracks();updateTip();$('roundPill').textContent=G.over?'🏁 Final':(G.round?'Round '+G.round+'/'+G.rounds:'Founding')+' · '+phaseName();}
+function phaseName(){var q=G.pending;if(!q)return 'Upkeep';return {setup:'Founding',draft:'Draft',lead:'Trick '+(G.trickNo||1),follow:'Trick '+(G.trickNo||1),resolve:'Trick '+(G.trickNo||1),place:'Upkeep',tower:'Upkeep',longphort:'Upkeep',daughter:'Upkeep'}[q.type]||'';}
+function renderTurn(){
+  var q=G.pending,m=me(),P=G.players[m],t='',hp='',body='',ctl='',mine=myTurn();
+  $('turnCard').className='card'+(mine?' mine':'');
+  if(G.over){t='🏁 The game is over';hp='The High Kingship is decided. Open the result to see the scores.';ctl='<button class="btn primary" id="showOver">Show result</button>';}
+  else if(!q){t='Upkeep';hp='Matches, the Norse, the Abbey and the kingdom seals are being settled…';}
+  else if(!mine){var Q=G.players[q.p];t=Q.mascot+' '+Q.name+' is thinking…';hp={setup:'Choosing a first rath.',draft:'Drafting deeds.',lead:'Choosing a rath and a deed to lead.',follow:'Choosing a deed to play.',resolve:'Using a deed.',place:'Choosing a rath.',tower:'Choosing where to build a Round Tower.',longphort:'Choosing which rath the Norse take.',daughter:'Choosing a pact.'}[q.type]||'';}
+  else if(q.type==='setup'){t='🏰 Found your first rath';hp='Tap a glowing rath. You can’t start in a kingdom another lord has already entered. Big kingdoms are worth more, small ones are easier to win.';}
+  else if(q.type==='draft'){var pk=q.pack;t='🃏 Draft: keep 2 deeds';hp='Pick two deeds to keep. The rest pass to the left. You have '+P.picked.length+' so far.'+(P.picked.length?' Kept: '+P.picked.map(function(c){return E.cardName(c);}).join(', ')+'.':'');
+    body='<div class="hand">'+pk.map(function(c){return cardHTML(c,{sel:(ui.sel.picks||[]).indexOf(c)>=0});}).join('')+'</div>';
+    ctl='<button class="btn primary" id="draftGo"'+((ui.sel.picks||[]).length===Math.min(2,pk.length)?'':' disabled')+'>Keep these</button>';}
+  else if(q.type==='lead'){t='🚩 You hold the Banner: lead a trick';
+    hp=ui.sel.card==null?'Tap a deed, then tap a glowing rath of its colour (Crowns fit any rath) to lead there. The highest deed in that colour wins the rath.':'Now tap a glowing rath on the map to lead your <b>'+E.cardName(ui.sel.card)+'</b> there.';
+    body=handHTML(function(c){return {sel:ui.sel.card===c};});
+    ctl='';}
+  else if(q.type==='follow'){var T=G.trick,cb=curBest();t='🃏 Play a deed for '+tn(T.town);
+    hp='The rath is '+SU[G.map.towns[T.town].col].i+' '+SU[G.map.towns[T.town].col].n.toLowerCase()+'-coloured. To win it, beat '+(cb>0?'<b>'+cb+'</b>':'the lead')+' with that colour or a Crown. Or play low and take a bottom line instead.';
+    body=trickHTML()+handHTML(function(c){var can=E.qualifies(G,c,T.town)&&E.CARDS[c].v>cb;return {sel:ui.sel.card===c,tag:can?'can win':'loses',tagNo:!can};});
+    ctl='<button class="btn primary" id="followGo"'+(ui.sel.card!=null?'':' disabled')+'>Play</button>';}
+  else if(q.type==='resolve'){var C=E.CARDS[q.card];
+    if(q.won){t='🏆 You won '+tn(G.trick.town)+'!';hp='Your '+E.cardName(q.card)+' gives you: <b>'+E.symWords(C.pri)+'</b>.';ctl='<button class="btn primary" id="resGo">Take it</button>';}
+    else{t='🎴 Use your '+E.cardName(q.card);hp='You lost the trick, so pick one bottom line.';
+      body=trickHTML()+'<div class="opts">'+C.sec.map(function(s,i){return '<button class="btn'+(ui.sel.opt===i?' on':'')+'" data-opt="'+i+'">'+s.map(function(x){return E.SYM[x].i;}).join('')+' '+esc(E.symWords(s))+(s.indexOf('drive')>=0&&!E.longphorts(G).length?' (no Longphort to drive out)':'')+(s.indexOf('raid')>=0&&!G.shore?' (the Shore is empty)':'')+'</button>';}).join('')+'</div>';
+      if(ui.sel.opt!=null){var syms=C.sec[ui.sel.opt],buy=E.buyKind(syms),all=E.plans(G,m,q.card).filter(function(x){return x.opt===ui.sel.opt;}),mx=Math.max.apply(null,all.map(function(x){return x.extra;}));
+        if(buy&&mx>0)body+='<div class="row"><span class="step">Buy more for 2 Silver each: <button class="btn small" id="exM">−</button><b>'+(ui.sel.extra||0)+'</b><button class="btn small" id="exP">+</button></span></div>';
+        var pl=plansFor(),mt=pl.filter(function(x){return x.march>=0;}),dr=pl.filter(function(x){return x.drive>=0;});
+        if(mt.length)body+='<div class="sub">🥾 March: tap a glowing rath to pay 5 Silver for it'+(ui.sel.march>=0?' (<b>'+tn(ui.sel.march)+'</b> chosen, tap again to cancel)':', or leave it')+'.</div>';
+        else if(syms.indexOf('march')>=0)body+='<div class="sub">🥾 No March possible (you need 5 Silver and an empty rath on a road next to yours).</div>';
+        if(dr.length)body+='<div class="sub">🛡️ Tap a ⛵ Longphort to drive the Norse out'+(ui.sel.drive>=0?' (<b>'+tn(ui.sel.drive)+'</b>)':'')+'.</div>';
+        var ready=!dr.length||ui.sel.drive>=0;ctl='<button class="btn primary" id="resGo"'+(ready?'':' disabled')+'>Confirm</button>';}
+    }}
+  else if(q.type==='place'){t='🏰 Take a rath';hp='For '+esc(q.why)+': tap a glowing empty rath.';}
+  else if(q.type==='tower'){t='🏰 Raise a Round Tower';hp='Tap one of your raths. It will count as two raths for kingdom seals.';}
+  else if(q.type==='longphort'){t='⛵ The Norse strike';hp=q.victim===m?'You hold the fewest Raiders. Tap one of your raths to lose to the Norse.':'Tap one of '+esc(NAME(q.victim))+'’s raths for the Norse to seize.';}
+  else if(q.type==='daughter'){t='💍 Ragnhild, the Jarl’s daughter';hp='Your match is with the Norse. Choose:';body='<div class="opts">'+Object.keys(E.DAUGHTER.opts).map(function(k){var O=E.DAUGHTER.opts[k];return '<button class="btn" data-dau="'+k+'"><b>'+O.n+'</b>: '+esc(O.d)+'</button>';}).join('')+'</div>';}
+  if(!mine&&!G.over&&P.hand.length&&q&&q.type!=='draft')body=(G.trick&&G.trick.plays.length?trickHTML():'')+handHTML(function(){return {};});
+  $('tTitle').textContent=t;$('tHelp').innerHTML=hp;$('tBody').innerHTML=body;$('ctl').innerHTML=ctl;
+  wireTurn();
+}
+function handHTML(f){var P=G.players[me()];return '<div class="sub" style="margin-top:6px">Your hand</div><div class="hand" id="hand">'+P.hand.map(function(c){return cardHTML(c,f(c));}).join('')+'</div>';}
+function trickHTML(){var T=G.trick;if(!T)return '';var w=T.winner;return '<div class="sub">On '+esc(tn(T.town))+':</div><div class="trick">'+T.plays.map(function(pl){return cardHTML(pl.card,{mini:true,who:NAME(pl.p),win:w===pl.p});}).join('')+'</div>';}
+function wireTurn(){
+  var q=G.pending;
+  [].forEach.call(document.querySelectorAll('#tBody .dcard:not(.mini)'),function(b){b.onclick=function(){var c=+b.dataset.c;if(!myTurn())return;
+    if(q.type==='draft'){var p=ui.sel.picks||[],i=p.indexOf(c);if(i>=0)p.splice(i,1);else{p.push(c);if(p.length>2)p.shift();}ui.sel.picks=p;render();}
+    else if(q.type==='lead'){ui.sel.card=ui.sel.card===c?null:c;ui.sel.town=null;var ok=E.legalLeads(G,me()).filter(function(x){return x.card===c;});if(!ok.length){ui.sel.card=null;toast('No empty rath fits that deed. Pick another.');}render();if(ui.sel.card!=null)phoneScroll('mapCard');}
+    else if(q.type==='follow'){ui.sel.card=c;render();}};});
+  [].forEach.call(document.querySelectorAll('#tBody [data-opt]'),function(b){b.onclick=function(){ui.sel.opt=+b.dataset.opt;ui.sel.extra=0;ui.sel.march=-1;ui.sel.drive=-1;render();if(plansFor().some(function(x){return x.drive>=0;}))phoneScroll('mapCard');};});
+  [].forEach.call(document.querySelectorAll('#tBody [data-dau]'),function(b){b.onclick=function(){human({type:'daughter',choice:b.dataset.dau});};});
+  var x;
+  if((x=$('draftGo')))x.onclick=function(){human({type:'draft',cards:ui.sel.picks});};
+  if((x=$('leadGo')))x.onclick=function(){human({type:'lead',town:ui.sel.town,card:ui.sel.card});};
+  if((x=$('followGo')))x.onclick=function(){human({type:'follow',card:ui.sel.card});};
+  if((x=$('exP')))x.onclick=function(){var all=E.plans(G,me(),q.card).filter(function(p){return p.opt===ui.sel.opt;});var mx=Math.max.apply(null,all.map(function(p){return p.extra;}));ui.sel.extra=Math.min(mx,(ui.sel.extra||0)+1);ui.sel.march=-1;render();};
+  if((x=$('exM')))x.onclick=function(){ui.sel.extra=Math.max(0,(ui.sel.extra||0)-1);render();};
+  if((x=$('resGo')))x.onclick=function(){if(q.won){human({type:'resolve'});return;}var pl=plansFor(),pick=pl.find(function(p){return p.march===(ui.sel.march==null?-1:ui.sel.march)&&p.drive===(ui.sel.drive==null?-1:ui.sel.drive);})||pl.find(function(p){return p.march<0;})||pl[0];human({type:'resolve',plan:pick});};
+  if((x=$('showOver')))x.onclick=function(){$('over').className='modal show';};
+}
+function human(a){if(!myTurn())return;E.act(G,a);ui.sel={};after();}
+
+/* ---------------- side panels ---------------- */
+function renderPlayers(){
+  if(!G)return;var h='',q=G.pending,b=G.final?G.final.breakdown:null;
+  G.players.forEach(function(P,i){var S=P.style?E.STYLES[P.style]:null,seals=G.seal.filter(function(s){return s.holder===i;}).length,raths=E.rathsOf(G,i).length;
+    h+='<div class="pl'+(q&&q.p===i?' act':'')+(P.human?' me':'')+(ui.speaking===i?' speaking':'')+'"><div class="fc" style="--fc:'+P.color+'">'+P.mascot+'</div><div><div class="nm">'+esc(P.human?'You':P.name)+(G.banner===i?' 🚩':'')+'</div>'+
+      (S?'<div class="st">'+S.i+' '+S.n+' · '+E.DIFF[P.diff].n+'</div>':'')+
+      '<div class="res"><span title="Silver">🪙'+P.silver+'</span><span title="Glory">✨'+P.glory+'</span><span title="Raiders held">🪓'+P.raiders+'</span><span title="Offerings">🕯️'+P.offer+'</span><span title="Raths / kingdoms">🏰'+raths+'/'+E.kingdomsHeld(G,i,false)+'</span><span title="Seals held">👑'+seals+'</span>'+(P.matches.length?'<span title="Matches">💍'+P.matches.length+'</span>':'')+(P.pact?'<span>'+(P.pact==='shield'?'🛡️ Shield-pact':'⚖️ Trade-pact')+'</span>':'')+(P.hand.length&&!P.human?'<span title="Deeds in hand">🃏'+P.hand.length+'</span>':'')+'</div></div>'+
+      '<div class="hon">'+(b?b[i].total:P.pts)+'<small>'+(b?'final':'Honour')+'</small></div></div>';});
+  $('players').innerHTML=h;$('banTxt').textContent='🚩 '+NAME(G.banner);
+}
+function renderTracks(){
+  if(!G)return;var h='';
+  h+='<div class="trk"><b>⛵ The Shore</b>'+(G.shore?G.shore+' Raider'+(G.shore>1?'s':'')+' waiting. If any are left at upkeep, the lord with the fewest Raiders loses a rath.':'Clear. No raid this round.')+'</div>';
+  h+='<div class="trk"><b>🕯️ The Abbey</b>'+G.players.map(function(P){return '<span class="dot" style="--fc:'+P.color+'"></span> '+P.offer;}).join(' &nbsp;')+'<div class="sub" style="font-size:11.5px">Most: a Round Tower + the Banner. '+E.tower4(G)+'+: a tower too.</div></div>';
+  var r='';for(var i=0;i<=E.LADDER_TOP;i++){var who=G.players.filter(function(P){return P.ladder===i;}),rw=E.LADDER[i];r+='<div class="rung" title="Rung '+i+'">'+who.map(function(P){return '<span class="dot" style="--fc:'+P.color+'"></span>';}).join('')+'<span>'+(rw.length?rw.map(function(s){return s==='rath'?'🏰':E.SYM[s].i;}).join(''):'·')+'</span></div>';}
+  h+='<div class="trk" style="grid-column:1/-1"><b>💍 Suitors’ Ladder</b><div class="ladder">'+r+'</div><div class="sub" style="font-size:11.5px">Highest lord at upkeep makes the Match. Everyone else gets their rung’s gift.</div></div>';
+  $('tracks').innerHTML=h;
+  var m=G.curMatch;$('matchTxt').textContent=m==null?'':'💍 '+(m==='D'?E.DAUGHTER.n:matchDesc(m));
+}
+function matchDesc(m){var M=E.MATCHES[m],a=[];if(M.pts)a.push('+'+M.pts+' Honour');if(M.glory)a.push('+'+M.glory+' Glory');M.k.forEach(function(k){a.push('a rath in '+kn(k));});return M.n+': '+a.join(', ');}
+
+/* ---------------- flow ---------------- */
+function after(){digest();render();if(G.over){finish();return;}schedule();}
+function schedule(){
+  if(!G||G.over||ui.busy)return;var q=G.pending;if(!q)return;
+  if(G.players[q.p].human){ if(q.type==='resolve'&&q.won&&!ui.fast){/* wait for Take it */} return; }
+  ui.busy=true;var wait=PACE[cfg.pace]||700;if(q.type==='draft'||q.type==='setup')wait=Math.round(wait*0.6);if(q.type==='resolve')wait=Math.round(wait*0.8);
+  if(vc.busy&&vc.q.length>1)wait+=600;
+  later(function(){ui.busy=false;if(!G.pending||G.players[G.pending.p].human)return;E.act(G,E.botAction(G));after();},wait);
+}
+
+/* ---------------- setup ---------------- */
+function opt(id,val,fn){var box=$(id);[].forEach.call(box.querySelectorAll('button'),function(b){b.classList.toggle('on',String(b.dataset.v)===String(val));b.onclick=function(){fn(b.dataset.v);drawSetup();};});}
+function drawSetup(){
+  var nb='';for(var k=E.MIN_BOTS;k<=E.MAX_BOTS;k++)nb+='<button data-v="'+k+'">'+k+'</button>';$('optN').innerHTML=nb;
+  opt('optN',cfg.bots,function(v){cfg.bots=+v;saveCfg();});
+  opt('optDiff',cfg.diff,function(v){cfg.diff=v;saveCfg();});
+  opt('optFirst',cfg.first,function(v){cfg.first=v;saveCfg();});
+  opt('optMap',cfg.map,function(v){cfg.map=v;saveCfg();});
+  opt('optPace',cfg.pace,function(v){cfg.pace=v;saveCfg();});
+  opt('optTips',tipsOn?1:0,function(v){setTips(+v);});
+  opt('optVoice',vc.on?1:0,function(v){setVoice(+v);});
+  opt('optSpeed',vc.speed,function(v){vc.speed=+v;lsSet('brainboruVoiceSpeed',vc.speed);});
+  $('voiceNote').textContent=SS()?(vc.voices.length?vc.voices.length+' English voice'+(vc.voices.length===1?'':'s')+' found on this device. Each bot also gets its own pitch and pace.':'Voices are still loading. Each bot gets its own pitch and pace.'):VMISSING;
+  var s='';for(var i=0;i<cfg.bots;i++){var st=cfg.seats[i],S=E.STYLES[st];
+    s+='<div class="seatRow"><div class="tk" style="background:'+E.COLORS[(i+1)%5]+'">'+E.MASCOTS[i]+'</div><b>'+E.BOT_NAMES[i]+'</b><select class="btn" data-i="'+i+'"><option value="random">🎲 Random</option>'+
+      E.STYLE_KEYS.map(function(k){return '<option value="'+k+'"'+(st===k?' selected':'')+'>'+E.STYLES[k].i+' '+E.STYLES[k].n+'</option>';}).join('')+'</select><div class="sd">'+(S?esc(S.d):'Gets a random play style each game.')+'</div></div>';}
+  $('seats').innerHTML=s;
+  [].forEach.call($('seats').querySelectorAll('select'),function(el){el.onchange=function(){cfg.seats[+el.dataset.i]=el.value;saveCfg();drawSetup();};});
+  $('twists').innerHTML=Object.keys(E.TWISTS).map(function(k){var T=E.TWISTS[k];return '<button class="twchip'+(cfg.twists[k]?' on':'')+'" data-k="'+k+'">'+(cfg.twists[k]?'✓ ':'')+T.n+'<small>'+esc(T.d)+'</small></button>';}).join('');
+  [].forEach.call($('twists').querySelectorAll('.twchip'),function(el){el.onclick=function(){cfg.twists[el.dataset.k]=!cfg.twists[el.dataset.k];saveCfg();drawSetup();};});
+}
+function openSetup(){drawSetup();$('setup').className='modal show';}
+$('setupCancel').onclick=function(){$('setup').className='modal';if(!G)showTitle();};
+$('startBtn').onclick=function(){startGame();};
+function startGame(){
+  var players=[{name:'You',human:true}];for(var i=0;i<cfg.bots;i++)players.push({name:E.BOT_NAMES[i],mascot:E.MASCOTS[i],style:cfg.seats[i]==='random'?null:cfg.seats[i],diff:cfg.diff});
+  mode='custom';launch(E.newGame({players:players,diff:cfg.diff,first:cfg.first,map:cfg.map,twists:cfg.twists}));
+}
+
+/* ---------------- polish: title, quick mode, tips, result card, stats ---------------- */
+var rivals=pickRivals();
+function pickRivals(){var k=E.STYLE_KEYS.slice(),idx=[0,1,2,3,4],r=[];while(r.length<E.QUICK.bots){var a=Math.floor(Math.random()*k.length),b=Math.floor(Math.random()*idx.length);r.push({s:k.splice(a,1)[0],b:idx.splice(b,1)[0]});}return r;}
+function getStats(){return Object.assign({played:0,wins:0,streak:0,bestStreak:0,best:0,seals:0,matches:0,quick:0},lsGet('brainboruStats',{}));}
+function drawTitle(){
+  $('titleBots').innerHTML=rivals.map(function(rv){var S=E.STYLES[rv.s];return '<div class="bot" style="--fc:'+E.COLORS[(rv.b+1)%5]+'"><div class="face">'+E.MASCOTS[rv.b]+'</div><div class="bn">'+E.BOT_NAMES[rv.b]+'</div><div class="bl">'+S.i+' '+S.n+'</div><div class="bt">\u201c'+TAUNT[rv.s]+'\u201d</div></div>';}).join('');
+  $('quickNote').textContent='Quick game: you + '+E.QUICK.bots+' Medium bots, '+E.QUICK.rounds+' rounds, random map.';
+  var st=getStats();
+  $('titleStats').innerHTML=st.played?['<div class="stat"><b>'+st.played+'</b><span>played</span></div>','<div class="stat"><b>'+st.wins+'</b><span>crowned</span></div>','<div class="stat"><b>'+st.best+'</b><span>best Honour</span></div>','<div class="stat"><b>'+st.seals+'</b><span>seals won</span></div>','<div class="stat"><b>'+st.bestStreak+'</b><span>best streak</span></div>'].join(''):'';
+  $('resumeBtn').style.display=G&&!G.over?'':'none';
+}
+function showTitle(){stopSpeech();drawTitle();$('title').className='screen show';$('over').className='modal';$('setup').className='modal';}
+function hideTitle(){$('title').className='screen';}
+function playNow(){
+  var players=[{name:'You',human:true}];rivals.forEach(function(rv){players.push({name:E.BOT_NAMES[rv.b],mascot:E.MASCOTS[rv.b],style:rv.s,diff:'medium'});});
+  mode='quick';launch(E.newGame({players:players,diff:'medium',first:'me',map:'random',quick:true}));
+}
+function launch(g){
+  ui.gen++;stopSpeech();G=g;recorded=false;ui.finished=false;ui.sel={};ui.evSeen=0;ui.busy=false;ui.lastLine={};ui.recent=[];
+  $('setup').className='modal';$('over').className='modal';$('rules').className='modal';hideTitle();
+  $('feed').innerHTML='';
+  $('modePill').textContent=(mode==='quick'?'⚡ Quick · ':'')+(G.n-1)+' bots · '+(G.opts.map==='classic'?'Classic map':'Random map');
+  drawMapBase();
+  var intro='Welcome to Brain Boru. '+G.rounds+' rounds. Found your first raths.';narrate(intro);addFeed('nar','👑 '+G.rounds+' rounds. Each lord founds a first rath.');
+  var b=G.players.map(function(P,i){return i;}).filter(function(i){return !G.players[i].human;});if(b.length){var j=b[Math.floor(Math.random()*b.length)];addFeed('bot',TAUNT[G.players[j].style],j);speakLine(G.players[j].name,TAUNT[G.players[j].style],1);}
+  after();
+}
+function playAgain(){if(mode==='quick'){rivals=pickRivals();playNow();}else startGame();}
+/* tips */
+var tipsOn=lsGet('brainboruTips',1)!==0,tipSeen=lsGet('brainboruTipsSeen',{}),curTip=null;
+var TIPS=[
+  ['setup',function(){return myTurn()&&G.pending.type==='setup';},function(){return 'Kingdoms show 🔒 filled/needed · worth. A seal opens once enough raths are filled, then goes to whoever holds the most raths there.';}],
+  ['draft',function(){return myTurn()&&G.pending.type==='draft';},function(){return 'High deeds win raths. Low deeds have strong bottom lines: more Raiders, Offerings or Ladder rungs. Keep a mix.';}],
+  ['lead',function(){return myTurn()&&G.pending.type==='lead';},function(){return 'Leading a low deed on a rath nobody can beat is cheap land. Leading low on purpose also gets you its bottom line if someone beats you.';}],
+  ['follow',function(){return myTurn()&&G.pending.type==='follow';},function(){return '“can win” means it beats what is on the table now. Later lords might still beat it. Deeds act from lowest to highest, so low deeds grab Raiders first.';}],
+  ['shore',function(){return G.round>=1&&G.shore>0&&myTurn()&&G.players[me()].raiders===0&&G.trickNo>=2;},function(){return 'You hold no Raiders. If any are left on the Shore at upkeep, the lord with the fewest loses a rath to the Norse. A Sword deed’s bottom line takes Raiders.';}],
+  ['ladder',function(){return G.round>=1&&myTurn()&&(G.pending.type==='resolve')&&!G.pending.won;},function(){return 'Matches pay well and the last one, the Jarl’s daughter, can turn every Norse rath into yours. You must be strictly highest on the Ladder at upkeep.';}],
+  ['tower',function(){return G.players[me()].offer>=2;},function(){return 'Most Offerings at upkeep builds a Round Tower: that rath counts double for seals, and you take the Banner.';}]
+];
+function updateTip(){
+  var box=$('tip');curTip=null;
+  if(G&&tipsOn&&!G.over)for(var i=0;i<TIPS.length;i++){var t=TIPS[i];if(!tipSeen[t[0]]&&t[1]()){curTip=t[0];$('tipText').textContent=t[2]();break;}}
+  box.className=curTip?'show':'';$('tipsBtn').style.opacity=tipsOn?'1':'.45';
+}
+function setTips(on){tipsOn=!!on;lsSet('brainboruTips',on?1:0);updateTip();}
+$('tipOk').onclick=function(){if(curTip){tipSeen[curTip]=1;lsSet('brainboruTipsSeen',tipSeen);}updateTip();};
+$('tipOff').onclick=function(){setTips(0);toast('Tips off. Tap 💡 to turn them back on.');};
+$('tipsBtn').onclick=function(){setTips(!tipsOn);toast(tipsOn?'Tips on':'Tips off');};
+$('tipsReset').onclick=function(){tipSeen={};lsSet('brainboruTipsSeen',{});setTips(1);drawSetup();toast('Tips will show again');};
+/* result */
+var lastCard='',lastShare='';
+function recordResult(){
+  if(recorded)return [];recorded=true;
+  var m=me(),F=G.final,won=F.winners.indexOf(m)>=0,st=getStats(),badges=[],b=F.breakdown[m];
+  st.played++;if(mode==='quick')st.quick++;
+  if(won){st.wins++;st.streak++;if(st.streak>st.bestStreak)st.bestStreak=st.streak;if(st.streak>1)badges.push('🔥 '+st.streak+'-win streak');}else st.streak=0;
+  if(b.total>st.best){if(st.played>1)badges.push('📈 New best: '+b.total+' Honour');st.best=b.total;}
+  var seals=G.seal.filter(function(s){return s.holder===m;}).length;st.seals+=seals;if(seals>=3)badges.push('👑 '+seals+' seals');
+  st.matches+=G.players[m].matches.length;if(G.players[m].matches.length>=2)badges.push('💍 Matchmaker');
+  if(b.kingdoms>=6)badges.push('🧭 '+b.kingdoms+' kingdoms');
+  if(won&&st.wins===1)badges.push('🏅 First crown');
+  lsSet('brainboruStats',st);return badges;
+}
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath();}
+function drawCard(){
+  var c=document.createElement('canvas');c.width=1200;c.height=630;var x=c.getContext('2d'),F=G.final,m=me(),won=F.winners.indexOf(m)>=0;
+  var g=x.createLinearGradient(0,0,1200,630);g.addColorStop(0,'#1f4a36');g.addColorStop(.6,'#0d1f17');g.addColorStop(1,'#4a3512');x.fillStyle=g;x.fillRect(0,0,1200,630);
+  // mini island
+  x.save();x.translate(890,40);x.scale(2.9,2.9*0.9);x.beginPath();E.OUTLINE.forEach(function(p,i){if(i)x.lineTo(p[0],p[1]);else x.moveTo(p[0],p[1]);});x.closePath();x.fillStyle='#2f5e3a';x.fill();x.lineWidth=.8;x.strokeStyle='#d9c98f';x.stroke();
+  G.map.towns.forEach(function(T,t){var o=G.owner[t];x.beginPath();x.arc(T.x,T.y,2.4,0,7);x.fillStyle=o>=0?G.players[o].color:'#ffffff33';x.fill();if(G.viking[t]){x.strokeStyle='#000';x.lineWidth=.8;x.stroke();}if(G.tower[t]){x.beginPath();x.arc(T.x,T.y,3.4,0,7);x.strokeStyle='#fff';x.lineWidth=.7;x.stroke();}});x.restore();
+  x.font='900 76px system-ui,sans-serif';var parts=[['br','#f2c14e'],['AI','#5fd3a8'],['n boru','#f2c14e']],px=60;parts.forEach(function(p){x.fillStyle=p[1];x.fillText(p[0],px,110);px+=x.measureText(p[0]).width;});
+  x.font='900 50px system-ui,sans-serif';x.fillStyle='#fff';x.fillText(won?'I united the island! 👑':'The AI lords outplayed me',60,190);
+  x.font='700 25px system-ui,sans-serif';x.fillStyle='#a9b8ab';var mb=F.breakdown[m];
+  x.fillText(mb.total+' Honour · '+G.seal.filter(function(s){return s.holder===m;}).length+' seal'+(G.seal.filter(function(s){return s.holder===m;}).length===1?'':'s')+' · '+mb.kingdoms+' kingdoms · '+(G.n-1)+' bots',60,232);
+  F.order.forEach(function(i,r){var P=G.players[i],y=290+r*52;x.fillStyle=P.color;x.beginPath();x.arc(84,y,20,0,7);x.fill();x.font='24px system-ui,sans-serif';x.textAlign='center';x.fillText(P.mascot,84,y+9);x.textAlign='left';
+    x.font='800 26px system-ui,sans-serif';x.fillStyle=F.winners.indexOf(i)>=0?'#f2c14e':'#fff';x.fillText((r+1)+'. '+(P.human?'Me':P.name)+(P.style?'  '+E.STYLES[P.style].i:''),118,y+9);x.textAlign='right';x.fillText(F.breakdown[i].total,560,y+9);x.textAlign='left';});
+  var bots=F.order.filter(function(i){return !G.players[i].human;}),bq=bots[0],B=G.players[bq];
+  var q='\u201c'+(F.winners.indexOf(bq)>=0?GEN.gameWin[G.seed%3]:GEN.gameLose[G.seed%3])+'\u201d \u2014 '+B.name;
+  x.font='italic 600 25px system-ui,sans-serif';x.fillStyle='#f2c14e';x.fillText(q,60,555);
+  x.font='600 22px system-ui,sans-serif';x.fillStyle='#cfe0d2';x.fillText('by OmniXR · myomnixr.com',60,600);
+  x.textAlign='right';x.fillStyle='#5fd3a8';x.fillText(PUBLIC_URL.replace(/^https?:\/\//,''),1150,600);x.textAlign='left';
+  return c.toDataURL('image/png');
+}
+function shareText(){var m=me(),F=G.final,won=F.winners.indexOf(m)>=0,b=F.breakdown[m];
+  return won?'I beat '+(G.n-1)+' AI lords and united the island in brAIn boru with '+b.total+' Honour 👑 Can you take the crown?':'The AI lords out-schemed me in brAIn boru ('+b.total+' Honour). Think you can unite the island?';}
+function finish(){
+  if(ui.finished)return;ui.finished=true;
+  var m=me(),F=G.final,won=F.winners.indexOf(m)>=0,badges=recordResult(),b=F.breakdown;
+  var top=F.winners.map(NAME).join(' and ');
+  $('overTitle').textContent=won?(F.winners.length>1?'You share the crown! 👑':'You are High King! 👑'):top+' take'+(F.winners.length>1||G.players[F.winners[0]].human?'':'s')+' the crown.';
+  $('overSub').textContent='You scored '+b[m].total+' Honour and placed '+(F.order.indexOf(m)+1)+' of '+G.n+'.';
+  lastCard=drawCard();$('cardImg').src=lastCard;
+  $('endBadges').innerHTML=badges.map(function(x){return '<span class="badge2">'+x+'</span>';}).join('');
+  var t='<tr><th>Lord</th><th>Honour in play</th><th>Seals</th><th>Shared</th><th>Glory</th><th>Breadth</th><th>Silver</th><th>Banner</th><th>Total</th></tr>';
+  F.order.forEach(function(i){var r=b[i],P=G.players[i];t+='<tr class="'+(F.winners.indexOf(i)>=0?'win':'')+'"><td>'+P.mascot+' '+esc(NAME(i))+(P.style?' <span class="sub">'+E.STYLES[P.style].i+'</span>':'')+'</td><td>'+r.pts+'</td><td>'+r.seals+'</td><td>'+r.shared+'</td><td>'+r.glory+'</td><td>'+r.breadth+' <span class="sub">('+r.kingdoms+')</span></td><td>'+r.silver+'</td><td>'+r.banner+'</td><td><b>'+r.total+'</b></td></tr>';});
+  $('resTable').innerHTML=t;
+  lastShare='https://x.com/intent/post?text='+encodeURIComponent(shareText()+' '+PUBLIC_URL);
+  var wb=F.winners.find(function(i){return !G.players[i].human;});
+  narrate(won?'You are High King. Well played.':top+' takes the crown.');
+  var bl=bots();if(bl.length){var j=wb!=null?wb:bl[0];botSay(j,wb!=null?'gameWin':'gameLose',{},1,1);}
+  later(function(){$('over').className='modal show';},700);
+  render();
+}
+function bots(){return G.players.map(function(P,i){return i;}).filter(function(i){return !G.players[i].human;});}
+$('saveCard').onclick=function(){var a=document.createElement('a');a.href=lastCard;a.download='brain-boru-result.png';document.body.appendChild(a);a.click();a.remove();};
+$('shareX').onclick=function(){window.open(lastShare,'_blank','noopener');};
+$('overClose').onclick=function(){$('over').className='modal';};
+$('overMenu').onclick=showTitle;$('menuBtn').onclick=showTitle;$('overAgain').onclick=playAgain;
+$('playNow').onclick=playNow;$('setupBtn').onclick=openSetup;$('resumeBtn').onclick=hideTitle;
+$('reroll').onclick=function(){rivals=pickRivals();drawTitle();};
+$('titleRules').onclick=$('rulesBtn').onclick=function(){$('rules').className='modal show';};$('rulesClose').onclick=function(){$('rules').className='modal';};
+$('symList').innerHTML='<ul>'+Object.keys(E.SYM).map(function(k){return '<li>'+E.SYM[k].i+' '+esc(E.SYM[k].n)+'</li>';}).join('')+'<li>'+Object.keys(SU).map(function(s){return SU[s].i+' <b>'+SU[s].n+'</b>: '+esc(SU[s].d);}).join('<br>')+'</li></ul>';
+/* test and automation hooks */
+function autoStep(){if(!G||G.over||!myTurn())return false;E.act(G,E.botAction(G));ui.sel={};after();return true;}
+window.__game=function(){return G;};window.__E=E;window.__cfg=function(){return cfg;};window.__stats=getStats;window.__tip=function(){return curTip;};window.__rivals=function(){return rivals.map(function(r){return r.s+r.b;});};
+window.__shareUrl=function(){return lastShare;};window.__card=function(){return lastCard.length;};
+window.__voice={state:function(){return {on:vc.on,speed:vc.speed,busy:vc.busy,queued:vc.q.length,log:vc.log.slice(),map:Object.keys(vc.map).reduce(function(o,k){o[k]=vc.map[k].name;return o;},{})};},profile:function(n){var p=voiceFor(n);return {voice:p.voice?p.voice.name:'',pitch:p.pitch,rate:p.rate};},say:speakLine,reload:loadVoices,set:setVoice,clean:cleanSpeech};
+window.__ui={ui:ui,render:render,start:startGame,playNow:playNow,auto:autoStep,mine:myTurn,setCfg:function(c){Object.assign(cfg,c);saveCfg();},fast:function(on){ui.fast=on!==false;},lines:function(){return ui.lineCount;},launch:function(g){mode='custom';launch(g);}};
+function boot(){var h=location.hash;if(h==='#setup'){hideTitle();openSetup();}else if(/^#autostart=quick/.test(h))playNow();else showTitle();}
+window.addEventListener('hashchange',boot);
+vUI();updateVoiceBtn();boot();
+})();
+
+</script>
+</body>
+</html>
