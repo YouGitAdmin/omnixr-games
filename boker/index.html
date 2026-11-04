@@ -91,7 +91,7 @@ button:disabled{opacity:.35;cursor:default}button.red{background:#b0174f}button.
 .badge{display:inline-block;background:var(--gold);color:#2a1030;font-weight:900;border-radius:999px;padding:3px 10px;font-size:13px;margin:2px}
 @media (max-width:480px){.bots{gap:6px}.bot{padding:10px 4px}.bot .face{width:52px;height:52px;font-size:30px}.bot .bt{font-size:12px}.bigPlay{font-size:24px!important;padding:16px 44px!important}}
 </style></head><body>
-<header><b>BOKER</b><span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="pill" id="modePill"></span><button id="mute" class="hbtn" title="Mute all sound">🔊</button><button id="voice" class="hbtn" title="Voices on/off">🗣️</button><button id="tipsBtn" class="hbtn" title="Tips on/off">💡</button><button id="menuBtn" class="hbtn">Menu</button></span><span id="hinfo" style="width:100%">Bot Poker · play chips only, no real money</span></header>
+<header><b>BOKER</b><span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="pill" id="modePill"></span><button id="mute" class="hbtn" title="Sound effects on/off">🎵</button><button id="voiceBtn" class="hbtn" title="Voices on/off">🔊</button><button id="tipsBtn" class="hbtn" title="Tips on/off">💡</button><button id="menuBtn" class="hbtn">Menu</button></span><span id="hinfo" style="width:100%">Bot Poker · play chips only, no real money</span></header>
 <div id="wrap">
  <div id="table">
   <div id="felt"><div id="board"></div><div id="pot"></div><div id="phase"></div></div>
@@ -122,7 +122,6 @@ button:disabled{opacity:.35;cursor:default}button.red{background:#b0174f}button.
   <div id="styleRows"></div>
   <div class="setRow"><span>Tips during play</span><div class="seg" id="tipsSeg"><button data-v="on">On</button><button data-v="off">Off</button></div></div>
   <div class="setRow"><span>Sound effects</span><div class="seg" id="soundSeg"><button data-v="on">On</button><button data-v="off">Off</button></div></div>
-  <div class="setRow"><span>Bot voices</span><div class="seg" id="voiceSeg"><button data-v="on">On</button><button data-v="off">Off</button></div></div>
   <div class="setRow"><span>Seen all the tips?</span><button id="tipsReset">Show tips again</button></div>
   <div class="row"><button id="setupClose">Close</button><button class="gold" id="setupStart">Start game</button></div></div></div>
 <div class="dlgWrap" id="endWrap"><div class="dlg"><h3 id="endTitle"></h3>
@@ -406,42 +405,21 @@ function pickNames(){const a=POOL.slice();E.shuffle(a,Math.random);return a.slic
 let actx=null,muted=false;function unlockAudio(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(actx&&actx.state==='suspended')actx.resume()}
 document.addEventListener('pointerdown',unlockAudio,{passive:true});
 const GENDER={};POOL.forEach((n,i)=>GENDER[n]=i%2?'f':'m');
-const VOX=(function(){const ss=window.speechSynthesis,U=window.SpeechSynthesisUtterance;const ok=!!(ss&&U);let on=true,unlocked=false,voices=[],q=[],busy=false,cast={},cur=null,started=0;
- const isAndroid=/Android/i.test(navigator.userAgent||'');
- const FEM=/female|woman|zira|samantha|victoria|karen|moira|tessa|fiona|susan|hazel|heera|serena|allison|ava|kate|libby|sonia|aria|jenny|emma|amy|joanna|salli|kimberly|ivy|michelle|natasha|clara|#f|-f-|x-[a-z]*f|sfg|tpf|tpc|iob/i,MAL=/male|man\b|david|mark|daniel|alex|fred|george|james|ryan|guy|tom|oliver|arthur|thomas|aaron|rishi|gordon|lee|matthew|joey|justin|christopher|eric|roger|steffan|#m|-m-|x-[a-z]*m|iom|tpd|sfm|iol/i;
- function load(){if(!ok)return;const v=ss.getVoices()||[];const en=v.filter(x=>/^en/i.test(x.lang));let pool=en.length?en:v;const loc=pool.filter(x=>x.localService&&!/online|natural/i.test(x.name));if(loc.length)pool=loc;voices=pool;cast={};next()}
- if(ok){load();try{ss.addEventListener?ss.addEventListener('voiceschanged',load):(ss.onvoiceschanged=load)}catch(e){}}
- function gOf(x){const n=x.name+' '+(x.voiceURI||'');if(FEM.test(n)&&!/\bmale\b/i.test(n.replace(/female/ig,'')))return 'f';if(MAL.test(n))return 'm';return '?'}
- function h(str){let a=0;for(const c of str)a=(a*31+c.charCodeAt(0))>>>0;return a}
- function profile(who,gender){const k=who+'|'+gender;if(cast[k])return cast[k];let pool=voices.filter(v=>gOf(v)===gender);if(!pool.length)pool=voices;const M=voices.filter(v=>gOf(v)==='m');
-  let pr;if(who==='deAIler')pr={pitch:.95,rate:1.2,v:(M[0]||voices[0])};
-  else if(who==='JudgAIe')pr={pitch:.7,rate:1.1,v:(M[1]||M[0]||voices[0])};
-  else{const x=h(who);pr={v:pool.length?pool[x%pool.length]:null,pitch:(gender==='f'?1.15:.85)+((x>>4)%7-3)*.06,rate:1.08+((x>>8)%5)*.04}}
-  return cast[k]=pr}
- // pri 2 = bot chat / JudgAIe (never dropped), 1 = winner (kept), 0 = routine deAIler (droppable)
- function trim(){q=q.filter(it=>it.pri>0||Date.now()-it.t<6000);while(q.length>3){const i=q.findIndex(it=>it.pri===0);if(i<0)break;q.splice(i,1)}}
- function fin(){if(!cur)return;cur.done=true;clearTimeout(cur.wd);cur=null;busy=false;setTimeout(next,60)}
- function next(){if(!ok||!on||!unlocked||busy)return;if(typeof muted!=='undefined'&&muted)return;trim();if(!q.length)return;const it=q.shift();busy=true;
-  const u=new U(it.text),pr=profile(it.who,it.g);if(pr.v){u.voice=pr.v;u.lang=pr.v.lang}else u.lang='en-US';u.pitch=Math.max(.1,Math.min(2,pr.pitch));u.rate=pr.rate;u.volume=1;
-  const c={u,done:false};cur=c;started=Date.now();u.onend=()=>{if(cur===c)fin()};u.onerror=()=>{if(cur!==c)return;if(!it.retry&&it.who!=='deAIler'){it.retry=1;it.who='deAIler';it.g='m';q.unshift(it)}fin()};
-  c.wd=setTimeout(()=>{if(cur!==c)return;try{ss.cancel()}catch(e){}fin()},3000+it.text.length*110);
-  try{if(ss.paused)ss.resume();ss.speak(u)}catch(e){fin()}}
- // watchdog: unstick paused/silent engine, Chrome desktop 15s cutoff workaround
- if(ok)setInterval(()=>{try{if(ss.paused)ss.resume();if(busy&&cur){const el=Date.now()-started;if(!ss.speaking&&!ss.pending&&el>1500){fin()}else if(!isAndroid&&ss.speaking&&el>10000){ss.pause();ss.resume()}}else if(!busy&&q.length)next()}catch(e){}},1000);
- function clean(text){return String(text).replace(/[\u{1F000}-\u{1FFFF}\u2600-\u27BF\uFE0F\u200D]/gu,'').replace(/\$([\d,]+)/g,'$1 dollars').replace(/…/g,'.').trim()}
- return{ok,speak(who,text,g,pri){if(!ok||!on||!text||who==='Me')return;text=clean(text);if(!text)return;
-   q.push({who,text,g:g||'m',t:Date.now(),pri:pri==null?2:pri});trim();next()},
-  backlog(){return q.filter(it=>it.pri>0).length+(busy?1:0)},
-  newHand(){q=q.filter(it=>it.pri>0)},
-  cancel(){q=[];if(ok){try{ss.cancel()}catch(e){}}if(cur){cur.done=true;clearTimeout(cur.wd);cur=null}busy=false},
-  unlock(){if(unlocked||!ok)return;unlocked=true;load();next()},
-  toggle(){on=!on;if(!on)this.cancel();return on},get on(){return on}}})();
+// Speech goes through the shared OmniXR voice kit (inlined at the end of the page): gesture unlock, Chrome workarounds, stuck-queue fallback, notices.
+// Old priorities: 2 = bot chat / JudgAIe, 1 = welcome and winners, 0 = routine deAIler calls. Kit: 1 = key reaction, 2 = must-say, 0 = droppable chatter.
+const VSTYLE={rock:{pitch:.8,rate:.92},tag:{pitch:1,rate:1.02},lag:{pitch:1.12,rate:1.12},maniac:{pitch:1.4,rate:1.28},station:{pitch:.92,rate:.95},weaktight:{pitch:1.25,rate:.9},shark:{pitch:.7,rate:1},fish:{pitch:1.3,rate:1.08},gto:{pitch:.88,rate:1.16}};
+function castVoices(){if(!window.OXV||!g)return;const m={JudgAIe:{g:'m',a:'gb',pitch:.68,rate:1.04}};
+ g.players.slice(1).forEach((p,i)=>{const s=VSTYLE[p.style]||{pitch:1,rate:1};m[p.name]={g:GENDER[p.name]||'m',a:['us','au','gb'][i%3],pitch:+(s.pitch+(i-1)*.05).toFixed(2),rate:+(s.rate+(i-1)*.02).toFixed(2)}});OXV.setBots(m)}
+window.__bkCast=castVoices;
+const VOX={get ok(){return !!(window.speechSynthesis&&window.SpeechSynthesisUtterance)},
+ speak(who,text,gd,pri){if(!window.OXV||!text||who==='Me')return;text=String(text).replace(/\$([\d,]+)/g,'$1 dollars').replace(/…/g,'.').replace(/ — /g,', ');
+  OXV.say(who==='deAIler'?'_nar':who,text,pri===1?2:pri===2?1:0)},
+ backlog(){return window.OXV?OXV.backlog():0},newHand(){},cancel(){if(window.OXV)OXV.stop()},unlock(){},get on(){return window.OXV?OXV.active():false}};
 function voiceFor(t,c){if(!VOX.ok)return;let m;
  if((m=t.match(/^🎩 deAIler: (.*)$/u)))return VOX.speak('deAIler',m[1],'m',/^Welcome/.test(m[1])?1:0);
  if((m=t.match(/^🧑‍⚖️ JudgAIe: (.*)$/u)))return VOX.speak('JudgAIe',m[1],'m',2);
  if(t.startsWith('🏆'))return VOX.speak('deAIler',t,'m',1);
  if(c==='t'&&(m=t.match(/^\S+ (\S+): “(.*)”$/su))&&m[1]!=='Me')return VOX.speak(m[1],m[2],GENDER[m[1]],2);}
-document.addEventListener('pointerdown',()=>VOX.unlock(),{passive:true});document.addEventListener('click',()=>VOX.unlock());document.addEventListener('keydown',()=>VOX.unlock());
 function snap(delay){if(muted||!actx)return;const t=actx.currentTime+delay,len=Math.floor(actx.sampleRate*.05),buf=actx.createBuffer(1,len,actx.sampleRate),d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,4);const src=actx.createBufferSource();src.buffer=buf;const f=actx.createBiquadFilter();f.type='bandpass';f.frequency.value=2500+Math.random()*1500;f.Q.value=.8;const gn=actx.createGain();gn.gain.value=.6;src.connect(f);f.connect(gn);gn.connect(actx.destination);src.start(t)}
 function dealSound(n){for(let i=0;i<n;i++)snap(i*.09)}
 let g,timer=null,sel=new Set(),lastPick=null;
@@ -574,6 +552,7 @@ function gameOver(){if(g.ended)return;g.ended=true;clearTimeout(timer);hideTip()
  if(st.newBest)badge('⭐ Best finish: '+money(r.me));if(st.stats.streak>0)badge('🔥 Win streak: '+st.stats.streak);if(r.bestPot)badge('Biggest pot: '+money(r.bestPot));
  const sub=document.createElement('div');sub.className='sub';sub.textContent=g.quick?`${r.hands} hand${r.hands===1?'':'s'} played. Final stacks: `+r.standings.map(p=>(p.human?'Me':p.name)+' '+money(p.chips)).join(' · '):'Final stacks: '+r.standings.map(p=>(p.human?'Me':p.name)+' '+money(p.chips)).join(' · ');b.appendChild(sub);
  $('endWrap').classList.add('show');
+ VOX.speak('deAIler',r.won?'Game over. You win, with '+money(r.me)+' in chips!':'Game over. '+r.winner.name+' wins the table.','m',1);
  g.players.filter(p=>!p.isHuman&&r.winner.name===p.name).forEach(p=>say(p,'win',{},1))}
 $('saveCard').onclick=()=>{if(!lastCanvas)return;const a=document.createElement('a');a.download='boker-result.png';a.href=lastCanvas.toDataURL('image/png');document.body.appendChild(a);a.click();a.remove()};
 $('shareX').onclick=()=>{if(lastRes)window.open(shareUrl(lastRes),'_blank','noopener')};
@@ -587,8 +566,8 @@ function pickTable(){const names=pickNames(),pool=E.shuffle(TYPEKEYS.filter(k=>!
  return {names,types:SET.styles.map(s=>s==='random'?pool.pop():s)}}
 let nextTable=pickTable();
 function seg(id,v){[...$(id).querySelectorAll('button')].forEach(b=>b.classList.toggle('on',b.dataset.v===v))}
-function syncSetup(){seg('modeSeg',SET.mode);seg('tipsSeg',SET.tips?'on':'off');seg('soundSeg',SET.sound?'on':'off');seg('voiceSeg',SET.voice?'on':'off');
- $('tipsBtn').style.opacity=SET.tips?1:.45;$('mute').textContent=SET.sound?'🔊':'🔇';$('voice').textContent=SET.voice?'🗣️':'🤐';
+function syncSetup(){seg('modeSeg',SET.mode);seg('tipsSeg',SET.tips?'on':'off');seg('soundSeg',SET.sound?'on':'off');
+ $('tipsBtn').style.opacity=SET.tips?1:.45;$('mute').textContent=SET.sound?'🎵':'🔕';
  $('playSub').textContent=SET.mode==='quick'?'Quick game · 10 hands · blinds double every 3 hands · about 5 minutes':'Full game · last player with chips wins · about 20 minutes';
  SET.styles.forEach((v,i)=>{const el=$('style'+i);if(el)el.value=v})}
 (function buildStyleRows(){const box=$('styleRows');[0,1,2].forEach(i=>{const r=document.createElement('div');r.className='setRow';
@@ -597,8 +576,7 @@ function syncSetup(){seg('modeSeg',SET.mode);seg('tipsSeg',SET.tips?'on':'off');
 function bindSeg(id,fn){[...$(id).querySelectorAll('button')].forEach(b=>b.onclick=()=>{fn(b.dataset.v);saveSet();syncSetup()})}
 bindSeg('modeSeg',v=>SET.mode=v);
 bindSeg('tipsSeg',v=>{SET.tips=v==='on';if(!SET.tips)hideTip()});
-bindSeg('soundSeg',v=>{SET.sound=v==='on';muted=!SET.sound;if(muted)VOX.cancel()});
-bindSeg('voiceSeg',v=>{SET.voice=v==='on';if(VOX.on!==SET.voice)VOX.toggle()});
+bindSeg('soundSeg',v=>{SET.sound=v==='on';muted=!SET.sound});
 $('tipsReset').onclick=function(){tipsSeen={};saveSeen();SET.tips=true;saveSet();syncSetup();this.textContent='Done ✓'};
 function renderTitleBots(){const tb=$('titleBots');tb.innerHTML='';
  nextTable.names.forEach((n,i)=>{const k=nextTable.types[i],d=document.createElement('div');d.className='bot';
@@ -648,10 +626,9 @@ function newGame(deal){clearTimeout(timer);VOX.cancel();$('log').innerHTML='';hi
  log('🎩 deAIler: Welcome to Boker! Four players, $1,250 each — $5,000 on the table. Play chips only.');
  if(g.quick)log('🎩 deAIler: Quick game: 10 hands, blinds double every 3 hands. Most chips after hand 10 wins.');
  g.players.slice(1).forEach(p=>log(`${p.avatar} ${p.name} sits down — ${E.TYPES[p.style].label}.`,'t'));
- render();if(deal){g.button=0;nextHand()}} // a bot holds the button on hand 1, so Play now goes straight to cards
-$('mute').onclick=()=>{unlockAudio();VOX.unlock();muted=!muted;if(muted)VOX.cancel();SET.sound=!muted;saveSet();syncSetup()};
-$('voice').onclick=()=>{VOX.unlock();const o=VOX.toggle();SET.voice=o;saveSet();syncSetup()};if(!VOX.ok){$('voice').disabled=true;$('voice').title='Voices not supported in this browser'}
-muted=!SET.sound;if(!SET.voice&&VOX.on)VOX.toggle();
+ castVoices();render();if(deal){g.button=0;nextHand()}} // a bot holds the button on hand 1, so Play now goes straight to cards
+$('mute').onclick=()=>{unlockAudio();muted=!muted;SET.sound=!muted;saveSet();syncSetup()};
+muted=!SET.sound;
 // Test and deep-link hook: #autostart=quick or #autostart=full skips the title screen (tips off for that session).
 const auto=/autostart=(quick|full)/.exec(location.hash);
 if(auto){SET.mode=auto[1];SET.tips=false;newGame(false)}else{newGame(false);showTitle()}
@@ -659,4 +636,213 @@ window.__g=()=>g;window.__result=()=>resultOf(g);window.__shareUrl=r=>shareUrl(r
 window.__endNow=()=>{gameOver()};
 })();
 </script>
+<!--OXVOICE-->
+<script>
+/* ---- OmniXR voice kit: talking bots for any OmniXR game (browser speech, offline, no keys) · by OmniXR · myomnixr.com ----
+   Wraps the shared robust speech core (voice-core.js, inlined below at build time) in its own scope and adds:
+   - per-bot voice profiles (gender/accent hints, pitch, rate) plus a narrator,
+   - rate-limited chatter: low-priority lines are dropped when someone spoke recently, a bot never repeats its last line,
+     and the same line is never heard twice in a row,
+   - a 🔊/🔇 mute toggle and a 🗣 Test voices button in the header, and Setup rows for voices on/off and speech speed (saved in localStorage).
+   Games call OXV.init({...}) once, then OXV.line(bot, pool, prio) / OXV.narrate(text) at key moments. */
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id);};
+var C=null,ui={fast:false,gen:0};
+function lsGet(k,d){try{var v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function toast(t){if(C&&typeof C.toast==='function'){try{C.toast(t);return;}catch(e){}}
+  var e=$('oxvToast');if(!e){e=document.createElement('div');e.id='oxvToast';e.setAttribute('role','status');document.body.appendChild(e);}
+  e.textContent=t;e.style.display='block';clearTimeout(toast._t);toast._t=setTimeout(function(){e.style.display='none';},2600);}
+var VPROF={},NARR={g:'m',a:'gb',pitch:0.85,rate:0.95};
+var vc={on:true,speed:1,unlocked:false,voices:[],map:{},q:[],busy:false,cur:null,waiters:[],log:[]};
+function SS(){return typeof window.speechSynthesis!=='undefined'&&typeof window.SpeechSynthesisUtterance!=='undefined'?window.speechSynthesis:null;}
+var FEM=/female|woman|samantha|victoria|karen|moira|tessa|fiona|serena|susan|zira|hazel|libby|sonia|natasha|aria|jenny|michelle|emma|olivia|amy|kate|veena|catherine|allison|ava|nicky/i;
+var MAL=/\bmale|\bman\b|daniel|alex|fred|oliver|thomas|george|ryan|guy|david|mark|james|arthur|rishi|aaron|eric|christopher|liam|william|tom|lee|gordon|ravi|connor/i;
+function vGender(v){var n=v.name||'';return FEM.test(n)?'f':MAL.test(n)?'m':'?';}
+function vAccent(v){var l=(v.lang||'').toLowerCase().replace('_','-');return l.indexOf('en-gb')===0?'gb':l.indexOf('en-au')===0?'au':l.indexOf('en-in')===0?'in':l.indexOf('en-ie')===0?'ie':l.indexOf('en-us')===0?'us':'xx';}
+function loadVoices(){var s=SS();if(!s)return;var all=[];try{all=s.getVoices()||[];}catch(e){}var en=all.filter(function(v){return /^en/i.test(v.lang||'');});vc.voices=en.length?en:all;assignVoices();}
+function assignVoices(){vc.map={};var pool=vc.voices.filter(function(v){return !vc.bad[v.name];}),used={};if(!pool.length)return;
+  Object.keys(VPROF).concat(['_nar']).forEach(function(name){var pr=name==='_nar'?NARR:VPROF[name];
+    var score=function(v){return (used[v.name]?0:100)+(vGender(v)===pr.g?20:vGender(v)==='?'?5:0)+(vAccent(v)===pr.a?10:0)+(v.localService?15:0);};
+    var best=null,bs=-1;pool.forEach(function(v){var x=score(v);if(x>bs){bs=x;best=v;}});if(best){vc.map[name]=best;used[best.name]=1;}});}
+function voiceFor(name){var pr=VPROF[name]||NARR;return {voice:vc.map[VPROF[name]?name:'_nar']||null,pitch:pr.pitch,rate:Math.max(0.5,Math.min(2,pr.rate*vc.speed))};}
+function cleanSpeech(t){return String(t).replace(/<[^>]*>/g,' ').replace(/[\u201c\u201d"]/g,'').replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}\u{20E3}\u{2190}-\u{21FF}\u{2654}-\u{265F}]/gu,'').replace(/\bAI\b/g,'A.I.').replace(/\bAI(?=[a-z])/g,'Ai').replace(/AI(?=[a-z])/g,'ai').replace(/([a-z])AI\b/g,'$1 A.I.').replace(/\.{2,}/g,'.').replace(/\s+/g,' ').trim();}
+function voiceActive(){return vc.on&&!!SS();}
+// Rate limiting: prio 0 = idle chatter, 1 = a bot reacting to a key moment, 2 = narrator / must-say (start, result, test hooks).
+var RL={lastAny:0,lastBot:{},lastText:'',recent:[]};
+function speakLine(name,text,prio){if(!voiceActive())return false;var t=cleanSpeech(text);if(!t)return false;prio=prio==null?1:prio;
+  var now=Date.now(),isBot=name!=='_nar';
+  if(t===RL.lastText&&prio<2)return false; // never the same line back to back
+  if(prio<2&&!vc.testing){
+    var busyQ=vc.q.length+(vc.busy?1:0);
+    if(prio===0&&(busyQ>0||now-RL.lastAny<4000||(isBot&&now-(RL.lastBot[name]||0)<9000)))return false;
+    if(prio===1&&(busyQ>1||(isBot&&now-(RL.lastBot[name]||0)<3500)))return false;}
+  if(vc.q.length>3&&!vc.testing)vc.q.shift();
+  RL.lastAny=now;if(isBot)RL.lastBot[name]=now;RL.lastText=t;RL.recent.push(t);if(RL.recent.length>6)RL.recent.shift();
+  if(!vc.unlocked){vc.q.push({name:name,text:t});if(vc.q.length>2)vc.q.shift();return true;} // Chrome refuses speech before a gesture: wait for the first tap
+  vSay(name,t);return true;}
+var lastPick={};
+function pick(name,pool){if(!pool)return '';if(typeof pool==='string')return pool;if(!pool.length)return '';
+  var opts=pool.filter(function(l){return l!==lastPick[name]&&RL.recent.indexOf(cleanSpeech(l))<0;});if(!opts.length)opts=pool.filter(function(l){return l!==lastPick[name];});if(!opts.length)opts=pool;
+  var l=opts[Math.floor(Math.random()*opts.length)];lastPick[name]=l;return l;}
+function vHookStart(it){if(C&&C.onTalk)try{C.onTalk(it.name,true);}catch(e){}}
+function vHookEnd(it){if(C&&C.onTalk)try{C.onTalk(it?it.name:null,false);}catch(e){}}
+function vDrain(){var w=vc.waiters;vc.waiters=[];w.forEach(function(f){f();});}
+function VTEST(){return Object.keys(VPROF).concat(['_nar']);}
+function vTestLine(n){if(C&&C.testLine)return C.testLine(n);return n==='_nar'?'And I am the narrator. Voices are on.':'Hi, I am '+n+'. Ready to play?';}
+/* ---- robust speech core (shared by the OmniXR voice games) ----
+   Why it is built this way:
+   - Chrome only lets a page speak after a real user gesture (click / touchend / keydown; touchstart and a touch pointerdown do NOT count),
+     so the first speak() happens synchronously inside such a gesture.
+   - Chrome's engine can be left paused or wedged: cancel() before the first speak, resume() before every speak and while speaking,
+     and pause()+resume() on desktop for lines longer than ~10 s (Chrome cuts them at ~15 s).
+   - Utterances are kept in vc.keep so they are not garbage-collected before onend fires.
+   - Some engines never fire onend/onerror, or (in-app previews / Android WebView) say nothing at all: every line has a
+     length-based timeout, after which the engine is cancelled and the queue moves on. If nothing has ever started we tell the player.
+   - Never wait for voiceschanged: speak with the default voice when getVoices() is empty, and never set .voice to null.
+   - A voice that errors (network voices offline, missing voice data) is dropped and the line is retried with the default voice. */
+var VIS_ANDROID=/Android/i.test((navigator&&navigator.userAgent)||'');
+vc.keep=[];vc.started=0;vc.silent=0;vc.lastCancel=0;vc.bad={};vc.pumpT=0;vc.warn='';vc.lastErr='';vc.testing=false;
+var VMISSING='Voices need a browser like Chrome or Edge. This one (often an in-app preview) can\u2019t speak, so the bots stay silent here.';
+var VSILENT='No sound from this browser\u2019s speech. Voices need a browser like Chrome or Edge: open the game there (not an in-app preview) and check your volume.';
+function vDur(t,r){return Math.min(20000,2500+t.length*95/(r||1));}
+function vCancel(s){try{s.cancel();}catch(e){}vc.lastCancel=Date.now();}
+function vSay(name,text){vc.q.push({name:name,text:text});vPump();}
+function vPump(){
+  var s=SS();if(!s||vc.busy)return;
+  if(!vc.q.length){vDrain();return;}
+  var gap=Date.now()-vc.lastCancel;
+  if(gap<120){if(!vc.pumpT)vc.pumpT=setTimeout(function(){vc.pumpT=0;vPump();},120-gap);return;} // Chrome can drop a speak() issued right after cancel()
+  var it=vc.q.shift(),u=new SpeechSynthesisUtterance(it.text),p=voiceFor(it.name);
+  if(p.voice&&!it.plain&&!vc.bad[p.voice.name])u.voice=p.voice;
+  u.lang=(u.voice&&u.voice.lang)||'en-US';u.pitch=p.pitch;u.rate=p.rate;u.volume=1;
+  vc.busy=true;vc.cur=u;vc.keep.push(u);if(vc.keep.length>12)vc.keep.shift();
+  vc.log.push({name:it.name,text:it.text,voice:u.voice?u.voice.name:'',pitch:u.pitch,rate:u.rate});if(vc.log.length>300)vc.log.shift();
+  var started=false;
+  var fin=function(why){if(vc.cur!==u)return;clearTimeout(u._t);vc.cur=null;vc.busy=false;
+    if(why==='timeout'){if(!started)vSilent('no-start');vCancel(s);} // wedged engine: clear it so the next line can play
+    vHookEnd(it);vPump();};
+  u.onstart=function(){started=true;u._st=u._pr=Date.now();vc.started++;vOk();};
+  u.onend=function(){fin('end');};
+  u.onerror=function(e){var er=(e&&e.error)||'error';vc.lastErr=er;
+    if(er!=='interrupted'&&er!=='canceled'){
+      if(u.voice&&!it.plain&&/voice-unavailable|network|synthesis-failed|language-unavailable/.test(er)){vc.bad[u.voice.name]=1;assignVoices();vc.q.unshift({name:it.name,text:it.text,plain:true});}
+      else if(er==='not-allowed'){vc.unlocked=false;vSilent(er);} // no gesture yet: the next tap unlocks
+      else vSilent(er);}
+    fin('error');};
+  u._t=setTimeout(function(){fin('timeout');},ui.fast?60:vDur(it.text,u.rate));
+  vHookStart(it);
+  try{if(s.paused)s.resume();}catch(e){}
+  try{s.speak(u);}catch(e){vSilent('throw');fin('error');return;}
+  try{if(s.paused)s.resume();}catch(e){}
+}
+function vStop(){var s=SS();vc.q=[];var was=vc.busy;vc.cur=null;vc.busy=false;clearTimeout(vc.pumpT);vc.pumpT=0;
+  if(s){var act=was;try{act=act||s.speaking||s.pending;}catch(e){}if(act)vCancel(s);}
+  vHookEnd(null);}
+function vSilent(r){vc.silent++;if(vc.started)return; // it has spoken before: a one-off glitch, not a dead engine
+  if(r==='not-allowed'){vWarn('Tap anywhere to turn the voices on.');return;}
+  if(vc.silent>=2||!vc.voices.length||/synthesis-unavailable|audio-hardware|throw/.test(r))vWarn(VSILENT);}
+function vOk(){if(vc.warn){vc.warn='';vRefreshWarn();}}
+function vWarn(t){if(vc.warn===t)return;var first=!vc.warn;vc.warn=t;vRefreshWarn();if(first&&typeof toast==='function')try{toast(t);}catch(e){}}
+function vRefreshWarn(){var w=$('voiceWarn');if(!w)return;var t=!SS()?VMISSING:vc.on?vc.warn:'';w.textContent=t?'\uD83D\uDD07 '+t:'';w.style.display=t?'block':'none';}
+// The first real gesture: cancel any stale engine state, resume, and speak (silently) inside the gesture so Chrome lets the page talk.
+function unlockSpeech(){if(vc.unlocked)return;var s=SS();if(!s)return;vc.unlocked=true;
+  if(!vc.busy){try{s.cancel();}catch(e){}}
+  try{s.resume();}catch(e){}
+  try{var u=new SpeechSynthesisUtterance('');u.volume=0;u.lang='en-US';vc.keep.push(u);s.speak(u);}catch(e){}
+  loadVoices();if(vc.q.length&&!vc.busy)vPump();}
+['pointerup','touchend','click','keydown'].forEach(function(ev){window.addEventListener(ev,unlockSpeech,{capture:true,passive:true});});
+(function(){var s=SS();if(!s)return;loadVoices();
+  try{if(s.addEventListener)s.addEventListener('voiceschanged',loadVoices);else s.onvoiceschanged=loadVoices;}catch(e){}
+  [250,800,2000,4500,9000].forEach(function(t){setTimeout(function(){if(!vc.voices.length)loadVoices();},t);}); // voiceschanged may never fire
+  setInterval(function(){if(!vc.busy)return;try{if(s.paused)s.resume();else if(!VIS_ANDROID&&vc.cur&&vc.cur._pr&&Date.now()-vc.cur._pr>10000&&s.speaking){vc.cur._pr=Date.now();s.pause();s.resume();}}catch(e){}},2000);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)try{s.resume();}catch(e){}});})();
+// Test voices: one line per bot plus the narrator. Runs inside the tap, so the first line starts right away.
+function testVoices(){
+  if(!SS()){vRefreshWarn();if(typeof toast==='function')toast(VMISSING);vTestNote(VMISSING);return;}
+  if(!vc.on)setVoice(true);
+  unlockSpeech();stopSpeech();vc.testing=true;
+  var c0=vc.started,names=VTEST();
+  names.forEach(function(n){vc.q.push({name:n,text:vTestLine(n)});});
+  vTestNote('Playing one line from each of the '+names.length+' voices\u2026');vPump();
+  var g=Date.now();setTimeout(function(){vc.testing=false;
+    if(vc.started>c0)vTestNote('Speech is working. If you still hear nothing, turn up the volume (and switch off silent mode on a phone).');
+    else{vWarn(VSILENT);vTestNote(VSILENT);}},ui.fast?400:6000);}
+function vTestNote(t){var n=$('voiceTestNote');if(n)n.textContent=t;}
+function vUI(){
+  var css=document.createElement('style');css.textContent='.vwarn{display:none;margin:10px auto 0;max-width:440px;padding:9px 12px;border-radius:10px;background:#5a2330;color:#fff;font-size:14px;line-height:1.35;text-align:center}.vtestRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}.vtestRow span{font-size:13px;opacity:.85;flex:1;min-width:160px}';document.head.appendChild(css);
+  var pn=$('playNow');if(pn&&!$('voiceWarn')){var w=document.createElement('div');w.id='voiceWarn';w.className='vwarn';w.setAttribute('role','status');pn.parentNode.insertBefore(w,pn.nextSibling);}
+  var vb=$('voiceBtn');if(vb&&!$('voiceTestTop')){var b=document.createElement('button');b.id='voiceTestTop';b.type='button';b.className=vb.className;b.title='Test voices';b.setAttribute('aria-label','Test voices');b.textContent='\uD83D\uDDE3';b.onclick=testVoices;vb.parentNode.insertBefore(b,vb.nextSibling);}
+  var vn=$('voiceNote');if(vn&&!$('voiceTest')){var r=document.createElement('div');r.className='vtestRow';r.innerHTML='<button class="btn small sm" type="button" id="voiceTest">\uD83D\uDDE3 Test voices</button><span id="voiceTestNote"></span>';vn.parentNode.insertBefore(r,vn.nextSibling);$('voiceTest').onclick=testVoices;}
+  vRefreshWarn();}
+window.__vcore={state:function(){return {unlocked:vc.unlocked,started:vc.started,silent:vc.silent,warn:vc.warn,keep:vc.keep.length,busy:vc.busy,queued:vc.q.length,lastErr:vc.lastErr,voices:vc.voices.length,bad:Object.keys(vc.bad)};},test:testVoices,names:function(){return VTEST();},
+  warnText:function(){var w=$('voiceWarn');return w&&w.style.display!=='none'?w.textContent:'';}};
+
+function stopSpeech(){vStop();vDrain();}
+function setVoice(on){vc.on=!!on;lsSet(C.key+'Voice',on?1:0);if(!on)stopSpeech();updateVoiceBtn();syncSetupRows();}
+function updateVoiceBtn(){var b=$('voiceBtn');if(!b)return;b.textContent=vc.on?'\uD83D\uDD0A':'\uD83D\uDD07';b.title=vc.on?'Voices on (tap to mute)':'Voices off (tap to unmute)';b.setAttribute('aria-label',b.title);b.setAttribute('aria-pressed',vc.on?'true':'false');vRefreshWarn();}
+function segHtml(id,opts){return '<div class="oxvSeg" id="'+id+'">'+opts.map(function(o){return '<button type="button" data-v="'+o[0]+'">'+o[1]+'</button>';}).join('')+'</div>';}
+function syncSetupRows(){var a=$('oxvVoiceSeg'),b=$('oxvSpeedSeg');
+  if(a)[].forEach.call(a.querySelectorAll('button'),function(x){x.classList.toggle('on',(+x.dataset.v===1)===vc.on);});
+  if(b)[].forEach.call(b.querySelectorAll('button'),function(x){x.classList.toggle('on',Math.abs(+x.dataset.v-vc.speed)<0.01);});
+  var n=$('voiceNote');if(n)n.textContent=SS()?(vc.voices.length?vc.voices.length+' English voice'+(vc.voices.length===1?'':'s')+' on this device. Each bot also gets its own pitch and pace.':'Voices are loading. Each bot gets its own pitch and pace.'):VMISSING;}
+function buildControls(){
+  var css=document.createElement('style');
+  css.textContent='#voiceBtn,#voiceTestTop{min-width:34px}.oxvRows{margin:10px 0 4px;padding-top:8px;border-top:1px solid rgba(127,127,127,.25);text-align:left}.oxvRow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0}.oxvRow>b{min-width:110px;font-weight:600}.oxvSeg{display:inline-flex;border-radius:9px;overflow:hidden;border:1px solid rgba(127,127,127,.45)}.oxvSeg button{font:inherit;font-size:14px;padding:7px 12px;min-height:36px;border:0;background:transparent;color:inherit;cursor:pointer}.oxvSeg button.on{background:rgba(120,170,255,.35);font-weight:700}#voiceNote{font-size:13px;opacity:.8;width:100%}#oxvToast{display:none;pointer-events:none;position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:99999;max-width:90vw;background:#222c;color:#fff;padding:9px 14px;border-radius:10px;font:14px/1.35 system-ui,sans-serif;text-align:center}';
+  document.head.appendChild(css);
+  if(!$('voiceBtn')){var b=document.createElement('button');b.id='voiceBtn';b.type='button';b.className=C.btnClass||'btn small';
+    var h=C.header&&C.header();if(h){if(h.before)h.before.parentNode.insertBefore(b,h.before);else if(h.after)h.after.parentNode.insertBefore(b,h.after.nextSibling);else h.parent.appendChild(b);}}
+  else $('voiceBtn').type='button';
+  $('voiceBtn').onclick=function(){setVoice(!vc.on);if(!SS()){toast(VMISSING);return;}toast(vc.on?'Voices on':'Voices muted');if(vc.on){unlockSpeech();speakLine('_nar','Voices on.',2);}};
+  var s=C.setup&&C.setup();
+  if(s&&!$('oxvVoiceSeg')){var r=document.createElement('div');r.className='oxvRows';
+    r.innerHTML='<div class="oxvRow"><b>Bot voices</b>'+segHtml('oxvVoiceSeg',[[1,'On'],[0,'Off']])+'</div><div class="oxvRow"><b>Speech speed</b>'+segHtml('oxvSpeedSeg',[[0.8,'Slow'],[1,'Normal'],[1.3,'Fast']])+'<div id="voiceNote"></div></div>';
+    if(s.before)s.before.parentNode.insertBefore(r,s.before);else s.parent.appendChild(r);
+    [].forEach.call($('oxvVoiceSeg').querySelectorAll('button'),function(x){x.onclick=function(){setVoice(+x.dataset.v===1);};});
+    [].forEach.call($('oxvSpeedSeg').querySelectorAll('button'),function(x){x.onclick=function(){vc.speed=+x.dataset.v;lsSet(C.key+'VoiceSpeed',vc.speed);syncSetupRows();};});}
+  vUI();
+  var tt=$('voiceTest');if(tt&&C.btnClassSmall)tt.className=C.btnClassSmall;
+  updateVoiceBtn();syncSetupRows();
+  if(SS())setTimeout(syncSetupRows,1200);}
+var OXV={
+  init:function(cfg){C=cfg;VPROF=cfg.bots||{};if(cfg.narrator)NARR=cfg.narrator;
+    vc.on=lsGet(cfg.key+'Voice',1)!==0;vc.speed=+lsGet(cfg.key+'VoiceSpeed',1)||1;
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',buildControls);else buildControls();
+    loadVoices();return OXV;},
+  say:function(name,text,prio){return speakLine(name,text,prio);},
+  line:function(name,pool,prio){var l=pick(name,pool);return l?speakLine(name,l,prio):false;},
+  narrate:function(text,prio){return speakLine('_nar',text,prio==null?2:prio);},
+  pick:pick,
+  stop:function(){stopSpeech();},
+  newGame:function(){stopSpeech();RL.lastAny=0;RL.lastBot={};},
+  fast:function(on){ui.fast=on!==false;},
+  sync:function(){syncSetupRows();updateVoiceBtn();},
+  active:voiceActive,
+  setBots:function(map){VPROF=map||{};assignVoices();},
+  backlog:function(){return vc.q.length+(vc.busy?1:0);},
+  rand:function(a){return a[Math.floor(Math.random()*a.length)];}
+};
+window.OXV=OXV;
+window.__voice={state:function(){return {on:vc.on,speed:vc.speed,busy:vc.busy,queued:vc.q.length,log:vc.log.slice()};},profile:function(n){var p=voiceFor(n);return {voice:p.voice?p.voice.name:'',pitch:p.pitch,rate:p.rate};},
+  say:speakLine,set:setVoice,clean:cleanSpeech,unlocked:function(){return vc.unlocked;},fast:OXV.fast,names:function(){return VTEST();}};
+})();
+
+</script>
+<script>
+/* Boker voices · by OmniXR · myomnixr.com
+   The deAIler is the narrator (welcome, hands, streets, winners, result), JudgAIe speaks rulings, and each bot at the table speaks its
+   style's table talk (folds, calls, raises, all-ins, bluffs, wins and losses) in its own voice. Lines come from the game's own talk tables. */
+(function(){
+try{var old=JSON.parse(localStorage.getItem('bkSettings')||'null');if(old&&old.voice===false&&localStorage.getItem('bkVoice')==null)localStorage.setItem('bkVoice','0');}catch(e){}
+OXV.init({key:'bk',bots:{JudgAIe:{g:'m',a:'gb',pitch:.68,rate:1.04}},narrator:{g:'m',a:'us',pitch:.95,rate:1.15},btnClass:'hbtn',btnClassSmall:'',
+  header:function(){return null;},
+  setup:function(){return {before:document.getElementById('tipsReset').parentNode};},
+  testLine:function(n){return n==='_nar'?'And I am the deAIler. Cards in the air!':n==='JudgAIe'?'I am JudgAIe. I keep the game fair.':'Hi, I\u2019m '+n+'. Ready to lose some chips?';}});
+if(window.__bkCast)window.__bkCast();
+if(location.hash==='#setup')setTimeout(function(){if(document.querySelector('.modal.show,.dlgWrap.show'))return;var b=document.getElementById('setupBtn');if(b)b.click();},0);
+})();
+
+</script>
+<!--/OXVOICE-->
 </body></html>
