@@ -158,7 +158,7 @@ footer{margin:16px 0 18px;color:var(--muted);font-size:13px}footer a{color:var(-
 <header>
   <h1>w<span class="ai">AI</span>rwolf <span class="h">hunt</span><small>by OmniXR</small></h1>
   <div class="hbar"><span class="pill" id="modePill"></span><span class="pill" id="phasePill">🌙 Night</span><span id="timer"></span>
-    <button class="btn small" id="tipsBtn" title="Tips">💡</button><button class="btn small" id="rulesBtn" title="Rules">📖</button><button class="btn small" id="menuBtn" title="Menu">☰</button></div>
+    <button class="btn small" id="voiceBtn" title="Voices" aria-label="Voices">🔊</button><button class="btn small" id="tipsBtn" title="Tips">💡</button><button class="btn small" id="rulesBtn" title="Rules">📖</button><button class="btn small" id="menuBtn" title="Menu">☰</button></div>
 </header>
 <main>
   <section class="card" id="tableCard">
@@ -196,6 +196,8 @@ footer{margin:16px 0 18px;color:var(--muted);font-size:13px}footer a{color:var(-
     <div class="row"><button class="btn small" id="aiClear">Forget key</button><span class="sub">Your key is stored only in this browser (localStorage) and is sent only to the endpoint above.</span></div>
   </div>
   <h4>Help</h4>
+  <div class="row"><label class="lab2">Voices</label><div class="opt" id="optVoice"><button data-v="1">On</button><button data-v="0">Off</button></div><div class="twnote" id="voiceNote"></div></div>
+  <div class="row"><label class="lab2">Speech speed</label><div class="opt" id="optSpeed"><button data-v="0.8">Slow</button><button data-v="1">Normal</button><button data-v="1.25">Fast</button><button data-v="1.5">Faster</button></div></div>
   <div class="row"><label class="lab2">Tips during play</label><div class="opt" id="optTips"><button data-v="1">On</button><button data-v="0">Off</button></div><button class="btn small" id="tipsReset">Show tips again</button></div>
   <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn" id="setupCancel">Cancel</button><button class="btn primary" id="startBtn">Start game</button></div>
 </div></div>
@@ -1149,6 +1151,61 @@ var RN=function(r){return E.ROLES[r]?E.ROLES[r].n:r;};
 function roleTag(r){return E.ROLES[r]?E.ROLES[r].i+' '+RN(r):r;}
 function aiOn(){return !!(cfg.ai&&ai.key&&ai.url&&ai.model);}
 
+
+/* ---------------- voices (browser speech, offline, no keys) ---------------- */
+// Each bot: preferred voice gender, accent hint, pitch and rate. Pitch/rate keep them distinct even with one device voice.
+var VPROF={LunAI:{g:'f',a:'gb',pitch:1.25,rate:1.0},FAIng:{g:'m',a:'us',pitch:0.65,rate:0.92},ShAIdow:{g:'m',a:'gb',pitch:0.8,rate:0.86},HowAIrd:{g:'m',a:'au',pitch:1.05,rate:1.12},
+  MAIsie:{g:'f',a:'us',pitch:1.45,rate:1.08},GrAIdy:{g:'m',a:'in',pitch:0.95,rate:1.0},VAIlerie:{g:'f',a:'au',pitch:0.9,rate:0.95},OrAIon:{g:'m',a:'ie',pitch:1.2,rate:1.04},BAIlee:{g:'f',a:'in',pitch:1.1,rate:1.16}};
+var NARR={g:'m',a:'gb',pitch:0.75,rate:0.9};
+var vc={on:lsGet('wairwolfVoice',1)!==0,speed:+lsGet('wairwolfVoiceSpeed',1)||1,unlocked:false,voices:[],map:{},q:[],busy:false,cur:null,waiters:[],log:[]};
+function SS(){return typeof window.speechSynthesis!=='undefined'&&typeof window.SpeechSynthesisUtterance!=='undefined'?window.speechSynthesis:null;}
+var FEM=/female|woman|samantha|victoria|karen|moira|tessa|fiona|serena|susan|zira|hazel|libby|sonia|natasha|aria|jenny|michelle|emma|olivia|amy|kate|veena|heera|neerja|catherine|allison|ava|nicky|siri.*female/i;
+var MAL=/\bmale|\bman\b|daniel|alex|fred|oliver|thomas|george|ryan|guy|david|mark|james|arthur|rishi|aaron|eric|christopher|liam|william|tom|lee|gordon|ravi|prabhat|connor/i;
+function vGender(v){var n=v.name||'';return FEM.test(n)?'f':MAL.test(n)?'m':'?';}
+function vAccent(v){var l=(v.lang||'').toLowerCase().replace('_','-');return l.indexOf('en-gb')===0?'gb':l.indexOf('en-au')===0?'au':l.indexOf('en-in')===0?'in':l.indexOf('en-ie')===0?'ie':l.indexOf('en-us')===0?'us':'xx';}
+function loadVoices(){
+  var s=SS();if(!s)return;var all=[];try{all=s.getVoices()||[];}catch(e){}
+  var en=all.filter(function(v){return /^en/i.test(v.lang||'');});vc.voices=en.length?en:all;assignVoices();
+}
+function assignVoices(){
+  vc.map={};var pool=vc.voices.slice(),used={};if(!pool.length)return;
+  var who=E.BOT_NAMES.concat(['_nar']);
+  who.forEach(function(name){var pr=name==='_nar'?NARR:VPROF[name];
+    var score=function(v){return (used[v.name]?0:100)+(vGender(v)===pr.g?20:vGender(v)==='?'?5:0)+(vAccent(v)===pr.a?10:0)+(v.localService?2:0);};
+    var best=null,bs=-1;pool.forEach(function(v){var x=score(v);if(x>bs){bs=x;best=v;}});
+    if(best){vc.map[name]=best;used[best.name]=(used[best.name]||0)+1;}});
+}
+function voiceFor(name){var pr=VPROF[name]||NARR;return {voice:vc.map[VPROF[name]?name:'_nar']||null,pitch:pr.pitch,rate:Math.max(0.5,Math.min(2,pr.rate*vc.speed))};}
+function cleanSpeech(t){return String(t).replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}\u{20E3}\u{2190}-\u{21FF}\u{2300}-\u{23FF}]/gu,'').replace(/\bAI\b/g,'A.I.').replace(/\s+/g,' ').trim();}
+function voiceActive(){return vc.on&&!!SS();}
+function speakLine(name,text){
+  if(!voiceActive())return;var t=cleanSpeech(text);if(!t)return;
+  vc.q.push({name:name,text:t});pumpSpeech();
+}
+function pumpSpeech(){
+  var s=SS();if(!s||vc.busy)return;
+  if(!vc.q.length){var w=vc.waiters;vc.waiters=[];w.forEach(function(f){f();});return;}
+  var it=vc.q.shift(),u=new SpeechSynthesisUtterance(it.text),p=voiceFor(it.name);
+  if(p.voice){u.voice=p.voice;u.lang=p.voice.lang;}else u.lang='en-US';
+  u.pitch=p.pitch;u.rate=p.rate;u.volume=1;
+  vc.busy=true;vc.cur=u;vc.log.push({name:it.name,text:it.text,voice:p.voice?p.voice.name:'',pitch:u.pitch,rate:u.rate});if(vc.log.length>200)vc.log.shift();
+  var fin=function(){if(vc.cur!==u)return;clearTimeout(u._t);vc.cur=null;vc.busy=false;pumpSpeech();};
+  u.onend=fin;u.onerror=fin;
+  // Safety net: some engines never fire onend. Allow ~ the time the line should take, plus slack.
+  u._t=setTimeout(fin,ui.fast?60:Math.min(20000,1500+it.text.length*95/u.rate));
+  try{s.speak(u);}catch(e){fin();}
+}
+function stopSpeech(){var s=SS();vc.q=[];vc.cur=null;vc.busy=false;if(s)try{s.cancel();}catch(e){}var w=vc.waiters;vc.waiters=[];w.forEach(function(f){f();});}
+// Runs fn once every queued line has been spoken (right away when voices are off).
+function afterSpeech(fn){var g=ui.gen;var go=function(){if(g===ui.gen)fn();};if(!voiceActive()||(!vc.busy&&!vc.q.length))go();else vc.waiters.push(go);}
+function unlockSpeech(){if(vc.unlocked)return;vc.unlocked=true;var s=SS();if(!s)return;try{var u=new SpeechSynthesisUtterance(' ');u.volume=0;s.speak(u);}catch(e){}loadVoices();}
+['pointerdown','touchstart','keydown'].forEach(function(ev){window.addEventListener(ev,unlockSpeech,{capture:true,passive:true});});
+(function(){var s=SS();if(!s)return;loadVoices();if(s.addEventListener)s.addEventListener('voiceschanged',loadVoices);else s.onvoiceschanged=loadVoices;setTimeout(loadVoices,800);})();
+function setVoice(on){vc.on=!!on;lsSet('wairwolfVoice',on?1:0);if(!on)stopSpeech();updateVoiceBtn();}
+function updateVoiceBtn(){var b=$('voiceBtn');if(!b)return;b.textContent=vc.on?'\uD83D\uDD0A':'\uD83D\uDD07';b.title=vc.on?'Voices on (tap to mute)':'Voices off (tap to unmute)';b.setAttribute('aria-pressed',vc.on?'true':'false');}
+$('voiceBtn').onclick=function(){setVoice(!vc.on);toast(vc.on?(SS()?'Voices on':'This browser can\u2019t speak'):'Voices muted');};
+function narrate(t){speakLine('_nar',t);}
+
 /* ---------------- table ---------------- */
 function render(){ if(!G)return; renderTable(); renderTurn(); renderNotes(); renderChips(); updateTip(); }
 function seatPos(k){var n=G.n,m=me(),a=Math.PI/2+(k-m)*2*Math.PI/n;return {x:50+41*Math.cos(a),y:50+38*Math.sin(a)};}
@@ -1267,6 +1324,7 @@ function addMsg(p,text,opts){
   if(p<0){d.className='msg '+(opts.priv?'priv':'nar');d.innerHTML='<div class="bb">'+(opts.priv?'🔒 ':'')+esc(text)+'</div>';}
   else{d.className='msg'+(P.human?' me':'');d.innerHTML='<div class="av" style="--fc:'+P.color+'">'+P.mascot+'</div><div class="bb" style="--fc:'+P.color+'"><b>'+esc(P.human?'You':P.name)+'</b>'+(opts.ai?'<span class="ai">AI</span>':'')+'<br>'+esc(text)+'</div>';}
   c.appendChild(d);c.scrollTop=c.scrollHeight;
+  if(p>=0&&!P.human)speakLine(P.name,text);
 }
 function addNar(t){addMsg(-1,t);}
 function addPriv(t){addMsg(-1,t,{priv:1});}
@@ -1286,24 +1344,24 @@ function send(text){
 
 /* ---------------- night ---------------- */
 var NAR={mimic:'🎭 Mimic, wake up and copy someone.',wolf:'🐺 Wolves, open your eyes and find each other.',lackey:'🦴 Lackey, see who the Wolves are.',twin:'👯 Twins, find each other.',moonseer:'🔮 Moonseer, look at a card.',pickpocket:'🧤 Pickpocket, you may take a card.',meddler:'🔀 Meddler, you may swap two cards.',sleepwalker:'😴 Sleepwalker, trade with the center.',nightowl:'🦉 Night Owl, check your card.'};
-function beginNight(){ui.phase='night';ui.ann=0;addNar('Night falls. Everyone, close your eyes.');render();later(nightTick,600);}
-function announce(upto){var S=E.NSTEPS;while(ui.ann<=upto&&ui.ann<S.length){var s=S[ui.ann];if(NAR[s]&&G.deck.indexOf(s)>=0)addNar(NAR[s]);ui.ann++;}}
+function beginNight(){ui.phase='night';ui.ann=0;addNar('Night falls. Everyone, close your eyes.');narrate('Night falls. Everyone, close your eyes.');render();later(nightTick,600);}
+function announce(upto){var S=E.NSTEPS;while(ui.ann<=upto&&ui.ann<S.length){var s=S[ui.ann];if(NAR[s]&&G.deck.indexOf(s)>=0){addNar(NAR[s]);narrate(NAR[s]);}ui.ann++;}}
 function showNewObs(){var notes=E.notes(G,me());for(var i=ui.obsSeen;i<notes.length;i++)addPriv(notes[i]);ui.obsSeen=notes.length;}
 function nightTick(){
   if(!G||ui.phase!=='night')return;
   var q=E.nightPending(G);
   announce(q?G.ns.ni:E.NSTEPS.length);showNewObs();
-  if(!q){render();later(morning,700);return;}
+  if(!q){render();afterSpeech(function(){later(morning,700);});return;}
   if(G.players[q.p].human){ui.pend=q;ui.sel=[];render();return;}
   ui.pend=null;render();
-  later(function(){E.nightApply(G,E.botNight(G,q));nightTick();},750);
+  afterSpeech(function(){later(function(){E.nightApply(G,E.botNight(G,q));nightTick();},750);});
 }
 function humanNight(c){if(!ui.pend)return;ui.pend=null;ui.sel=[];E.nightApply(G,c);showNewObs();render();later(nightTick,500);}
 
 /* ---------------- day ---------------- */
 function morning(){
-  G.phase='day';ui.phase='open';ui.openIdx=0;addNar('☀️ Morning! Open your eyes. '+(G.players[G.order[0]].human?'You speak':G.players[G.order[0]].name+' speaks')+' first.');
-  render();later(openingTick,500);
+  G.phase='day';ui.phase='open';ui.openIdx=0;var mt='☀️ Morning! Open your eyes. '+(G.players[G.order[0]].human?'You speak':G.players[G.order[0]].name+' speaks')+' first.';addNar(mt);narrate(mt);
+  render();afterSpeech(function(){later(openingTick,500);});
 }
 function openingTick(){
   if(!G||ui.phase!=='open')return;
@@ -1311,15 +1369,15 @@ function openingTick(){
   var p=G.order[ui.openIdx];
   if(G.players[p].human){if(G.claims[p]){ui.openIdx++;openingTick();return;}ui.waitOpen=true;render();return;}
   var ans=E.popAnswer(G);
-  if(ans){var at=E.speak(G,ans);typing(ans.p);later(function(){typing(-1);addMsg(ans.p,at);render();later(openingTick,500);},1100);return;}
+  if(ans){var at=E.speak(G,ans);typing(ans.p);later(function(){typing(-1);addMsg(ans.p,at);render();afterSpeech(function(){later(openingTick,500);});},1100);return;}
   var s=E.opening(G,p);if(!s){ui.openIdx++;openingTick();return;}
   typing(p);
-  later(function(){var txt=E.say(G,p,s);typing(-1);addMsg(p,txt);ui.openIdx++;render();later(openingTick,600);},1300);
+  later(function(){var txt=E.say(G,p,s);typing(-1);addMsg(p,txt);ui.openIdx++;render();afterSpeech(function(){later(openingTick,600);});},1300);
 }
 function endMyOpening(){if(!ui.waitOpen)return;ui.waitOpen=false;ui.openIdx++;render();later(openingTick,500);}
 function startTalk(){
   ui.phase='talk';ui.timerTotal=ui.talkMs!=null?ui.talkMs:G.minutes*60000;ui.timerEnd=Date.now()+ui.timerTotal;ui.nextBot=Date.now()+D(1200);
-  addNar('💬 Open discussion: '+(ui.timerTotal>=60000?Math.round(ui.timerTotal/60000)+' minute'+(ui.timerTotal>=120000?'s':''):'a few seconds')+' on the clock.');
+  var dt=('💬 Open discussion: '+(ui.timerTotal>=60000?Math.round(ui.timerTotal/60000)+' minute'+(ui.timerTotal>=120000?'s':''):'a few seconds')+' on the clock.');addNar(dt);narrate(dt);
   clearInterval(ui.loop);ui.loop=setInterval(talkLoop,ui.fast?20:250);render();
 }
 function fmtT(ms){ms=Math.max(0,ms);var s=Math.ceil(ms/1000);return Math.floor(s/60)+':'+('0'+s%60).slice(-2);}
@@ -1337,14 +1395,14 @@ function speakBot(line){
   ui.botBusy=true;var p=line.p,useAI=aiOn()&&ui.llmLeft>0;if(useAI)ui.llmLeft--;
   var text=E.speak(G,line);typing(p);render();
   var t0=Date.now(),wait=D(Math.min(2400,700+text.length*14));
-  var done=function(final,isAI){later(function(){typing(-1);addMsg(p,final,{ai:isAI});ui.botBusy=false;ui.nextBot=Date.now()+D(G.queue.length?900:2400+Math.random()*2600);render();},Math.max(0,wait-(Date.now()-t0)));};
+  var done=function(final,isAI){later(function(){typing(-1);addMsg(p,final,{ai:isAI});render();afterSpeech(function(){ui.botBusy=false;ui.nextBot=Date.now()+D(G.queue.length?900:2400+Math.random()*2600);});},Math.max(0,wait-(Date.now()-t0)));};
   if(!useAI){done(text,false);return;}
   llm(p,text,ui.lastHuman||'').then(function(t){done(t,true);},function(){if(!ui.aiFailed){ui.aiFailed=true;toast('AI connection failed. Bots are using offline chat.');}done(text,false);});
 }
 function startVote(){
   if(ui.phase!=='talk'&&ui.phase!=='open')return;
   ui.phase='vote';clearInterval(ui.loop);$('timer').textContent='';ui.sel=[];ui.myVote=-1;typing(-1);ui.waitOpen=false;
-  addNar('🗳 Time\u2019s up! Everyone votes at once. Tap who you want out.');render();
+  stopSpeech();addNar('🗳 Time\u2019s up! Everyone votes at once. Tap who you want out.');narrate('Time\u2019s up! Everyone votes.');render();
 }
 function confirmVote(){
   if(ui.phase!=='vote'||ui.myVote<0)return;
@@ -1353,7 +1411,7 @@ function confirmVote(){
   var R=G.result;
   addNar('🗳 Votes: '+votes.map(function(v,b){return NAME(b)+' → '+NAME(v);}).join(', ')+'.');
   addNar(R.dead.length?'Out: '+R.dead.map(function(d){return NAME(d)+' ('+roleTag(R.fin[d])+')';}).join(', ')+(R.trapped.length?'. The Trapper took '+R.trapped.map(NAME).join(', ')+' along.':'.'):'Nobody got two votes, so nobody goes out.');
-  addNar('🏁 '+E.headline(G)+'.');
+  addNar('🏁 '+E.headline(G)+'.');narrate(E.headline(G)+'.');
   render();polishOver();later(function(){$('over').className='modal show';},1400);
 }
 
@@ -1392,6 +1450,9 @@ function drawSetup(){
   opt('optFirst',cfg.first,function(v){cfg.first=v;saveCfg();});
   opt('optAI',cfg.ai,function(v){cfg.ai=+v;saveCfg();});
   opt('optTips',tipsOn?1:0,function(v){setTips(+v);});
+  opt('optVoice',vc.on?1:0,function(v){setVoice(+v);});
+  opt('optSpeed',vc.speed,function(v){vc.speed=+v;lsSet('wairwolfVoiceSpeed',vc.speed);});
+  $('voiceNote').textContent=SS()?(vc.voices.length?vc.voices.length+' English voice'+(vc.voices.length===1?'':'s')+' found on this device. Each bot also gets its own pitch and pace.':'Voices are still loading. Each bot gets its own pitch and pace.'):'This browser has no speech, so the bots stay silent.';
   $('aiBox').style.display=cfg.ai?'':'none';
   $('aiUrl').value=ai.url;$('aiModel').value=ai.model;$('aiKey').value=ai.key;
   var s='';for(var i=0;i<cfg.bots;i++){var st=cfg.seats[i],S=E.STYLES[st];
@@ -1434,14 +1495,14 @@ function drawTitle(){
   $('titleStats').innerHTML=st.played?['<div class="stat"><b>'+st.played+'</b><span>played</span></div>','<div class="stat"><b>'+st.wins+'</b><span>won</span></div>','<div class="stat"><b>'+st.caught+'</b><span>Wolves caught</span></div>','<div class="stat"><b>'+st.wolfWins+'</b><span>wins as Wolf</span></div>','<div class="stat"><b>'+st.bestStreak+'</b><span>best streak</span></div>'].join(''):'';
   $('resumeBtn').style.display=G&&!G.over?'':'none';
 }
-function showTitle(){drawTitle();$('title').className='screen show';$('over').className='modal';$('setup').className='modal';}
+function showTitle(){stopSpeech();drawTitle();$('title').className='screen show';$('over').className='modal';$('setup').className='modal';}
 function hideTitle(){$('title').className='screen';}
 function playNow(){
   var players=[{name:'You',human:true}];rivals.forEach(function(rv){players.push({name:E.BOT_NAMES[rv.b],mascot:E.MASCOTS[rv.b],style:rv.s});});
   mode='quick';launch(E.newGame({players:players,diff:'medium',first:'me',minutes:E.QUICK.minutes,deck:E.deckFromSlots(E.defaultSlots(E.QUICK.bots+1))}));
 }
 function launch(g){
-  ui.gen++;clearInterval(ui.loop);G=g;recorded=false;
+  ui.gen++;clearInterval(ui.loop);stopSpeech();G=g;recorded=false;
   Object.assign(ui,{phase:'look',sel:[],pend:null,ann:0,obsSeen:1,openIdx:0,waitOpen:false,botBusy:false,llmLeft:0,speaking:-1,myVote:-1,aiFailed:false,lastHuman:''});
   $('setup').className='modal';$('over').className='modal';$('rules').className='modal';hideTitle();
   $('chat').innerHTML='';$('typing').textContent='';$('timer').textContent='';
@@ -1543,6 +1604,7 @@ function autoStep(){ // plays my part with simple choices (used by tests)
 }
 window.__result=function(){return G&&G.over?{won:G.result.winners.indexOf(me())>=0,headline:E.headline(G),dead:G.result.dead.slice(),mode:mode,card:lastCard.length,team:G.result.team[me()]}:null;};
 window.__shareUrl=function(){return lastShare;};window.__stats=getStats;window.__tip=function(){return curTip;};window.__rivals=function(){return rivals.slice();};
+window.__voice={state:function(){return {on:vc.on,speed:vc.speed,busy:vc.busy,queued:vc.q.length,log:vc.log.slice(),map:Object.keys(vc.map).reduce(function(o,k){o[k]=vc.map[k].name;return o;},{})};},profile:function(n){var p=voiceFor(n);return {voice:p.voice?p.voice.name:'',pitch:p.pitch,rate:p.rate};},say:speakLine,reload:loadVoices,set:setVoice,clean:cleanSpeech};
 window.__game=function(){return G;};window.__E=E;window.__cfg=function(){return cfg;};window.__ai=function(){return {calls:ui.aiCalls,ok:ui.aiOk,failed:ui.aiFailed,on:aiOn()};};
 window.__ui={ui:ui,render:render,start:startGame,playNow:playNow,setCfg:function(c){Object.assign(cfg,c);saveCfg();},setAI:function(a){Object.assign(ai,a);saveAI();updateAIPill();},
   fast:function(on,talkMs){ui.fast=on!==false;ui.talkMs=talkMs==null?null:talkMs;},auto:autoStep,send:send,voteNow:startVote,phase:function(){return ui.phase;},launch:function(g){mode='custom';launch(g);}};
@@ -1551,7 +1613,7 @@ function boot(){var h=location.hash;
   else if(/^#autostart=quick/.test(h))playNow();
   else showTitle();}
 window.addEventListener('hashchange',boot);
-updateAIPill();boot();
+updateAIPill();updateVoiceBtn();boot();
 })();
 
 </script>
