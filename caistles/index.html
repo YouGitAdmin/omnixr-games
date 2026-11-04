@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1c1220">
+<title>cAIstles</title>
+<meta name="description" content="Draft tiles, roll dice and build a hex-tile estate faster than three AI nobles. A free estate-building board game in your browser, no sign-up.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="OmniXR Games">
+<meta property="og:title" content="cAIstles: out-build the AI nobles">
+<meta property="og:description" content="Roll, draft and build the richest estate before the AI nobles do. Free, offline, no sign-up.">
+<meta property="og:url" content="https://yougitadmin.github.io/omnixr-games/caistles/">
+<meta property="og:image" content="https://yougitadmin.github.io/omnixr-games/caistles/cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="cAIstles: an estate-building board game against AI nobles">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="cAIstles: out-build the AI nobles">
+<meta name="twitter:description" content="Roll, draft and build the richest estate before the AI nobles do. Free, offline, no sign-up.">
+<meta name="twitter:image" content="https://yougitadmin.github.io/omnixr-games/caistles/cover.png">
+<style>
+:root{--bg:#1a1220;--panel:#2a1d30;--panel2:#352640;--ink:#f6eef3;--muted:#c0a9bd;--accent:#f2c14e;--ai:#7fe0c0;--bad:#ff7a6b;--ok:#7ad17f;--wine:#7a2945}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Roboto,system-ui,-apple-system,Arial,sans-serif}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center}
+header{width:100%;max-width:1440px;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;gap:8px;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(20px,4.6vw,30px);color:var(--accent);font-weight:800;letter-spacing:.3px;white-space:nowrap}
+h1 .ai{color:var(--ai)}
+.hbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.btn{appearance:none;border:0;border-radius:10px;padding:10px 14px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;background:#4a3356;color:var(--ink);touch-action:manipulation;white-space:nowrap}
+.btn:hover{filter:brightness(1.12)}.btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+.btn.primary{background:var(--accent);color:#2a1d00}.btn.small{padding:7px 10px;font-size:13px}.btn.on{background:#7a5a96}
+select.btn{padding:7px 8px;font-size:13px}
+main{width:100%;max-width:1440px;display:grid;grid-template-columns:minmax(0,1fr) 350px;grid-template-areas:"boards turn" "boards info";gap:10px;padding:0 10px;align-items:start}
+#turn{grid-area:turn}#boards{grid-area:boards;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}#info{grid-area:info;display:flex;flex-direction:column;gap:8px}
+.card{background:var(--panel);border-radius:12px;padding:10px 12px}
+.card h3{margin:0 0 6px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+#marketCard{flex:1 1 500px;min-width:0}#estateCard{flex:1 1 430px;min-width:0}
+svg{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
+.slot{cursor:pointer}
+.hl polygon.hx{stroke:#ffe27a!important;stroke-width:3.5!important}
+.hl polygon.hx{animation:pulse 1.2s ease-in-out infinite}
+.sel polygon.hx{stroke:#7fe0c0!important;stroke-width:4!important}
+@keyframes pulse{50%{stroke:#fff}}
+.cost{font-size:11px;font-weight:800;fill:#2a1d00}
+.costbg{fill:#ffe27a}
+.num{font-weight:800;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.ico{text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.lbl{font-size:10px;font-weight:700;text-anchor:middle;pointer-events:none;fill:#fff;paint-order:stroke;stroke:#0009;stroke-width:2px}
+#turnCard{border:2px solid #4a3356}#turnCard.mine{border-color:var(--accent)}
+#tTitle{font-weight:800;font-size:17px}
+#tHelp{font-size:14px;color:var(--muted);margin:4px 0 8px;line-height:1.35}
+#diceRow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.die{width:48px;height:48px;border-radius:10px;background:#f7f1e3;color:#2a1d10;display:inline-grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:7px;box-shadow:inset 0 -4px 0 #0003;cursor:pointer;border:3px solid transparent;position:relative}
+.die i{width:8px;height:8px;border-radius:50%;place-self:center;background:currentColor;visibility:hidden}.die i.p{visibility:visible}
+.die.sel{border-color:var(--ai);transform:translateY(-3px)}.die.used{opacity:.3;cursor:default}
+.die.white{width:34px;height:34px;padding:4px;background:#fff;cursor:default;border-color:#bbb}.die.white i{width:5px;height:5px}
+.die.bot{cursor:default}
+.res{display:flex;gap:12px;font-size:15px;font-weight:700;flex-wrap:wrap;margin-bottom:6px}
+.res span{background:var(--panel2);padding:4px 9px;border-radius:8px}
+.ctl{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px}
+#hint{margin-top:8px;font-size:13.5px;color:var(--ai);display:none}#hint.show{display:block}
+#store,#goods{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.lab{font-size:12px;color:var(--muted);font-weight:700;min-width:56px}
+.st{width:58px;height:58px;border-radius:10px;background:var(--panel2);display:flex;align-items:center;justify-content:center;cursor:pointer;border:3px solid transparent}
+.st.sel{border-color:var(--ai)}.st.hl{border-color:#ffe27a}.st svg{width:54px;height:54px}
+.gd{min-width:52px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:4px;font-weight:800;cursor:pointer;border:3px solid transparent;color:#1a1a1a;padding:0 6px;font-size:13px}
+.gd.hl{border-color:#ffe27a;box-shadow:0 0 0 2px #0006 inset}.gd.empty{background:var(--panel2)!important;color:var(--muted);cursor:default}
+#tabs{display:flex;gap:4px;flex-wrap:wrap}
+#tabs .btn{padding:5px 9px;font-size:12px}
+.pl{display:flex;gap:8px;padding:7px 8px;border-radius:10px;margin-bottom:5px;background:var(--panel2);border:2px solid transparent;cursor:pointer}
+.pl.cur{border-color:var(--accent)}.pl.viewing{box-shadow:0 0 0 2px var(--ai) inset}
+.dot{width:14px;height:14px;border-radius:50%;flex:0 0 14px;margin-top:3px;border:2px solid #fff8}
+.pn{font-weight:800}.tag{font-size:11px;background:#0006;border-radius:6px;padding:1px 6px;margin-left:4px;color:var(--muted);font-weight:700}
+.strat{font-size:12.5px;margin-top:2px}.strat i{color:var(--muted);font-style:normal}
+.stats{font-size:12.5px;color:var(--muted);margin-top:3px}.stats b{color:var(--ink)}
+#log{max-height:230px;overflow:auto;font-size:13px;line-height:1.35}
+#log div{padding:2px 0;border-bottom:1px solid #ffffff10}
+#log .win{color:var(--accent);font-weight:800}#log .good{color:var(--ok)}#log .turn{color:#e6cfe8;font-weight:700}
+#tip{font-size:13px;color:var(--muted);min-height:18px;margin-top:6px}#tip b{color:var(--ink)}
+.modal{position:fixed;inset:0;background:#000a;display:none;align-items:flex-start;justify-content:center;z-index:20;overflow:auto;padding:16px 8px}
+.modal.show{display:flex}
+.mbox{background:var(--panel);border-radius:14px;padding:16px;max-width:660px;width:100%;box-shadow:0 10px 40px #000a}
+.mbox h2{margin:0 0 10px;color:var(--accent)}
+.mbox h4{margin:14px 0 4px;color:var(--ai)}
+.mbox p,.mbox li{line-height:1.45;font-size:14.5px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.row>label.lab2{min-width:120px;color:var(--muted);font-size:14px;font-weight:700}
+.opt{display:inline-flex;border-radius:10px;overflow:hidden;flex-wrap:wrap}
+.opt button{appearance:none;border:0;background:#4a3356;color:var(--ink);font:inherit;font-weight:700;font-size:14px;padding:9px 12px;cursor:pointer}
+.opt button.on{background:var(--accent);color:#2a1d00}
+.seat{display:grid;grid-template-columns:18px 1fr auto auto;gap:6px;align-items:center;background:var(--panel2);padding:6px 8px;border-radius:10px;margin-bottom:5px}
+.seat .sd{font-size:12px;color:var(--muted);grid-column:2/5}
+.seat select{background:#4a3356;color:var(--ink);border:0;border-radius:8px;padding:7px 6px;font:inherit;font-size:13px;max-width:170px}
+.twnote{font-size:12px;color:var(--muted);flex-basis:100%;margin:-2px 0 2px 0}
+table.sc{border-collapse:collapse;width:100%;font-size:14px}table.sc td,table.sc th{padding:4px 6px;border-bottom:1px solid #ffffff18;text-align:right}table.sc td:first-child,table.sc th:first-child{text-align:left}
+table.sc tr.tot td{font-weight:800;color:var(--accent)}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#8a3a34;color:#fff;padding:10px 14px;border-radius:10px;font-weight:700;display:none;z-index:30;max-width:92vw;text-align:center}
+#toast.show{display:block}
+footer{margin:16px 0 18px;color:var(--muted);font-size:13px}
+footer a{color:var(--muted)}
+.screen{position:fixed;inset:0;z-index:15;overflow:auto;display:none;background:radial-gradient(800px 520px at 50% -5%,#5a2a50 0%,transparent 65%),radial-gradient(700px 500px at 100% 100%,#2a4a50 0%,transparent 60%),var(--bg)}
+.screen.show{display:block}
+.tWrap{max-width:720px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 16px 28px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
+.logo{font-size:clamp(52px,14vw,96px)!important;margin:10px 0 0!important;text-shadow:0 0 30px #f2c14e66}
+.pitch{font-size:clamp(18px,4.6vw,24px);font-weight:800;margin:0;line-height:1.25}.pitch em{color:var(--ai);font-style:normal}
+.bots{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:620px}
+.bot{background:#ffffff0d;border:2px solid #ffffff1a;border-radius:16px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bot .face{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;background:var(--fc);box-shadow:0 0 0 3px #ffffffaa,0 0 20px var(--fc)}
+.bot .bn{font-weight:900;font-size:17px}.bot .bl{font-size:12px;color:var(--muted)}.bot .bt{font-size:13px;font-style:italic;line-height:1.3}
+.bigPlay{font-size:28px!important;padding:18px 56px!important;background:var(--accent)!important;color:#2a1d00!important;border-radius:999px!important;box-shadow:0 0 30px #f2c14e88}
+.sub{font-size:13px;color:var(--muted)}
+.statsRow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.stat{background:#ffffff10;border-radius:12px;padding:8px 14px;min-width:96px}.stat b{display:block;font-size:22px;color:var(--accent)}.stat span{font-size:12px;color:var(--muted)}
+.credit{font-size:13px;color:var(--muted)}.credit a{color:var(--muted)}
+#cardImg{width:100%;border-radius:12px;display:block;margin:4px 0 10px}
+#endBadges{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:8px}.badge2{background:#f2c14e22;color:var(--accent);border-radius:999px;padding:4px 10px;font-size:13px;font-weight:700}
+#coach{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:12;max-width:min(560px,94vw);background:#3a2a48;border:2px solid var(--accent);border-radius:14px;padding:10px 12px;display:none;gap:8px;align-items:center;box-shadow:0 8px 30px #000a;font-size:14px}
+#coach.show{display:flex}#coach span{flex:1;line-height:1.35}
+@media (max-width:480px){.bots{grid-template-columns:1fr}.bot{flex-direction:row;text-align:left;gap:10px}.bot .face{width:50px;height:50px;font-size:28px;flex:none}.bigPlay{font-size:24px!important;padding:16px 44px!important}}
+@media (max-width:980px){main{grid-template-columns:1fr;grid-template-areas:"turn" "boards" "info"}#marketCard,#estateCard{flex:1 1 100%}header{padding:6px 8px}.btn{padding:9px 11px}#log{max-height:180px}main{padding:0 6px}.card{padding:8px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>c<span class="ai">AI</span>stles</h1>
+  <div class="hbar">
+    <button class="btn small" id="menuBtn">☰ Menu</button>
+    <button class="btn primary small" id="newBtn">New game</button>
+    <button class="btn small" id="tipsBtn" title="Tips on/off">💡</button>
+    <button class="btn small" id="rulesBtn">Rules</button>
+    <label for="speedSel" style="font-size:13px;color:var(--muted)">Bot speed</label>
+    <select id="speedSel" class="btn small"><option value="slow">Slow</option><option value="normal">Normal</option><option value="fast">Fast</option><option value="instant">Instant</option></select>
+  </div>
+</header>
+<main>
+  <section id="turn">
+    <div class="card" id="turnCard">
+      <div id="tTitle">cAIstles</div>
+      <div id="tHelp"></div>
+      <div id="diceRow"></div>
+      <div class="res" id="res"></div>
+      <div class="ctl">
+        <button class="btn small" id="workersBtn">Take 2 workers</button>
+        <button class="btn small" id="buyBtn">Buy mode</button>
+        <button class="btn small" id="skipBtn">Skip bonus</button>
+        <button class="btn small primary" id="endBtn">End turn</button>
+      </div>
+      <div id="hint"></div>
+      <div id="tip"></div>
+    </div>
+  </section>
+  <section id="boards">
+    <div class="card" id="marketCard"><h3><span>Market</span><span id="phaseLbl"></span></h3><svg id="market" viewBox="0 0 418 446" xmlns="http://www.w3.org/2000/svg"></svg></div>
+    <div class="card" id="estateCard"><h3><span id="estTitle">Your estate</span><span id="tabs"></span></h3>
+      <svg id="estate" viewBox="-215 -196 430 392" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div id="store"></div><div id="goods"></div>
+    </div>
+  </section>
+  <section id="info">
+    <div class="card"><h3>Players</h3><div id="players"></div></div>
+    <div class="card"><h3>Log</h3><div id="log"></div></div>
+  </section>
+</main>
+<footer>cAIstles · by OmniXR · <a href="https://myomnixr.com" target="_blank" rel="noopener">myomnixr.com</a></footer>
+
+<div class="modal" id="setup"><div class="mbox">
+  <h2>New game</h2>
+  <div class="row"><label class="lab2">Players</label><div class="opt" id="optN"><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button></div></div>
+  <div class="row"><label class="lab2">Who goes first</label><div class="opt" id="optFirst"><button data-v="me">Me</button><button data-v="random">Random</button></div></div>
+  <div id="seats"></div>
+  <h4>Twists</h4>
+  <div class="row"><label class="lab2">Estate boards</label><div class="opt" id="optEstate"><button data-v="classic">Classic</button><button data-v="shared">Random (shared)</button><button data-v="own">Random (each)</button></div><div class="twnote">Classic is the same layout every game. Random builds new layouts: one for everyone, or a different one for each player.</div></div>
+  <div class="row"><label class="lab2">Game length</label><div class="opt" id="optQuick"><button data-v="0">Full · 5 phases</button><button data-v="1">Quick · 3 phases</button></div></div>
+  <div class="row"><label class="lab2">Extra workers</label><div class="opt" id="optExtra"><button data-v="0">Off</button><button data-v="1">+2 each</button></div></div>
+  <div class="row"><label class="lab2">Knowledge tiles</label><div class="opt" id="optKnow"><button data-v="classic">Classic 26</button><button data-v="shuffled">Shuffled + 6 new</button></div><div class="twnote">Shuffled mixes in six new tiles of our own and plays a random 26 of the 32.</div></div>
+  <div class="row"><label class="lab2">Show hints</label><div class="opt" id="optHints"><button data-v="0">Off</button><button data-v="1">On</button></div></div>
+  <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn" id="setupCancel">Cancel</button><button class="btn primary" id="startBtn">Start game</button></div>
+</div></div>
+
+<div class="modal" id="over"><div class="mbox"><h2 id="overTitle">Game over</h2>
+  <img id="cardImg" alt="Result card"><div id="endBadges"></div>
+  <div class="row" style="justify-content:center"><button class="btn" id="saveCard">⬇ Save image</button><button class="btn" id="shareX">Share on 𝕏</button></div>
+  <div id="overBody"></div><div class="row" style="justify-content:flex-end;flex-wrap:wrap"><button class="btn" id="overClose">Look at the board</button><button class="btn" id="overNew">New game</button><button class="btn" id="overMenu">Menu</button><button class="btn primary" id="overAgain">Play again</button></div>
+  <div class="credit" style="text-align:center">by OmniXR · <a href="https://myomnixr.com" target="_blank" rel="noopener">myomnixr.com</a></div></div></div>
+
+<div class="screen" id="title"><div class="tWrap">
+  <h1 class="logo">c<span class="ai">AI</span>stles</h1>
+  <p class="pitch">The AI nobles want the finest estate in the valley. <em>Out-build them in about 15 minutes.</em></p>
+  <div class="bots" id="titleBots"></div>
+  <button class="btn bigPlay" id="playNow">▶ Play now</button>
+  <div class="sub">Quick game · 3 phases · you vs 2 bots</div>
+  <div class="statsRow" id="titleStats"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><button class="btn" id="resumeBtn" style="display:none">↩ Resume game</button><button class="btn" id="setupBtn">⚙ Setup</button><button class="btn" id="reroll">🔀 New rivals</button><button class="btn" id="titleRules">📖 Rules</button></div>
+  <div class="credit">by OmniXR · <a href="https://myomnixr.com" target="_blank" rel="noopener">myomnixr.com</a></div>
+</div></div>
+<div id="coach"><span id="coachText"></span><button class="btn small primary" id="coachOk">Got it</button><button class="btn small" id="coachOff">Tips off</button></div>
+
+<div class="modal" id="rules"><div class="mbox">
+  <h2>How to play</h2>
+  <p>You are a noble growing an estate along the river. Over <b>5 phases of 5 rounds</b> (3 phases in a quick game) you collect hex tiles from the market and lay them into your <b>37-space estate</b>. Most victory points (VP) at the end wins.</p>
+  <h4>Each round</h4>
+  <ul><li>Everyone rolls two dice. The white die decides which depot gets the round's goods tile.</li>
+  <li>Players take turns in turn order. On your turn you use <b>each die for one action</b>, in any order.</li></ul>
+  <h4>The four die actions</h4>
+  <ul><li><b>Take a tile</b> from the depot whose number matches the die. It goes into one of your 3 storage spaces. If storage is full you must throw one stored tile away.</li>
+  <li><b>Place a tile</b> from storage onto an empty estate space of the <b>same colour</b> that shows the <b>die's number</b> and touches a tile you have already placed. The tile's effect happens straight away.</li>
+  <li><b>Sell goods:</b> sell your whole stack of the goods type matching the die. You get 1 silver plus 2, 3 or 4 VP per tile (2, 3 or 4 players).</li>
+  <li><b>Take 2 workers</b> with any die.</li></ul>
+  <p><b>Workers:</b> each worker you spend turns a die up or down by 1 (6 and 1 wrap around). Just tap what you want: the game spends the fewest workers needed and shows the cost on the highlight.</p>
+  <p><b>Black market:</b> once per turn you may pay 2 silver for a tile from the centre of the market. It goes into storage.</p>
+  <h4>What the tiles do when placed</h4>
+  <ul><li>🏰 <b>Castle</b> (dark green): a bonus action with any number you like.</li>
+  <li>⛵ <b>Ship</b> (blue): collect all goods from one depot, and move ahead in turn order. You can hold 3 goods types.</li>
+  <li>🐄 <b>Livestock</b> (light green): score the animals on it, plus all matching animals already in that pasture.</li>
+  <li>🏠 <b>Building</b> (tan): Market, Carpenter, Chapel (fetch a tile), Warehouse (sell goods), Inn (4 workers), Bank (2 silver), Town Hall (place another tile, any number), Watchtower (4 VP). One of each type per town.</li>
+  <li>⛏️ <b>Mine</b> (grey): 1 silver at the end of every phase.</li>
+  <li>📜 <b>Knowledge</b> (yellow): a lasting power or end-of-game points. Tap one to read it.</li></ul>
+  <h4>Scoring</h4>
+  <ul><li><b>Completing an area</b> (all connected spaces of one colour) scores 1, 3, 6, 10, 15, 21, 28 or 36 VP for sizes 1 to 8, plus the phase bonus: 10, 8, 6, 4, 2 in phases A to E (10, 6, 2 in a quick game).</li>
+  <li>First to fill every space of a colour wins the large colour bonus (5, 6 or 7 VP by player count); second gets the small one (2, 3 or 4).</li>
+  <li>At the end: 1 VP per silver, 1 VP per unsold goods tile, 1 VP per 2 workers, plus knowledge-tile points. Ties go to the player with fewer empty spaces.</li></ul>
+  <h4>Controls</h4>
+  <p>Tap a die to choose it (optional). Tap a highlighted market tile to take it, a stored tile then a highlighted estate space to place it, a goods stack to sell it, or <b>Take 2 workers</b>. Turn on <b>Buy mode</b> to buy from the black market. Tap any player card to look at their estate.</p>
+  <div class="row" style="justify-content:flex-end"><button class="btn primary" id="rulesClose">Close</button></div>
+</div></div>
+<div id="toast"></div>
+
+<script>
+/* cAIstles engine: estates, market, rules and bots. Pure JS, runs in the browser and in node. by OmniXR · myomnixr.com */
+(function (root) {
+'use strict';
+
+/* ---------------- random numbers ---------------- */
+function rngNext(o) {
+  let t = (o.s = (o.s + 0x6D2B79F5) >>> 0);
+  t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+function mkRng(seed) { const o = { s: seed >>> 0 }; return () => rngNext(o); }
+function shuffle(a, R) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(R() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function rnd(st) { return rngNext(st.rng); }
+function d6(st) { return 1 + Math.floor(rnd(st) * 6); }
+
+/* ---------------- components ---------------- */
+// colour indices
+const CASTLE = 0, SHIP = 1, PASTURE = 2, TOWN = 3, MINE = 4, KNOW = 5;
+const COLORS = [
+  { key: 'castle', tile: 'Castle', area: 'Castle grounds', fill: '#2f6b3a', light: '#5f9a68', icon: '🏰', d: 'Take one extra action with any number you like.' },
+  { key: 'ship', tile: 'Ship', area: 'River', fill: '#2d6fb0', light: '#6fa6da', icon: '⛵', d: 'Collect all goods from one depot and move up one step in turn order.' },
+  { key: 'pasture', tile: 'Livestock', area: 'Pasture', fill: '#7cb342', light: '#b5d98c', icon: '🐄', d: 'Score its animals, plus matching animals already in the same pasture.' },
+  { key: 'town', tile: 'Building', area: 'Town', fill: '#c9a46a', light: '#e8d2a8', icon: '🏠', d: 'A building with a one-time effect. One of each type per town.' },
+  { key: 'mine', tile: 'Mine', area: 'Quarry', fill: '#7d8288', light: '#b6babf', icon: '⛏️', d: 'Pays 1 silver at the end of every phase.' },
+  { key: 'know', tile: 'Knowledge', area: 'Abbey', fill: '#e0b324', light: '#f4dc84', icon: '📜', d: 'A lasting power or end-of-game points.' }
+];
+const BLD = [
+  { n: 'Market', i: '🏪', d: 'Take a ship or livestock tile from any numbered depot.' },
+  { n: 'Carpenter', i: '🔨', d: 'Take a building tile from any numbered depot.' },
+  { n: 'Chapel', i: '⛪', d: 'Take a castle, mine or knowledge tile from any numbered depot.' },
+  { n: 'Warehouse', i: '📦', d: 'Sell one goods type of your choice right away.' },
+  { n: 'Inn', i: '🛏️', d: 'Take 4 workers.' },
+  { n: 'Bank', i: '🏦', d: 'Take 2 silver.' },
+  { n: 'Town Hall', i: '🏛️', d: 'Place one more tile from storage, on a space with any number.' },
+  { n: 'Watchtower', i: '🗼', d: 'Score 4 VP.' }
+];
+const ANIMALS = [{ n: 'Cows', i: '🐄' }, { n: 'Sheep', i: '🐑' }, { n: 'Pigs', i: '🐖' }, { n: 'Hens', i: '🐔' }];
+const GOODS = [
+  { n: 'Wine', c: '#8e3b8a' }, { n: 'Cloth', c: '#d9534f' }, { n: 'Grain', c: '#e8c547' },
+  { n: 'Salt', c: '#e9eef2' }, { n: 'Honey', c: '#e8902a' }, { n: 'Iron', c: '#4a5560' }
+];
+// Knowledge tiles (yellow). Wording is our own. id 1-26 classic set, 27-32 our own extra tiles.
+const KNOW_T = [null,
+  { n: 'Free Guilds', d: 'Your towns may hold more than one building of the same type.' },
+  { n: 'Miners\u2019 Chapel', d: 'At each phase end, every mine also gives you 1 worker.' },
+  { n: 'Coin Ledger', d: 'Selling goods gives 2 silver instead of 1.' },
+  { n: 'Porter\u2019s Lodge', d: 'Selling goods also gives you 1 worker.' },
+  { n: 'River Charter', d: 'A ship also collects the goods of the next depot clockwise.' },
+  { n: 'Labour Exchange', d: 'Your one purchase a turn may be paid with 2 workers instead of 2 silver, from any depot.' },
+  { n: 'Herdsman\u2019s Rule', d: 'Each livestock tile that scores gives +1 VP.' },
+  { n: 'Strong Hands', d: 'Each worker shifts a die by up to 2.' },
+  { n: 'Mason\u2019s Mark', d: 'Placing a building shifts its die by 1 for free.' },
+  { n: 'Harbour & Field', d: 'Placing a ship or livestock shifts its die by 1 for free.' },
+  { n: 'Keep & Cloister', d: 'Placing a castle, mine or knowledge tile shifts its die by 1 for free.' },
+  { n: 'Quartermaster', d: 'Taking a tile from a depot shifts its die by 1 for free.' },
+  { n: 'Paid Labour', d: 'The "take workers" action also gives 1 silver.' },
+  { n: 'Big Crew', d: 'The "take workers" action gives 4 workers instead of 2.' },
+  { n: 'Spice Atlas', d: 'Game end: 2 VP for each goods type you have sold.', end: 1 },
+  { n: 'Patron of Warehouses', d: 'Game end: 4 VP per Warehouse in your estate.', end: 1, b: 3 },
+  { n: 'Patron of Watchtowers', d: 'Game end: 4 VP per Watchtower in your estate.', end: 1, b: 7 },
+  { n: 'Patron of Carpenters', d: 'Game end: 4 VP per Carpenter in your estate.', end: 1, b: 1 },
+  { n: 'Patron of Chapels', d: 'Game end: 4 VP per Chapel in your estate.', end: 1, b: 2 },
+  { n: 'Patron of Markets', d: 'Game end: 4 VP per Market in your estate.', end: 1, b: 0 },
+  { n: 'Patron of Inns', d: 'Game end: 4 VP per Inn in your estate.', end: 1, b: 4 },
+  { n: 'Patron of Banks', d: 'Game end: 4 VP per Bank in your estate.', end: 1, b: 5 },
+  { n: 'Patron of Town Halls', d: 'Game end: 4 VP per Town Hall in your estate.', end: 1, b: 6 },
+  { n: 'Breeder\u2019s Book', d: 'Game end: 4 VP for each livestock type in your estate.', end: 1 },
+  { n: 'Trade Chronicle', d: 'Game end: 1 VP for each goods tile you have sold.', end: 1 },
+  { n: 'Honour Roll', d: 'Game end: 3 VP for each colour bonus you have won.', end: 1 },
+  { n: 'Assayer', d: 'At each phase end, every mine also scores 1 VP.', extra: 1 },
+  { n: 'Harbourmaster', d: 'Every ship you place also gives 1 silver.', extra: 1 },
+  { n: 'Guild Ledger', d: 'Game end: 2 VP for each different building type in your estate.', end: 1, extra: 1 },
+  { n: 'Gatehouse', d: 'Every castle you place also scores 3 VP.', extra: 1 },
+  { n: 'Almoner', d: 'Game end: each leftover worker scores 1 VP instead of half.', end: 1, extra: 1 },
+  { n: 'Cartographer', d: 'Game end: 2 VP for each area you have completed.', end: 1, extra: 1 }
+];
+const TRI = [0, 1, 3, 6, 10, 15, 21, 28, 36];
+const PHASE_BONUS5 = [10, 8, 6, 4, 2], PHASE_BONUS3 = [10, 6, 2];
+const PHASE_LETTERS5 = ['A', 'B', 'C', 'D', 'E'], PHASE_LETTERS3 = ['A', 'C', 'E'];
+// Each numbered depot has four coloured tile spaces; 2 players use the first two, 3 players three, 4 players all four.
+const DEPOT_SPACES = [
+  [TOWN, PASTURE, SHIP, KNOW],
+  [SHIP, TOWN, KNOW, PASTURE],
+  [PASTURE, KNOW, TOWN, SHIP],
+  [TOWN, SHIP, CASTLE, TOWN],
+  [KNOW, TOWN, PASTURE, MINE],
+  [CASTLE, MINE, TOWN, TOWN]
+];
+
+/* ---------------- strategies and bots ---------------- */
+const STRAT = {
+  shipwright: { n: 'Shipwright', i: '⛵', d: 'Launches ships to haul goods, then sells big stacks.', w: { ship: 1.35, goods: 1.2 } },
+  rancher: { n: 'Rancher', i: '🐄', d: 'Builds big herds of one animal in large pastures.', w: { pasture: 1.4 } },
+  builder: { n: 'Builder', i: '🏘️', d: 'Fills its towns with buildings and chains their effects.', w: { town: 1.3, region: 1.1 } },
+  scholar: { n: 'Scholar', i: '📜', d: 'Collects knowledge tiles and plays to their scoring.', w: { know: 1.75 } },
+  castellan: { n: 'Castellan', i: '🏰', d: 'Grabs castles for extra actions and keeps a deep worker pool.', w: { castle: 1.7, workers: 1.25 } },
+  racer: { n: 'Region Racer', i: '🏁', d: 'Rushes to finish areas early while the phase bonus is high.', w: { region: 1.45 } },
+  merchant: { n: 'Merchant', i: '💰', d: 'Hoards silver from mines and banks, and shops the black market.', w: { silver: 1.35, mine: 1.7, buy: 1.5 } },
+  balanced: { n: 'Balanced', i: '⚖️', d: 'Weighs every option evenly and takes the best value.', w: {} }
+};
+const STRAT_KEYS = Object.keys(STRAT);
+const DIFF = { easy: { n: 'Easy' }, medium: { n: 'Medium' }, hard: { n: 'Hard' } };
+const BOT_NAMES = ['DukAI', 'CountAIss', 'MarquAIs'];
+function wts(s) { const w = Object.assign({ castle: 1, ship: 1, pasture: 1, town: 1, mine: 1, know: 1, goods: 1, silver: 1, region: 1, workers: 1, buy: 1 }, (STRAT[s] || STRAT.balanced).w); return w; }
+
+/* ---------------- estates (37-space hex boards) ---------------- */
+const DIRS = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
+let BASE = null;
+function baseGrid() {
+  if (BASE) return BASE;
+  const cells = [];
+  for (let r = -3; r <= 3; r++) for (let q = -3; q <= 3; q++) if (Math.abs(q + r) <= 3) cells.push({ q, r });
+  const idx = {}; cells.forEach((c, i) => { idx[c.q + ',' + c.r] = i; });
+  const adj = cells.map(c => DIRS.map(([dq, dr]) => idx[(c.q + dq) + ',' + (c.r + dr)]).filter(x => x != null));
+  const nbDir = cells.map(c => DIRS.map(([dq, dr]) => idx[(c.q + dq) + ',' + (c.r + dr)]));
+  BASE = { cells, adj, nbDir, center: idx['0,0'] };
+  return BASE;
+}
+const CLASSIC_PLAN = { 0: [2, 1, 1], 1: [3, 2, 1], 2: [4, 3], 3: [5, 3, 2], 4: [2, 1, 1], 5: [3, 2] }; // castle plan excludes the centre space
+const COLOR_COUNT = [4, 6, 7, 10, 4, 5];
+function randomPlan(R) {
+  const plan = {};
+  for (let c = 0; c < 6; c++) {
+    let left = COLOR_COUNT[c], parts = [];
+    const max = c === PASTURE || c === TOWN ? 6 : c === SHIP ? 4 : 3;
+    while (left > 0) { const s = Math.min(left, 1 + Math.floor(R() * max)); parts.push(s); left -= s; }
+    plan[c] = parts.sort((a, b) => b - a);
+  }
+  return plan;
+}
+function genEstate(seed, plan) {
+  const B = baseGrid(), N = B.cells.length;
+  for (let att = 0; att < 4000; att++) {
+    const R = mkRng(seed * 7919 + att * 104729 + 17);
+    const pl = plan || randomPlan(R);
+    const col = new Array(N).fill(-1), reg = new Array(N).fill(-1), regs = [];
+    col[B.center] = CASTLE; reg[B.center] = 0; regs.push({ c: CASTLE, cells: [B.center] });
+    const list = [];
+    for (let c = 0; c < 6; c++) pl[c].forEach(s => list.push({ c, s, k: s + R() * 0.9 }));
+    list.sort((a, b) => b.k - a.k);
+    let ok = true;
+    const free = (i, c, rid) => col[i] < 0 && B.adj[i].every(j => col[j] !== c || reg[j] === rid);
+    const openN = i => B.adj[i].filter(j => col[j] < 0).length;
+    for (const it of list) {
+      const rid = regs.length;
+      let cand = []; for (let i = 0; i < N; i++) if (free(i, it.c, rid)) cand.push(i);
+      if (!cand.length) { ok = false; break; }
+      // start in tight spots (corners/holes) so the board fills without leftovers
+      cand.sort((a, b) => (openN(a) + R() * 2.2) - (openN(b) + R() * 2.2));
+      const start = cand[0];
+      const cells = [start]; col[start] = it.c; reg[start] = rid;
+      while (cells.length < it.s) {
+        const fr = [];
+        cells.forEach(i => B.adj[i].forEach(j => { if (free(j, it.c, rid) && !fr.includes(j)) fr.push(j); }));
+        if (!fr.length) { ok = false; break; }
+        fr.sort((a, b) => (openN(a) - B.adj[a].filter(x => reg[x] === rid).length + R() * 2) - (openN(b) - B.adj[b].filter(x => reg[x] === rid).length + R() * 2));
+        const j = fr[0]; cells.push(j); col[j] = it.c; reg[j] = rid;
+      }
+      if (!ok) break;
+      regs.push({ c: it.c, cells });
+    }
+    if (!ok || col.some(c => c < 0)) continue;
+    // centre must touch at least three colours
+    if (new Set(B.adj[B.center].map(j => col[j])).size < 3) continue;
+    // numbers: distinct within each area, every number used 5-7 times
+    let num = null;
+    for (let t = 0; t < 300 && !num; t++) {
+      const n = new Array(N).fill(0); n[B.center] = 6;
+      regs.forEach((rg, ri) => {
+        const pool = shuffle([1, 2, 3, 4, 5, 6], R);
+        const avoid = ri === 0 ? [] : [];
+        rg.cells.forEach((i, k) => { if (i !== B.center) n[i] = pool[k % 6]; });
+        void avoid;
+      });
+      const cnt = [0, 0, 0, 0, 0, 0, 0]; n.forEach(v => cnt[v]++);
+      if (cnt.slice(1).every(v => v >= 5 && v <= 7)) {
+        // neighbouring spaces of different areas rarely share a number
+        let same = 0; for (let i = 0; i < N; i++) B.adj[i].forEach(j => { if (j > i && n[i] === n[j]) same++; });
+        if (same <= 8) num = n;
+      }
+    }
+    if (!num) continue;
+    const cells = B.cells.map((c, i) => ({ q: c.q, r: c.r, x: Math.sqrt(3) * (c.q + c.r / 2), y: 1.5 * c.r, c: col[i], num: num[i], reg: reg[i] }));
+    return { seed, cells, regs, adj: B.adj, nbDir: B.nbDir, center: B.center };
+  }
+  throw new Error('estate generation failed');
+}
+let CLASSIC = null;
+function classicEstate() { if (!CLASSIC) CLASSIC = genEstate(2026, CLASSIC_PLAN); return CLASSIC; }
+
+/* ---------------- setup ---------------- */
+function makeTiles(st, knowSet) {
+  const R = () => rnd(st);
+  let id = 0; const T = (c, k, black) => ({ id: id++, c, k, b: black ? 1 : 0 });
+  const sup = [[], [], [], [], [], []], blk = [];
+  for (let i = 0; i < 16; i++) (i < 14 ? sup[CASTLE] : blk).push(T(CASTLE, 0, i >= 14));
+  for (let i = 0; i < 26; i++) (i < 20 ? sup[SHIP] : blk).push(T(SHIP, 0, i >= 20));
+  for (let i = 0; i < 12; i++) (i < 10 ? sup[MINE] : blk).push(T(MINE, 0, i >= 10));
+  for (let a = 0; a < 4; a++) { const ns = shuffle([2, 2, 3, 3, 3, 4, 4], R); ns.forEach((n, j) => (j < 5 ? sup[PASTURE] : blk).push(T(PASTURE, { a, n }, j >= 5))); }
+  for (let b = 0; b < 8; b++) for (let j = 0; j < 7; j++) (j < 5 ? sup[TOWN] : blk).push(T(TOWN, b, j >= 5));
+  let ks = []; for (let k = 1; k <= 26; k++) ks.push(k);
+  if (knowSet === 'shuffled') { for (let k = 27; k <= 32; k++) ks.push(k); ks = shuffle(ks, R).slice(0, 26); }
+  ks = shuffle(ks, R); ks.forEach((k, j) => (j < 20 ? sup[KNOW] : blk).push(T(KNOW, k, j >= 20)));
+  sup.forEach(s => shuffle(s, R)); shuffle(blk, R);
+  return { sup, blk };
+}
+function newGame(cfg) {
+  const players = cfg.players; const n = players.length;
+  if (n < 2 || n > 4) throw new Error('2-4 players');
+  const seed = (cfg.seed != null ? cfg.seed : Math.floor(Math.random() * 2 ** 31)) >>> 0;
+  const opts = Object.assign({ estate: 'classic', quick: false, extraWorkers: false, knowSet: 'classic', hints: false }, cfg.opts || {});
+  const st = { v: 1, seed, rng: { s: seed }, n, opts, phases: opts.quick ? 3 : 5, phase: 0, round: 0, over: false, log: [], sim: false, hc: 0 };
+  st.bonus = opts.quick ? PHASE_BONUS3 : PHASE_BONUS5; st.letters = opts.quick ? PHASE_LETTERS3 : PHASE_LETTERS5;
+  st.vpPer = n; st.large = [0, 0, 5, 6, 7][n]; st.small = [0, 0, 2, 3, 4][n];
+  st.blackSize = n === 4 ? 8 : 4;
+  const tiles = makeTiles(st, opts.knowSet); st.sup = tiles.sup; st.blk = tiles.blk;
+  // estates
+  const shared = opts.estate === 'shared' ? genEstate(1 + Math.floor(rnd(st) * 1e6)) : null;
+  st.lay = players.map(() => opts.estate === 'own' ? genEstate(1 + Math.floor(rnd(st) * 1e6)) : opts.estate === 'shared' ? shared : classicEstate());
+  // goods: 7 of each type
+  const goods = []; for (let g = 0; g < 6; g++) for (let j = 0; j < 7; j++) goods.push(g);
+  shuffle(goods, () => rnd(st));
+  st.goodsStacks = []; for (let p = 0; p < st.phases; p++) st.goodsStacks.push(goods.splice(0, 5));
+  // seats
+  let first = 0;
+  if (cfg.first === 'random') first = Math.floor(rnd(st) * n);
+  else { const h = players.findIndex(p => p.human); first = h >= 0 ? h : 0; }
+  st.players = players.map((pp, i) => {
+    let strategy = pp.strategy || 'balanced'; if (!pp.human && (strategy === 'random' || !STRAT[strategy])) strategy = STRAT_KEYS[Math.floor(rnd(st) * STRAT_KEYS.length)];
+    const lay = st.lay[i];
+    const P = { i, name: pp.name, human: !!pp.human, strategy: pp.human ? null : strategy, difficulty: pp.human ? null : (DIFF[pp.difficulty] ? pp.difficulty : 'medium'),
+      placed: new Array(37).fill(null), storage: [null, null, null], goods: [null, null, null], sold: [0, 0, 0, 0, 0, 0],
+      silver: 1, workers: 0, vp: 0, know: {}, bonusTiles: [], regionsDone: 0, dice: [0, 0], used: [true, true], bought: false, pos: 0, h: 0,
+      vpLog: { areas: 0, livestock: 0, goods: 0, bonus: 0, watch: 0, other: 0, end: 0 } };
+    P.placed[lay.center] = { id: -1 - i, c: CASTLE, k: 0, b: 0, start: 1 };
+    return P;
+  });
+  for (let k = 0; k < n; k++) { const p = st.players[(first + k) % n]; p.workers = k + 1 + (opts.extraWorkers ? 2 : 0); p.h = n - k; }
+  st.hc = n; st.first = first;
+  // each player starts with 3 goods from the leftovers
+  st.players.forEach(P => { for (let j = 0; j < 3; j++) addGood(P, goods.pop()); });
+  st.colorBonus = [0, 1, 2, 3, 4, 5].map(() => ({ first: -1, second: -1 }));
+  st.depots = [[], [], [], [], [], []]; st.depotGoods = [[], [], [], [], [], []]; st.black = [];
+  st.pending = [];
+  log(st, '<b>' + st.players[first].name + '</b> starts. Phase ' + st.letters[0] + ' begins.', 'turn');
+  startPhase(st);
+  return st;
+}
+function addGood(P, g) {
+  const s = P.goods.find(x => x && x.g === g); if (s) { s.n++; return true; }
+  const e = P.goods.indexOf(null); if (e >= 0) { P.goods[e] = { g, n: 1 }; return true; }
+  return false;
+}
+function log(st, msg, cls) { if (st.sim) return; st.log.push({ m: msg, c: cls || '' }); if (st.log.length > 400) st.log.splice(0, st.log.length - 400); }
+function startPhase(st) {
+  const tiers = st.n; // number of spaces used per depot
+  for (let d = 0; d < 6; d++) { st.depots[d] = []; for (let s = 0; s < tiers; s++) { const c = DEPOT_SPACES[d][s]; st.depots[d].push(st.sup[c].length ? st.sup[c].pop() : null); } }
+  st.black = []; for (let s = 0; s < st.blackSize; s++) st.black.push(st.blk.length ? st.blk.pop() : null);
+  st.roundGoods = st.goodsStacks[st.phase].slice();
+  st.round = 0; startRound(st);
+}
+function order(st) { return st.players.map(p => p.i).sort((a, b) => (st.players[b].pos - st.players[a].pos) || (st.players[b].h - st.players[a].h)); }
+function startRound(st) {
+  st.order = order(st); st.turnIdx = 0; st.cur = st.order[0];
+  st.white = d6(st);
+  const g = st.roundGoods.shift(); st.depotGoods[st.white - 1].push(g); st.lastGood = { g, d: st.white - 1 };
+  st.players.forEach(P => { P.dice = [d6(st), d6(st)]; P.used = [false, false]; P.bought = false; });
+  log(st, 'Phase ' + st.letters[st.phase] + ', round ' + (st.round + 1) + ': the white die shows ' + st.white + ', so ' + GOODS[g].n + ' goes to depot ' + st.white + '.', 'turn');
+}
+
+/* ---------------- rules helpers ---------------- */
+function lay(st, P) { return st.lay[P.i]; }
+function freeShift(P, kind, c) {
+  if (kind === 'take') return !!P.know[12];
+  if (c === TOWN) return !!P.know[9];
+  if (c === SHIP || c === PASTURE) return !!P.know[10];
+  return !!P.know[11];
+}
+function cost(P, raw, target, kind, c) {
+  if (raw < 0) return 0;
+  let d = Math.abs(raw - target); d = Math.min(d, 6 - d);
+  if (freeShift(P, kind, c)) d = Math.max(0, d - 1);
+  return Math.ceil(d / (P.know[8] ? 2 : 1));
+}
+function canPlace(st, P, tile, sp) {
+  const L = lay(st, P);
+  if (P.placed[sp] || L.cells[sp].c !== tile.c) return false;
+  if (!L.adj[sp].some(j => P.placed[j])) return false;
+  if (tile.c === TOWN && !P.know[1]) { const rg = L.regs[L.cells[sp].reg]; if (rg.cells.some(j => P.placed[j] && P.placed[j].k === tile.k)) return false; }
+  return true;
+}
+function stName(t) {
+  if (!t) return '';
+  if (t.c === TOWN) return BLD[t.k].n;
+  if (t.c === PASTURE) return t.k.n + ' ' + ANIMALS[t.k.a].n;
+  if (t.c === KNOW) return KNOW_T[t.k].n;
+  return COLORS[t.c].tile;
+}
+function tileDesc(t) {
+  if (!t) return '';
+  if (t.c === TOWN) return BLD[t.k].d;
+  if (t.c === KNOW) return KNOW_T[t.k].d;
+  return COLORS[t.c].d;
+}
+
+/* ---------------- legal actions ---------------- */
+function takeActs(st, P, out, die, raw, filter) {
+  const full = P.storage.indexOf(null) < 0;
+  for (let d = 0; d < 6; d++) {
+    const w = raw < 0 ? 0 : cost(P, raw, d + 1, 'take');
+    if (w > P.workers) continue;
+    st.depots[d].forEach((t, s) => {
+      if (!t || (filter && !filter.includes(t.c))) return;
+      if (!full) out.push({ t: 'take', die, d, s, disc: -1, w });
+      else for (let k = 0; k < 3; k++) out.push({ t: 'take', die, d, s, disc: k, w });
+    });
+  }
+}
+function placeActs(st, P, out, die, raw) {
+  const L = lay(st, P);
+  P.storage.forEach((t, f) => {
+    if (!t) return;
+    for (let sp = 0; sp < 37; sp++) {
+      if (!canPlace(st, P, t, sp)) continue;
+      const w = raw < 0 ? 0 : cost(P, raw, L.cells[sp].num, 'place', t.c);
+      if (w <= P.workers) out.push({ t: 'place', die, from: f, sp, w });
+    }
+  });
+}
+function sellActs(st, P, out, die, raw) {
+  P.goods.forEach(s => {
+    if (!s) return;
+    const w = raw < 0 ? 0 : cost(P, raw, s.g + 1, 'sell');
+    if (w <= P.workers) out.push({ t: 'sell', die, g: s.g, w });
+  });
+}
+function legal(st) {
+  if (st.over) return [];
+  const P = st.players[st.cur], out = [];
+  const pd = st.pending[st.pending.length - 1];
+  if (pd) {
+    if (pd.t === 'free') { takeActs(st, P, out, -1, -1); placeActs(st, P, out, -1, -1); sellActs(st, P, out, -1, -1); out.push({ t: 'workers', die: -1, w: 0 }); }
+    else if (pd.t === 'townhall') placeActs(st, P, out, -1, -1);
+    else if (pd.t === 'warehouse') sellActs(st, P, out, -1, -1);
+    else if (pd.t === 'pick') takeActs(st, P, out, -1, -1, pd.cols);
+    else if (pd.t === 'ship') { for (let d = 0; d < 6; d++) if (st.depotGoods[d].length) out.push({ t: 'ship', d }); }
+    out.push({ t: 'skip' });
+    return out;
+  }
+  for (let i = 0; i < 2; i++) {
+    if (P.used[i]) continue;
+    if (i === 1 && !P.used[0] && P.dice[0] === P.dice[1]) continue; // identical dice: offer once
+    const raw = P.dice[i];
+    takeActs(st, P, out, i, raw); placeActs(st, P, out, i, raw); sellActs(st, P, out, i, raw);
+    out.push({ t: 'workers', die: i, w: 0 });
+  }
+  if (!P.bought && P.storage.indexOf(null) >= 0) {
+    if (P.silver >= 2) st.black.forEach((t, s) => { if (t) out.push({ t: 'buy', d: -1, s, pay: 'silver' }); });
+    if (P.know[6] && P.workers >= 2) {
+      st.black.forEach((t, s) => { if (t) out.push({ t: 'buy', d: -1, s, pay: 'workers' }); });
+      for (let d = 0; d < 6; d++) st.depots[d].forEach((t, s) => { if (t) out.push({ t: 'buy', d, s, pay: 'workers' }); });
+    }
+  }
+  if (P.used[0] && P.used[1]) out.push({ t: 'end' });
+  return out;
+}
+function key(a) { return [a.t, a.die, a.d, a.s, a.disc, a.from, a.sp, a.g, a.pay].join('|'); }
+
+/* ---------------- applying actions ---------------- */
+function act(st, a) {
+  const L = legal(st), k = key(a);
+  const m = L.find(x => key(x) === k);
+  if (!m) throw new Error('illegal action ' + JSON.stringify(a));
+  apply(st, m);
+  return st;
+}
+function useDie(P, a) { if (a.die >= 0) P.used[a.die] = true; P.workers -= a.w || 0; }
+function apply(st, a) {
+  const P = st.players[st.cur];
+  const nm = '<b>' + P.name + '</b>';
+  const wtxt = a.w ? ' (' + a.w + ' worker' + (a.w > 1 ? 's' : '') + ')' : '';
+  const fromPending = a.die === -1 || a.t === 'ship' || a.t === 'skip';
+  if (fromPending && st.pending.length && (a.t !== 'buy')) st.pending.pop();
+  switch (a.t) {
+    case 'take': {
+      useDie(P, a);
+      const t = st.depots[a.d][a.s]; st.depots[a.d][a.s] = null;
+      if (a.disc >= 0) { log(st, nm + ' throws away ' + stName(P.storage[a.disc]) + '.'); P.storage[a.disc] = t; }
+      else P.storage[P.storage.indexOf(null)] = t;
+      log(st, nm + ' takes ' + stName(t) + ' from depot ' + (a.d + 1) + wtxt + '.');
+      break;
+    }
+    case 'buy': {
+      P.bought = true;
+      if (a.pay === 'silver') P.silver -= 2; else P.workers -= 2;
+      const src = a.d < 0 ? st.black : st.depots[a.d];
+      const t = src[a.s]; src[a.s] = null; P.storage[P.storage.indexOf(null)] = t;
+      log(st, nm + ' buys ' + stName(t) + (a.d < 0 ? ' at the black market' : ' from depot ' + (a.d + 1)) + ' for 2 ' + (a.pay === 'silver' ? 'silver' : 'workers') + '.');
+      break;
+    }
+    case 'place': {
+      useDie(P, a);
+      const t = P.storage[a.from]; P.storage[a.from] = null; P.placed[a.sp] = t;
+      log(st, nm + ' places ' + stName(t) + ' on a ' + lay(st, P).cells[a.sp].num + wtxt + '.');
+      onPlace(st, P, a.sp, t);
+      break;
+    }
+    case 'sell': useDie(P, a); sell(st, P, a.g); break;
+    case 'workers': {
+      useDie(P, a);
+      const n = P.know[14] ? 4 : 2; P.workers += n; if (P.know[13]) P.silver += 1;
+      log(st, nm + ' takes ' + n + ' workers' + (P.know[13] ? ' and 1 silver' : '') + '.');
+      break;
+    }
+    case 'ship': shipGoods(st, P, a.d); break;
+    case 'skip': break;
+    case 'end': endTurn(st); break;
+  }
+  return st;
+}
+function sell(st, P, g) {
+  const i = P.goods.findIndex(s => s && s.g === g); const s = P.goods[i]; P.goods[i] = null;
+  const vp = s.n * st.vpPer; P.vp += vp; P.vpLog.goods += vp; P.sold[g] += s.n;
+  P.silver += P.know[3] ? 2 : 1; if (P.know[4]) P.workers += 1;
+  log(st, '<b>' + P.name + '</b> sells ' + s.n + ' ' + GOODS[g].n + ' for ' + vp + ' VP and ' + (P.know[3] ? 2 : 1) + ' silver.');
+}
+function shipGoods(st, P, d) {
+  const ds = P.know[5] ? [d, (d + 1) % 6] : [d];
+  let got = 0;
+  ds.forEach(dd => { const left = []; st.depotGoods[dd].forEach(g => { if (addGood(P, g)) got++; else left.push(g); }); st.depotGoods[dd] = left; });
+  log(st, '<b>' + P.name + '</b> collects ' + got + ' goods from depot ' + (d + 1) + (ds.length > 1 ? ' and ' + (ds[1] + 1) : '') + '.');
+}
+function onPlace(st, P, sp, t) {
+  const L = lay(st, P), cell = L.cells[sp], rg = L.regs[cell.reg];
+  // area completion
+  if (rg.cells.every(j => P.placed[j])) {
+    const v = TRI[Math.min(8, rg.cells.length)] + st.bonus[st.phase];
+    P.vp += v; P.vpLog.areas += v; P.regionsDone++;
+    log(st, '<b>' + P.name + '</b> completes a ' + rg.cells.length + '-space ' + COLORS[rg.c].area.toLowerCase() + ': +' + v + ' VP.', 'good');
+  }
+  // colour completion
+  const c = t.c;
+  if (L.cells.every((x, j) => x.c !== c || P.placed[j])) {
+    const cb = st.colorBonus[c];
+    if (cb.first < 0) { cb.first = P.i; P.vp += st.large; P.vpLog.bonus += st.large; P.bonusTiles.push(c); log(st, '<b>' + P.name + '</b> is first to fill every ' + COLORS[c].area.toLowerCase() + ' space: +' + st.large + ' VP.', 'good'); }
+    else if (cb.second < 0 && cb.first !== P.i) { cb.second = P.i; P.vp += st.small; P.vpLog.bonus += st.small; P.bonusTiles.push(c); log(st, '<b>' + P.name + '</b> is second to fill every ' + COLORS[c].area.toLowerCase() + ' space: +' + st.small + ' VP.', 'good'); }
+  }
+  switch (c) {
+    case CASTLE: if (P.know[30]) { P.vp += 3; P.vpLog.other += 3; } st.pending.push({ t: 'free' }); break;
+    case SHIP:
+      P.pos++; P.h = ++st.hc; if (P.know[28]) P.silver++;
+      if (st.depotGoods.some(g => g.length)) st.pending.push({ t: 'ship' });
+      break;
+    case PASTURE: {
+      let v = 0, nt = 0;
+      rg.cells.forEach(j => { const x = P.placed[j]; if (x && x.c === PASTURE && x.k.a === t.k.a) { v += x.k.n; nt++; } });
+      if (P.know[7]) v += nt;
+      P.vp += v; P.vpLog.livestock += v;
+      log(st, '<b>' + P.name + '</b> scores ' + v + ' VP for ' + ANIMALS[t.k.a].n.toLowerCase() + '.');
+      break;
+    }
+    case TOWN:
+      switch (t.k) {
+        case 0: st.pending.push({ t: 'pick', cols: [SHIP, PASTURE] }); break;
+        case 1: st.pending.push({ t: 'pick', cols: [TOWN] }); break;
+        case 2: st.pending.push({ t: 'pick', cols: [MINE, KNOW, CASTLE] }); break;
+        case 3: if (P.goods.some(x => x)) st.pending.push({ t: 'warehouse' }); break;
+        case 4: P.workers += 4; break;
+        case 5: P.silver += 2; break;
+        case 6: if (P.storage.some(x => x)) st.pending.push({ t: 'townhall' }); break;
+        case 7: P.vp += 4; P.vpLog.watch += 4; break;
+      }
+      break;
+    case KNOW: P.know[t.k] = true; break;
+  }
+}
+function endTurn(st) {
+  st.turnIdx++;
+  if (st.turnIdx < st.n) { st.cur = st.order[st.turnIdx]; return; }
+  st.round++;
+  if (st.round < 5) { startRound(st); return; }
+  // end of phase
+  st.players.forEach(P => {
+    const L = lay(st, P); let mines = 0; L.cells.forEach((c, j) => { if (P.placed[j] && P.placed[j].c === MINE) mines++; });
+    if (mines) { P.silver += mines; if (P.know[2]) P.workers += mines; if (P.know[27]) { P.vp += mines; P.vpLog.other += mines; } log(st, '<b>' + P.name + '</b>\u2019s mines pay ' + mines + ' silver.'); }
+  });
+  st.phase++;
+  if (st.phase >= st.phases) { finish(st); return; }
+  log(st, 'Phase ' + st.letters[st.phase] + ' begins: the depots are refilled.', 'turn');
+  startPhase(st);
+}
+function countB(st, P, b) { let n = 0; P.placed.forEach(x => { if (x && x.c === TOWN && x.k === b) n++; }); return n; }
+function knowEnd(st, P) {
+  let v = 0;
+  for (const k in P.know) {
+    const K = KNOW_T[k]; if (!K.end) continue;
+    const id = +k;
+    if (K.b != null) v += 4 * countB(st, P, K.b);
+    else if (id === 15) v += 2 * P.sold.filter(x => x > 0).length;
+    else if (id === 24) { const s = new Set(); P.placed.forEach(x => { if (x && x.c === PASTURE) s.add(x.k.a); }); v += 4 * s.size; }
+    else if (id === 25) v += P.sold.reduce((a, b) => a + b, 0);
+    else if (id === 26) v += 3 * P.bonusTiles.length;
+    else if (id === 29) { const s = new Set(); P.placed.forEach(x => { if (x && x.c === TOWN) s.add(x.k); }); v += 2 * s.size; }
+    else if (id === 31) v += P.workers - Math.floor(P.workers / 2);
+    else if (id === 32) v += 2 * P.regionsDone;
+  }
+  return v;
+}
+function finalBreakdown(st, P) {
+  const goods = P.goods.reduce((a, s) => a + (s ? s.n : 0), 0);
+  return { goods, silver: P.silver, workers: Math.floor(P.workers / 2), know: knowEnd(st, P) };
+}
+function finish(st) {
+  st.over = true;
+  st.players.forEach(P => {
+    const f = finalBreakdown(st, P); P.final = f;
+    const add = f.goods + f.silver + f.workers + f.know; P.vp += add; P.vpLog.end = add;
+  });
+  const empty = P => P.placed.filter(x => !x).length;
+  const ord = order(st);
+  st.ranking = st.players.map(p => p.i).sort((a, b) => (st.players[b].vp - st.players[a].vp) || (empty(st.players[a]) - empty(st.players[b])) || (ord.indexOf(b) - ord.indexOf(a)));
+  st.winner = st.ranking[0];
+  log(st, '<b>' + st.players[st.winner].name + '</b> wins with ' + st.players[st.winner].vp + ' VP!', 'win');
+}
+
+/* ---------------- describing actions (log, hints) ---------------- */
+function describe(st, a) {
+  const P = st.players[st.cur];
+  const dieTxt = a.die >= 0 ? 'the ' + P.dice[a.die] : 'the bonus action';
+  const wt = a.w ? ' (+' + a.w + ' worker' + (a.w > 1 ? 's' : '') + ')' : '';
+  switch (a.t) {
+    case 'take': return 'Use ' + dieTxt + ' to take ' + stName(st.depots[a.d][a.s]) + ' from depot ' + (a.d + 1) + wt + (a.disc >= 0 ? ', throwing away ' + stName(P.storage[a.disc]) : '');
+    case 'place': return 'Use ' + dieTxt + ' to place ' + stName(P.storage[a.from]) + ' on a ' + lay(st, P).cells[a.sp].num + wt;
+    case 'sell': return 'Use ' + dieTxt + ' to sell your ' + GOODS[a.g].n + wt;
+    case 'workers': return 'Use ' + dieTxt + ' to take workers';
+    case 'buy': return 'Buy ' + stName((a.d < 0 ? st.black : st.depots[a.d])[a.s]) + ' for 2 ' + a.pay;
+    case 'ship': return 'Collect the goods in depot ' + (a.d + 1);
+    case 'skip': return 'Skip the bonus';
+    case 'end': return 'End your turn';
+  }
+  return '';
+}
+
+/* ---------------- bot evaluation ---------------- */
+function remaining(st) { return st.phases * 5 - (st.phase * 5 + st.round) - 1; } // rounds after this one
+function evalState(st, pi, W, quality) {
+  const P = st.players[pi], L = lay(st, P), rem = remaining(st), tot = st.phases * 5;
+  const fut = Math.min(1, rem / 6), phaseEnds = st.phases - st.phase;
+  let v = P.vp;
+  const silverV = 1 + 0.55 * fut * W.silver * (W.buy > 1 ? 1.1 : 1);
+  v += P.silver * silverV;
+  const wv = 0.5 + 0.6 * fut * W.workers;
+  v += Math.min(P.workers, 5) * wv + Math.max(0, Math.min(P.workers, 9) - 5) * (0.5 + 0.2 * fut) + Math.max(0, P.workers - 9) * 0.5;
+  // filled spaces count toward areas, colours and the tiebreak
+  let filled = 0; P.placed.forEach(x => { if (x) filled++; });
+  v += filled * (1.2 + 1.3 * fut);
+  // goods
+  P.goods.forEach(s => { if (!s) return; v += rem > 0 ? s.n * st.vpPer * (0.78 + 0.05 * Math.min(3, s.n)) * W.goods - 1.2 : s.n; });
+  // mines keep paying
+  let mines = 0; L.cells.forEach((c, j) => { if (P.placed[j] && P.placed[j].c === MINE) mines++; });
+  v += mines * phaseEnds * (1.2 + (P.know[27] ? 1 : 0)) * W.mine;
+  // projected knowledge end points
+  v += knowEnd(st, P) * 0.95;
+  // ongoing powers
+  for (const k in P.know) v += KNOW_T[k].end ? 2 * fut : ongoingVal(+k, fut);
+  // pending free action
+  st.pending.forEach(p => { if (p.t === 'free') v += 2; else if (p.t === 'townhall') v += 1.5; else if (p.t === 'pick') v += 1; else if (p.t === 'ship') v += 0.5; });
+  v += storageValue(st, P, L, W, rem, quality);
+  // area progress
+  const bonusNext = st.bonus[Math.min(st.phases - 1, st.phase + (st.round >= 3 ? 1 : 0))];
+  L.regs.forEach(rg => {
+    let f = 0; rg.cells.forEach(j => { if (P.placed[j]) f++; });
+    const s = rg.cells.length; if (f === 0 || f === s) return;
+    const frac = f / s; v += frac * frac * (TRI[Math.min(8, s)] + bonusNext) * 0.4 * W.region * (rem > 2 ? 1 : 0.4);
+  });
+  if (quality < 1) return v;
+  // colour race
+  for (let c = 0; c < 6; c++) {
+    const cb = st.colorBonus[c]; if (cb.first === pi || cb.second === pi || cb.second >= 0) continue;
+    let tot2 = 0, f = 0; L.cells.forEach((x, j) => { if (x.c === c) { tot2++; if (P.placed[j]) f++; } });
+    const prize = cb.first < 0 ? st.large : st.small; v += Math.pow(f / tot2, 3) * prize * 0.5 * (rem > 3 ? 1 : 0.5);
+  }
+  // flexibility: open spaces next to the estate
+  let open = 0; const seen = {}; P.placed.forEach((x, j) => { if (!x) return; L.adj[j].forEach(k => { if (!P.placed[k] && !seen[k]) { seen[k] = 1; open++; } }); });
+  v += Math.min(open, 12) * 0.12 * fut;
+  v += P.pos * 0.25 * fut;
+  void tot;
+  return v;
+}
+function ongoingVal(k, fut) { return [0, 3, 3, 4, 3, 4, 4, 3, 5, 4, 4, 3.5, 4, 3.5, 4.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 3, 0, 3, 0, 0][k] * (0.25 + 0.75 * fut); }
+function tileValue(st, P, L, t, W, rem) {
+  const fut = Math.min(1, rem / 6);
+  switch (t.c) {
+    case CASTLE: return (3 + 2.5 * fut + (P.know[30] ? 3 : 0)) * W.castle;
+    case SHIP: { let best = 0; const have = P.goods.filter(x => x).map(x => x.g), room = 3 - have.length; st.depotGoods.forEach(g => { const nw = new Set(g.filter(x => !have.includes(x))); const fit = g.filter(x => have.includes(x)).length + (room > 0 ? g.filter(x => !have.includes(x) && [...nw].slice(0, room).includes(x)).length : 0); best = Math.max(best, fit); }); return (1.5 + Math.min(best, 3) * st.vpPer * 0.45 + fut) * W.ship * (W.goods > 1 ? 1.1 : 1); }
+    case PASTURE: {
+      let best = 0;
+      L.regs.forEach(rg => { if (rg.c !== PASTURE || rg.cells.every(j => P.placed[j])) return; let v = t.k.n; rg.cells.forEach(j => { const x = P.placed[j]; if (x && x.c === PASTURE && x.k.a === t.k.a) v += x.k.n; }); best = Math.max(best, v); });
+      return (best || t.k.n) * W.pasture;
+    }
+    case TOWN: {
+      const b = t.k; let v = [3, 3, 3, 0, 2.2, 2.4, 3.5, 4][b];
+      if (b === 3) { let best = 0; P.goods.forEach(s => { if (s) best = Math.max(best, s.n * st.vpPer); }); v = best * 0.6 + 1; }
+      for (const k in P.know) { const K = KNOW_T[k]; if (K.b === b) v += 4; if (+k === 29 && countB(st, P, b) === 0) v += 2; }
+      return v * W.town;
+    }
+    case MINE: return (st.phases - st.phase) * 1.2 * W.mine * W.silver;
+    case KNOW: {
+      const K = KNOW_T[t.k]; let v = 2.5 + 2 * fut;
+      if (K.b != null) v = 2 + 4 * countB(st, P, K.b) + 2 * fut;
+      else if (t.k === 25) v = 2 + P.sold.reduce((a, b) => a + b, 0) + 3 * fut;
+      else if (t.k === 15) v = 2 + 2 * P.sold.filter(x => x).length + 2 * fut;
+      else if (t.k === 26) v = 2 + 3 * P.bonusTiles.length + 2 * fut;
+      else if (!K.end) v = ongoingVal(t.k, fut);
+      return v * W.know;
+    }
+  }
+  return 0;
+}
+function storageValue(st, P, L, W, rem, quality) {
+  if (rem < 0) return 0;
+  let v = 0, held = 0; const filledV = 1.2 + 1.3 * Math.min(1, rem / 6), usedReady = [0, 0, 0, 0, 0, 0];
+  const items = [];
+  P.storage.forEach(t => {
+    if (!t) return; held++;
+    let ready = 0, any = 0;
+    for (let j = 0; j < 37; j++) {
+      if (P.placed[j] || L.cells[j].c !== t.c) continue; any++;
+      if (canPlace(st, P, t, j)) ready++;
+    }
+    if (!any) return;
+    items.push({ t, ready, v: tileValue(st, P, L, t, W, rem) + filledV });
+  });
+  items.sort((x, y) => y.v - x.v);
+  items.forEach(it => {
+    const r = it.ready - usedReady[it.t.c]; usedReady[it.t.c]++;
+    const p = r > 0 ? Math.min(1, 0.75 + 0.1 * r) : 0.3;
+    const tf = rem === 0 ? 0.3 : rem === 1 ? 0.65 : 0.9;
+    v += Math.max(0.3, it.v - 2.3) * p * tf;
+  });
+  return v - (held === 3 ? 2.2 : 0) * Math.min(1, rem / 3);
+}
+
+/* ---------------- bot search ---------------- */
+function cloneSim(st) {
+  const c = Object.assign({}, st);
+  c.sim = true; c.log = st.log;
+  c.players = st.players.slice(); const P = st.players[st.cur];
+  c.players[st.cur] = Object.assign({}, P, { placed: P.placed.slice(), storage: P.storage.slice(), goods: P.goods.map(s => s && { g: s.g, n: s.n }), sold: P.sold.slice(), know: Object.assign({}, P.know), bonusTiles: P.bonusTiles.slice(), dice: P.dice.slice(), used: P.used.slice(), vpLog: Object.assign({}, P.vpLog) });
+  c.depots = st.depots.map(d => d.slice()); c.depotGoods = st.depotGoods.map(d => d.slice()); c.black = st.black.slice();
+  c.pending = st.pending.slice(); c.colorBonus = st.colorBonus.map(x => ({ first: x.first, second: x.second }));
+  return c;
+}
+function botRand(st) { if (!st.brng) st.brng = { s: (st.seed ^ 0x9e3779b9) >>> 0 }; return rngNext(st.brng); }
+function prune(st, P, acts, lvl) {
+  // drop obviously wasteful options to keep the search small
+  return acts.filter(a => {
+        if ((a.t === 'take' || a.t === 'place' || a.t === 'sell') && a.w > 3) return false;
+    return true;
+  });
+}
+function greedy(st, pi, W, quality, depth) {
+  // best value reachable by resolving the current step (and any bonus it triggers) greedily
+  let acts = prune(st, st.players[st.cur], legal(st).filter(a => a.t !== 'end'), quality);
+  let best = -1e9, bestA = null;
+  for (const a of acts) {
+    const c = cloneSim(st); apply(c, a);
+    let v = (c.pending.length && depth > 0) ? greedy(c, pi, W, quality, depth - 1).v : evalState(c, pi, W, quality);
+    if (v > best) { best = v; bestA = a; }
+  }
+  return { v: best, a: bestA };
+}
+function turnDone(st) { const P = st.players[st.cur]; return !st.pending.length && P.used[0] && P.used[1]; }
+function beam(st, pi, W, width) { const Q = 2;
+  let layer = [{ s: st, first: null }];
+  let best = { v: turnDone(st) ? evalState(st, pi, W, Q) : -1e9, a: { t: 'end' } };
+  for (let depth = 0; depth < 9 && layer.length; depth++) {
+    const next = [];
+    for (const node of layer) {
+      const acts = prune(node.s, node.s.players[node.s.cur], legal(node.s).filter(a => a.t !== 'end'), 2);
+      for (const a of acts) {
+        const c = cloneSim(node.s); apply(c, a);
+        const v = evalState(c, pi, W, Q);
+        const first = node.first || a;
+        if (turnDone(c) && v > best.v) best = { v, a: first };
+        next.push({ s: c, first, v });
+      }
+    }
+    // keep the most promising partial turns, with variety in the first step
+    next.sort((x, y) => y.v - x.v);
+    const kept = [], perFirst = {};
+    for (const nd of next) { const k = key(nd.first); perFirst[k] = (perFirst[k] || 0) + 1; if (perFirst[k] > Math.ceil(width / 2)) continue; if (turnDone(nd.s) && !nd.s.players[nd.s.cur].bought && nd.s.players[nd.s.cur].silver < 2 && !nd.s.players[nd.s.cur].know[6]) continue; kept.push(nd); if (kept.length >= width) break; }
+    layer = kept;
+  }
+  return best;
+}
+function botAction(st) {
+  const P = st.players[st.cur];
+  const L = legal(st);
+  if (L.length === 1) return L[0];
+  const W = wts(P.strategy);
+  const diff = P.difficulty || 'hard';
+  if (diff === 'hard') {
+    const b = beam(st, P.i, W, 9);
+    if (b.a && L.some(x => key(x) === key(b.a))) return b.a;
+  }
+  if (turnDone(st)) {
+    // only an optional purchase is left: buy if it helps
+    const base = evalState(st, P.i, W, diff === 'easy' ? 0 : 1);
+    let best = { v: base + (diff === 'easy' ? 0.5 : 0.2), a: { t: 'end' } };
+    L.filter(a => a.t === 'buy').forEach(a => { const c = cloneSim(st); apply(c, a); const v = evalState(c, P.i, W, diff === 'easy' ? 0 : 1); if (v > best.v) best = { v, a }; });
+    return best.a;
+  }
+  if (diff === 'easy') {
+    const acts = prune(st, P, L.filter(a => a.t !== 'end'), 0);
+    const scored = acts.map(a => { const c = cloneSim(st); apply(c, a); return { a, v: evalState(c, P.i, W, 0) + botRand(st) * 7 }; }).sort((x, y) => y.v - x.v);
+    if (botRand(st) < 0.2) { const pick = scored[Math.floor(botRand(st) * Math.min(5, scored.length))]; return pick.a; }
+    return scored[0].a;
+  }
+  const g = greedy(st, P.i, W, 0, 2);
+  return g.a || L[0];
+}
+
+/* ---------------- export ---------------- */
+const api = { newGame, legal, act, apply, botAction, describe, evalState, key, genEstate, classicEstate, baseGrid, tileDesc, stName, order, knowEnd, finalBreakdown, cost, canPlace,
+  COLORS, BLD, ANIMALS, GOODS, KNOW_T, STRAT, STRAT_KEYS, DIFF, BOT_NAMES, TRI, DEPOT_SPACES, CASTLE, SHIP, PASTURE, TOWN, MINE, KNOW, mkRng };
+if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.BurgEngine = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+(function(){
+'use strict';
+var E=window.BurgEngine, $=function(id){return document.getElementById(id);};
+var SPEED={slow:1000,normal:500,fast:170,instant:0};
+var PCOL=['#f2c14e','#e05a6b','#5aa9e6','#8bd17c'];
+var G=null, ui={sel:null,store:null,buy:false,discard:null,view:0,busy:false,speed:'normal',hint:null,hintKey:''};
+var cfg=loadCfg();
+function loadCfg(){
+  var d={n:3,first:'me',estate:'classic',quick:0,extra:0,know:'classic',hints:0,seats:[{s:'random',d:'medium'},{s:'random',d:'medium'},{s:'random',d:'medium'}]};
+  try{var c=JSON.parse(localStorage.getItem('burgaindySetup')||'null');if(c){['n','first','estate','quick','extra','know','hints'].forEach(function(k){if(c[k]!=null)d[k]=c[k];});if(Array.isArray(c.seats))c.seats.slice(0,3).forEach(function(s,i){if(s&&(s.s==='random'||E.STRAT[s.s]))d.seats[i].s=s.s;if(s&&E.DIFF[s.d])d.seats[i].d=s.d;});}}catch(e){}
+  return d;
+}
+function saveCfg(){try{localStorage.setItem('burgaindySetup',JSON.stringify(cfg));}catch(e){}}
+try{ui.speed=localStorage.getItem('burgaindySpeed')||'normal';if(!(ui.speed in SPEED))ui.speed='normal';}catch(e){}
+$('speedSel').value=ui.speed;
+
+/* ---------- svg helpers ---------- */
+var NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent,text){var e=document.createElementNS(NS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;if(parent)parent.appendChild(e);return e;}
+function hexPts(cx,cy,s){var p=[];for(var i=0;i<6;i++){var a=Math.PI/180*(60*i-30);p.push((cx+s*Math.cos(a)).toFixed(1)+','+(cy+s*Math.sin(a)).toFixed(1));}return p.join(' ');}
+function tileIcon(t){if(t.c===E.TOWN)return E.BLD[t.k].i;if(t.c===E.PASTURE)return E.ANIMALS[t.k.a].i;return E.COLORS[t.c].icon;}
+function drawTile(g,t,cx,cy,s,opts){
+  opts=opts||{};
+  var C=E.COLORS[t.c];
+  el('polygon',{points:hexPts(cx,cy,s),fill:C.fill,stroke:t.b?'#111':'#2a1d10',"stroke-width":t.b?3:1.5,"class":'hx'},g);
+  el('polygon',{points:hexPts(cx,cy,s*0.8),fill:'none',stroke:'#ffffff40',"stroke-width":1},g);
+  el('text',{x:cx,y:cy-(t.c===E.PASTURE||t.c===E.KNOW?s*0.12:0),"class":'ico',"font-size":(s*0.78).toFixed(1)},g,tileIcon(t));
+  if(t.c===E.PASTURE)el('text',{x:cx,y:cy+s*0.55,"class":'lbl',"font-size":(s*0.42).toFixed(1)},g,'×'+t.k.n);
+  if(t.c===E.KNOW)el('text',{x:cx,y:cy+s*0.55,"class":'lbl',"font-size":(s*0.36).toFixed(1)},g,'#'+t.k);
+  if(t.start)el('text',{x:cx,y:cy+s*0.58,"class":'lbl',"font-size":(s*0.32).toFixed(1)},g,'start');
+}
+function costBadge(g,cx,cy,w){if(!w)return;el('circle',{cx:cx,cy:cy,r:9,"class":'costbg'},g);el('text',{x:cx,y:cy+0.5,"class":'cost num'},g,'+'+w);}
+
+/* ---------- action indexing for the human ---------- */
+function me(){return G.players.findIndex(function(p){return p.human;});}
+function myTurn(){return G&&!G.over&&G.players[G.cur].human;}
+function legalNow(){
+  if(!myTurn())return [];
+  var L=E.legal(G);
+  if(ui.sel!=null)L=L.filter(function(a){return a.die==null||a.die===-1||a.die===ui.sel||(a.die===0&&ui.sel===1&&G.players[G.cur].dice[0]===G.players[G.cur].dice[1]);});
+  return L;
+}
+function best(list){return list.slice().sort(function(a,b){return (a.w||0)-(b.w||0);})[0];}
+
+/* ---------- rendering ---------- */
+function render(){
+  if(!G)return;
+  renderMarket(); renderEstate(); renderTurn(); renderPlayers(); renderLog(); if(window.__updateTip)window.__updateTip();
+}
+function renderMarket(){
+  var svg=$('market');svg.innerHTML='';
+  var L=legalNow(), pd=G.pending[G.pending.length-1];
+  var takeIdx={},buyIdx={},shipD={};
+  L.forEach(function(a){
+    if(a.t==='take'&&!ui.buy){var k=a.d+','+a.s;if(!takeIdx[k])takeIdx[k]=[];takeIdx[k].push(a);}
+    if(a.t==='buy'&&(ui.buy||a.d<0)){var k2=a.d+','+a.s;if(!buyIdx[k2])buyIdx[k2]=[];buyIdx[k2].push(a);}
+    if(a.t==='ship')shipD[a.d]=a;
+  });
+  // phase track
+  var px=20;
+  for(var p=0;p<G.phases;p++){
+    var cur=p===G.phase, done=p<G.phase;
+    var g=el('g',{},svg);
+    el('rect',{x:px,y:8,width:44,height:32,rx:8,fill:cur?'#f2c14e':done?'#3b2b44':'#4a3356',stroke:'#0006'},g);
+    el('text',{x:px+13,y:24.5,"class":'num',"font-size":16,fill:cur?'#2a1d00':'#f6eef3'},g,G.letters[p]);
+    el('text',{x:px+31,y:24.5,"class":'num',"font-size":11,fill:cur?'#2a1d00':'#c0a9bd'},g,'+'+G.bonus[p]);
+    px+=48;
+  }
+  // upcoming goods for this phase
+  el('text',{x:px+4,y:24.5,"font-size":11,fill:'#c0a9bd',"dominant-baseline":'central'},svg,'next goods');
+  var gx=px+62;
+  G.roundGoods.forEach(function(gd,i){el('rect',{x:gx+i*24,y:14,width:20,height:20,rx:4,fill:E.GOODS[gd].c,stroke:'#0008'},svg);el('text',{x:gx+i*24+10,y:24.5,"class":'num',"font-size":12,fill:gd===5||gd===0?'#fff':'#222'},svg,gd+1);});
+  // six depots in a 3x2 grid, black market along the bottom
+  for(var d=0;d<6;d++){
+    var col=d%3,row=Math.floor(d/3), px0=4+col*138, py0=50+row*152, dx=px0+67, dy=py0+74;
+    var dg=el('g',{"class":'depot','data-d':d},svg);
+    var plate=el('rect',{x:px0,y:py0,width:134,height:146,rx:14,fill:shipD[d]?'#4b3a20':'#2f2236',stroke:shipD[d]?'#ffe27a':'#00000080',"stroke-width":shipD[d]?3.5:1.5,"class":'plate'},dg);
+    if(shipD[d]){(function(dd){plate.style.cursor='pointer';plate.addEventListener('click',function(){doAct(shipD[dd]);});})(d);}
+    el('rect',{x:px0+6,y:py0+6,width:24,height:24,rx:5,fill:'#f7f1e3',stroke:'#0008'},dg);
+    el('text',{x:px0+18,y:py0+18.5,"class":'num',"font-size":15,fill:'#2a1d10'},dg,d+1);
+    var sp=[[-21,-12],[21,-12],[-21,32],[21,32]];
+    for(var s=0;s<G.n;s++){
+      var t=G.depots[d][s], x=dx+sp[s][0], y=dy+sp[s][1]-8;
+      var g=el('g',{"class":'slot','data-d':d,'data-s':s},dg);
+      if(t){drawTile(g,t,x,y,23);
+        var acts=takeIdx[d+','+s]||buyIdx[d+','+s];
+        if(acts){g.classList.add('hl');costBadge(g,x+17,y-16,best(acts).w);}
+      } else el('polygon',{points:hexPts(x,y,23),fill:'none',stroke:E.COLORS[E.DEPOT_SPACES[d][s]].fill,"stroke-width":2,"stroke-dasharray":'4 3',"class":'hx',opacity:.7},g);
+      (function(dd,ss){g.addEventListener('click',function(){clickTile(dd,ss);});})(d,s);
+    }
+    var gl=G.depotGoods[d], gs=Math.min(19,96/Math.max(1,gl.length)), gz=Math.min(17,gs-2);
+    gl.forEach(function(gd,i){var gg=el('g',{},dg);var gx=px0+36+i*gs,gy=py0+8;el('rect',{x:gx,y:gy,width:gz,height:gz,rx:3,fill:E.GOODS[gd].c,stroke:'#000',"class":'gsq'},gg);el('text',{x:gx+gz/2,y:gy+gz/2+0.5,"class":'num',"font-size":gz*0.62,fill:gd===5||gd===0?'#fff':'#222'},gg,gd+1);});
+  }
+  var by=358;
+  el('rect',{x:4,y:by,width:410,height:84,rx:14,fill:'#120c14',stroke:ui.buy?'#ffe27a':'#000',"stroke-width":ui.buy?3:1.5},svg);
+  el('text',{x:14,y:by+13,"font-size":11,fill:'#c0a9bd',"dominant-baseline":'central',"font-weight":700},svg,'BLACK MARKET · 2 silver, once a turn');
+  var bn=G.blackSize, bw=bn===8?48:60, bx0=209-(bn-1)*bw/2;
+  G.black.forEach(function(t,s){
+    var x=bx0+s*bw,y=by+52;
+    var g=el('g',{"class":'slot','data-d':-1,'data-s':s},svg);
+    if(t){drawTile(g,t,x,y,22);if(buyIdx['-1,'+s])g.classList.add('hl');}
+    else el('polygon',{points:hexPts(x,y,22),fill:'#ffffff08',stroke:'#ffffff22',"class":'hx'},g);
+    g.addEventListener('click',function(){clickTile(-1,s);});
+  });
+  $('phaseLbl').textContent='Phase '+G.letters[G.phase]+' · round '+(G.round+1)+' of 5';
+}
+function renderEstate(){
+  var svg=$('estate');svg.innerHTML='';
+  var P=G.players[ui.view], Lay=G.lay[ui.view], S=34, isMe=P.human&&myTurn();
+  var L=isMe?legalNow():[];
+  var placeIdx={};
+  L.forEach(function(a){if(a.t==='place'&&(ui.store==null||a.from===ui.store)){if(!placeIdx[a.sp])placeIdx[a.sp]=[];placeIdx[a.sp].push(a);}});
+  var showHl=isMe&&ui.store!=null;
+  Lay.cells.forEach(function(c,j){
+    var x=c.x*S,y=c.y*S, t=P.placed[j], C=E.COLORS[c.c];
+    var g=el('g',{"class":'slot','data-sp':j},svg);
+    if(t)drawTile(g,t,x,y,S-1);
+    else{
+      el('polygon',{points:hexPts(x,y,S-1),fill:C.light,stroke:'#00000030',"stroke-width":1,"class":'hx'},g);
+      el('text',{x:x,y:y,"class":'num',"font-size":19,fill:'#2a1d10',opacity:.75},g,c.num);
+      if(showHl&&placeIdx[j]){g.classList.add('hl');costBadge(g,x+20,y-20,best(placeIdx[j]).w);}
+    }
+    g.addEventListener('click',function(){clickSpace(j);});
+  });
+  // area borders
+  Lay.cells.forEach(function(c,j){
+    for(var k=0;k<6;k++){var nb=Lay.nbDir[j][k];if(nb!=null&&nb<j)continue;if(nb!=null&&Lay.cells[nb].reg===c.reg)continue;
+      var a1=Math.PI/180*(60*k-30-30), a2=Math.PI/180*(60*k+30-30);
+      // edge between corners facing direction k
+      var dirAng=[0,-60,-120,180,120,60][k]*Math.PI/180;
+      var c1=dirAng-Math.PI/6, c2=dirAng+Math.PI/6, x=c.x*S,y=c.y*S,R=S;
+      el('line',{x1:x+R*Math.cos(c1),y1:y+R*Math.sin(c1),x2:x+R*Math.cos(c2),y2:y+R*Math.sin(c2),stroke:'#120a10',"stroke-width":4.5,"stroke-linecap":'round',"pointer-events":'none'},svg);
+      void a1;void a2;
+    }
+  });
+  $('estTitle').textContent=P.human?'Your estate':P.name+'\u2019s estate';
+  var tabs=$('tabs');tabs.innerHTML='';
+  G.players.forEach(function(Q,i){var b=document.createElement('button');b.className='btn small'+(i===ui.view?' on':'');b.textContent=Q.human?'Me':Q.name;b.onclick=function(){ui.view=i;render();};tabs.appendChild(b);});
+  // storage
+  var st=$('store');st.innerHTML='<span class="lab">Storage</span>';
+  P.storage.forEach(function(t,f){
+    var d=document.createElement('div');d.className='st';d.setAttribute('data-f',f);
+    var can=isMe&&L.some(function(a){return a.t==='place'&&a.from===f;});
+    if(ui.store===f&&isMe)d.className+=' sel';else if(isMe&&(can||ui.discard))d.className+=' hl';
+    if(t){var s=document.createElementNS(NS,'svg');s.setAttribute('viewBox','-28 -28 56 56');drawTile(s,t,0,0,26);d.appendChild(s);d.title=E.stName(t);}
+    d.onclick=function(){clickStore(f);};
+    st.appendChild(d);
+  });
+  var gd=$('goods');gd.innerHTML='<span class="lab">Goods</span>';
+  P.goods.forEach(function(s){
+    var d=document.createElement('div');
+    if(!s){d.className='gd empty';d.textContent='empty';gd.appendChild(d);return;}
+    d.className='gd';d.style.background=E.GOODS[s.g].c;d.style.color=(s.g===5||s.g===0)?'#fff':'#1a1a1a';
+    d.innerHTML='<span>'+(s.g+1)+'</span><span>'+E.GOODS[s.g].n+' ×'+s.n+'</span>';
+    if(isMe&&L.some(function(a){return a.t==='sell'&&a.g===s.g;}))d.className+=' hl';
+    d.setAttribute('data-g',s.g);
+    d.onclick=function(){clickGood(s.g);};
+    gd.appendChild(d);
+  });
+  var sold=P.sold.reduce(function(a,b){return a+b;},0);
+  if(sold){var x=document.createElement('span');x.className='lab';x.textContent='sold '+sold;gd.appendChild(x);}
+}
+function pips(n){var map={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]}[n]||[];var h='';for(var i=0;i<9;i++)h+='<i class="'+(map.indexOf(i)>=0?'p':'')+'"></i>';return h;}
+function renderTurn(){
+  var P=G.players[G.cur], card=$('turnCard'), mine=myTurn();
+  card.className='card'+(mine?' mine':'');
+  var pd=G.pending[G.pending.length-1];
+  if(G.over){$('tTitle').textContent='Game over';$('tHelp').innerHTML='<b>'+G.players[G.winner].name+'</b> wins with '+G.players[G.winner].vp+' VP.';}
+  else if(mine){
+    $('tTitle').textContent='Your turn';
+    var h='';
+    if(ui.discard)h='Storage is full: tap a stored tile to throw it away (or tap the market tile again to cancel).';
+    else if(pd&&pd.t==='free')h='🏰 Castle bonus: take any one action with <b>any number</b>.';
+    else if(pd&&pd.t==='townhall')h='🏛️ Town Hall: place one more tile from storage on a space with any number.';
+    else if(pd&&pd.t==='warehouse')h='📦 Warehouse: tap a goods stack to sell it.';
+    else if(pd&&pd.t==='pick')h='Bonus: take a '+pd.cols.map(function(c){return E.COLORS[c].tile.toLowerCase();}).join(' or ')+' tile from any numbered depot.';
+    else if(pd&&pd.t==='ship')h='⛵ Ship: tap a highlighted depot to collect its goods.';
+    else if(P.used[0]&&P.used[1])h='Both dice used. Buy from the black market if you like, then end your turn.';
+    else if(ui.buy)h='Buy mode: tap a black-market tile (2 silver).';
+    else if(ui.store!=null)h='Tap a highlighted space to place '+E.stName(P.storage[ui.store])+'. Badges show any workers needed.';
+    else h='Use each die once: tap a market tile to take it, a stored tile to place it, a goods stack to sell, or take workers.';
+    $('tHelp').innerHTML=h;
+  } else {$('tTitle').textContent=P.name+' is playing';$('tHelp').innerHTML=P.human?'':(E.STRAT[P.strategy].i+' '+E.STRAT[P.strategy].n+' · '+E.DIFF[P.difficulty].n);}
+  var dr=$('diceRow');dr.innerHTML='';
+  P.dice.forEach(function(v,i){var d=document.createElement('div');d.className='die'+(P.used[i]?' used':'')+(mine&&ui.sel===i&&!P.used[i]?' sel':'')+(mine?'':' bot');d.innerHTML=pips(v);d.setAttribute('data-i',i);d.title='Die '+v;
+    d.onclick=function(){if(!mine||P.used[i])return;ui.sel=ui.sel===i?null:i;render();};dr.appendChild(d);});
+  var w=document.createElement('div');w.className='die white';w.innerHTML=pips(G.white);w.title='White die: goods went to depot '+G.white;dr.appendChild(w);
+  var wl=document.createElement('span');wl.style.cssText='font-size:12px;color:var(--muted)';wl.textContent='white die → goods to depot '+G.white;dr.appendChild(wl);
+  $('res').innerHTML='<span>👷 '+P.workers+' workers</span><span>🪙 '+P.silver+' silver</span><span>⭐ '+P.vp+' VP</span>';
+  var L=mine?E.legal(G):[];
+  $('workersBtn').disabled=!L.some(function(a){return a.t==='workers';});
+  $('buyBtn').disabled=!L.some(function(a){return a.t==='buy';});$('buyBtn').className='btn small'+(ui.buy?' on':'');
+  $('skipBtn').style.display=pd&&mine?'':'none';
+  $('endBtn').disabled=!L.some(function(a){return a.t==='end';});
+  // hints
+  var hint=$('hint');
+  if(mine&&G.opts.hints&&!ui.discard){
+    var k=JSON.stringify([G.phase,G.round,G.cur,P.used,P.storage.map(function(t){return t&&t.id;}),G.pending.length,P.workers,P.silver,P.bought]);
+    if(ui.hintKey!==k){ui.hintKey=k;try{var a=E.botAction(G);ui.hint=E.describe(G,a);}catch(e){ui.hint=null;}}
+    hint.className=ui.hint?'show':'';hint.textContent=ui.hint?'💡 Hint: '+ui.hint+'.':'';
+  } else {hint.className='';}
+}
+function renderPlayers(){
+  var box=$('players');box.innerHTML='';
+  var ord=G.order;
+  G.players.forEach(function(P,i){
+    var d=document.createElement('div');d.className='pl'+(i===G.cur&&!G.over?' cur':'')+(i===ui.view?' viewing':'');
+    var tag=P.human?'<span class="tag">You</span>':'<span class="tag">'+E.DIFF[P.difficulty].n+'</span>';
+    var strat=P.human?'':'<div class="strat">'+E.STRAT[P.strategy].i+' <b>'+E.STRAT[P.strategy].n+'</b> <i>· '+E.STRAT[P.strategy].d+'</i></div>';
+    var placed=P.placed.filter(function(x){return x;}).length;
+    d.innerHTML='<div class="dot" style="background:'+PCOL[i]+'"></div><div><div><span class="pn">'+P.name+'</span>'+tag+'</div>'+strat+
+      '<div class="stats">⭐ <b>'+P.vp+'</b> VP · 🪙 '+P.silver+' · 👷 '+P.workers+' · 🏞️ '+placed+'/37 · turn order '+(ord.indexOf(i)+1)+(P.bonusTiles.length?' · 🎖️ '+P.bonusTiles.length:'')+'</div></div>';
+    d.onclick=function(){ui.view=i;render();};
+    box.appendChild(d);
+  });
+}
+function renderLog(){var lg=$('log');lg.innerHTML=G.log.slice(-80).map(function(l){return '<div class="'+l.c+'">'+l.m+'</div>';}).join('');lg.scrollTop=lg.scrollHeight;}
+function tip(html){$('tip').innerHTML=html||'';}
+function toast(m){var t=$('toast');t.textContent=m;t.className='show';clearTimeout(toast.t);toast.t=setTimeout(function(){t.className='';},2200);}
+
+/* ---------- clicks ---------- */
+function clickTile(d,s){
+  var t=d<0?G.black[s]:G.depots[d][s];
+  if(t)tip('<b>'+E.stName(t)+'</b> ('+E.COLORS[t.c].tile.toLowerCase()+'): '+E.tileDesc(t));
+  if(!myTurn())return;
+  var L=legalNow();
+  if(ui.discard){ui.discard=null;render();return;}
+  var buys=L.filter(function(a){return a.t==='buy'&&a.d===d&&a.s===s;});
+  if(buys.length&&(d<0||ui.buy)){ui.buy=false;doAct(buys.find(function(a){return a.pay==='silver';})||buys[0]);return;}
+  var takes=L.filter(function(a){return a.t==='take'&&a.d===d&&a.s===s;});
+  if(!takes.length){if(t&&d<0&&!buys.length)toast(G.players[G.cur].bought?'You have already bought a tile this turn.':'Buying needs 2 silver and an empty storage space.');else if(t)toast('No die (with your workers) can reach depot '+(d+1)+' right now.');return;}
+  var b=best(takes);
+  if(b.disc>=0){ui.discard=takes.filter(function(a){return a.w===b.w&&a.die===b.die;});render();return;}
+  doAct(b);
+}
+function clickStore(f){
+  var P=G.players[ui.view];var t=P.storage[f];
+  if(t)tip('<b>'+E.stName(t)+'</b>: '+E.tileDesc(t));
+  if(!myTurn()||!P.human)return;
+  if(ui.discard){var a=ui.discard.find(function(x){return x.disc===f;});ui.discard=null;if(a)doAct(a);else render();return;}
+  if(!t)return;
+  ui.store=ui.store===f?null:f;ui.buy=false;render();
+  if(ui.store!=null&&!legalNow().some(function(a){return a.t==='place'&&a.from===f;}))toast('No legal space for this tile with your dice and workers right now.');
+}
+function clickSpace(j){
+  var P=G.players[ui.view],c=G.lay[ui.view].cells[j],t=P.placed[j];
+  tip(t?'<b>'+E.stName(t)+'</b>: '+E.tileDesc(t):E.COLORS[c.c].area+' space · number '+c.num+' · area of '+G.lay[ui.view].regs[c.reg].cells.length);
+  if(!myTurn()||!P.human||t)return;
+  var L=legalNow().filter(function(a){return a.t==='place'&&a.sp===j&&(ui.store==null||a.from===ui.store);});
+  if(!L.length){if(ui.store!=null)toast('That space needs a matching colour, number and a neighbouring tile.');return;}
+  if(ui.store==null){var froms={};L.forEach(function(a){froms[a.from]=1;});if(Object.keys(froms).length>1){toast('Tap a stored tile first.');return;}}
+  ui.store=null;doAct(best(L));
+}
+function clickGood(g){
+  if(!myTurn()||!G.players[ui.view].human)return;
+  var L=legalNow().filter(function(a){return a.t==='sell'&&a.g===g;});
+  if(!L.length){toast('You need a die showing '+(g+1)+' (or workers to reach it) to sell '+E.GOODS[g].n+'.');return;}
+  doAct(best(L));
+}
+$('workersBtn').onclick=function(){var L=legalNow().filter(function(a){return a.t==='workers';});if(!L.length)L=E.legal(G).filter(function(a){return a.t==='workers';});if(L.length)doAct(L[0]);};
+$('buyBtn').onclick=function(){ui.buy=!ui.buy;ui.store=null;render();};
+$('skipBtn').onclick=function(){var a=E.legal(G).find(function(x){return x.t==='skip';});if(a)doAct(a);};
+$('endBtn').onclick=function(){var a=E.legal(G).find(function(x){return x.t==='end';});if(a)doAct(a);};
+
+/* ---------- game flow ---------- */
+function doAct(a){
+  if(!G||G.over)return;
+  try{E.act(G,a);}catch(e){toast('That move is not allowed.');return;}
+  if(a.die!=null&&a.die>=0)ui.sel=null;
+  ui.discard=null;ui.store=null;
+  // nothing left but ending the turn: end it for the player
+  if(myTurn()){var L=E.legal(G);if(L.length===1&&L[0].t==='end')E.act(G,L[0]);}
+  if(!myTurn()){ui.buy=false;}
+  render();pump();
+}
+var pumpT=null;
+function pump(){
+  clearTimeout(pumpT);
+  if(!G)return;
+  if(G.over){ui.busy=false;render();showOver();return;}
+  if(myTurn()){ui.busy=false;if(ui.view!==me())ui.view=me();render();return;}
+  ui.busy=true;
+  pumpT=setTimeout(function(){
+    if(!G||G.over||myTurn()){pump();return;}
+    var a=E.botAction(G);E.act(G,a);
+    if(ui.speed!=='instant'||!(G.turnIdx===0&&G.round===0))render();
+    pump();
+  },SPEED[ui.speed]);
+}
+function showOver(){polishOver();
+  var rows=[['Total','vp'],['Areas','areas'],['Livestock','livestock'],['Goods sold','goods'],['Colour bonuses','bonus'],['Watchtowers','watch'],['Other tiles','other'],['End: silver','f_silver'],['End: goods','f_goods'],['End: workers','f_workers'],['End: knowledge','f_know']];
+  var ps=G.ranking.map(function(i){return G.players[i];});
+  var h='<table class="sc"><tr><th></th>'+ps.map(function(P){return '<th>'+P.name+'</th>';}).join('')+'</tr>';
+  rows.forEach(function(r){h+='<tr class="'+(r[1]==='vp'?'tot':'')+'"><td>'+r[0]+'</td>'+ps.map(function(P){var v=r[1]==='vp'?P.vp:r[1].indexOf('f_')===0?P.final[r[1].slice(2)]:P.vpLog[r[1]];return '<td>'+v+'</td>';}).join('')+'</tr>';});
+  h+='</table>';
+  var W=G.players[G.winner];
+  $('overTitle').textContent=W.human?'You win! 🏆':W.name+' wins';
+  $('overBody').innerHTML=h;
+  if(G.players[G.winner].human)$('overTitle').textContent='You win! 🏆';
+  $('over').className='modal show';
+}
+function startGame(){
+  var players=[{name:'Me',human:true}];
+  for(var i=0;i<cfg.n-1;i++)players.push({name:E.BOT_NAMES[i],human:false,strategy:cfg.seats[i].s,difficulty:cfg.seats[i].d});
+  G=E.newGame({players:players,first:cfg.first,opts:{estate:cfg.estate,quick:!!+cfg.quick,extraWorkers:!!+cfg.extra,knowSet:cfg.know,hints:!!+cfg.hints}});
+  ui.sel=null;ui.store=null;ui.buy=false;ui.discard=null;ui.view=0;ui.hintKey='';
+  $('setup').className='modal';$('over').className='modal';
+  mode='custom';recorded=false;hideTitle();
+  tip('');render();pump();
+}
+
+/* ---------- setup screen ---------- */
+function opt(id,val,on){var box=$(id);[].forEach.call(box.querySelectorAll('button'),function(b){b.className=b.getAttribute('data-v')===String(val)?'on':'';b.onclick=function(){on(b.getAttribute('data-v'));drawSetup();};});}
+function drawSetup(){
+  opt('optN',cfg.n,function(v){cfg.n=+v;});
+  opt('optFirst',cfg.first,function(v){cfg.first=v;});
+  opt('optEstate',cfg.estate,function(v){cfg.estate=v;});
+  opt('optQuick',+cfg.quick,function(v){cfg.quick=+v;});
+  opt('optExtra',+cfg.extra,function(v){cfg.extra=+v;});
+  opt('optKnow',cfg.know,function(v){cfg.know=v;});
+  opt('optHints',+cfg.hints,function(v){cfg.hints=+v;});
+  var box=$('seats');box.innerHTML='<div class="seat"><div class="dot" style="background:'+PCOL[0]+'"></div><b>Me</b><span></span><span></span></div>';
+  for(var i=0;i<cfg.n-1;i++){
+    var s=cfg.seats[i], d=document.createElement('div');d.className='seat';
+    var so='<option value="random">🎲 Random strategy</option>'+E.STRAT_KEYS.map(function(k){return '<option value="'+k+'"'+(s.s===k?' selected':'')+'>'+E.STRAT[k].i+' '+E.STRAT[k].n+'</option>';}).join('');
+    var dd=Object.keys(E.DIFF).map(function(k){return '<option value="'+k+'"'+(s.d===k?' selected':'')+'>'+E.DIFF[k].n+'</option>';}).join('');
+    var desc=s.s==='random'?'A strategy is drawn at random when the game starts.':E.STRAT[s.s].d;
+    d.innerHTML='<div class="dot" style="background:'+PCOL[i+1]+'"></div><b>'+E.BOT_NAMES[i]+'</b><select data-seat="'+i+'" data-k="s" aria-label="'+E.BOT_NAMES[i]+' strategy">'+so+'</select><select data-seat="'+i+'" data-k="d" aria-label="'+E.BOT_NAMES[i]+' difficulty">'+dd+'</select><div class="sd">'+desc+'</div>';
+    box.appendChild(d);
+  }
+  [].forEach.call(box.querySelectorAll('select'),function(sel){sel.onchange=function(){cfg.seats[+sel.getAttribute('data-seat')][sel.getAttribute('data-k')]=sel.value;saveCfg();drawSetup();};});
+  saveCfg();
+}
+function openSetup(){drawSetup();$('setup').className='modal show';$('setupCancel').style.display=G?'':'none';}
+$('newBtn').onclick=openSetup;$('overNew').onclick=function(){$('over').className='modal';openSetup();};
+/* ---------- polish: title screen, quick mode, tips, result card, stats ---------- */
+var PUBLIC_URL='https://yougitadmin.github.io/omnixr-games/caistles/';
+var MASCOTS=['🤴','👸','🧙'];
+var TAUNT={shipwright:'My ships will empty the market before you finish your coffee.',rancher:'Herds this big need room. Yours, ideally.',builder:'A town on every corner. Starting next to yours.',scholar:'I read the rules. You\u2019ll read my score.',castellan:'Every castle is one more turn I take from you.',racer:'Finished that area already. Keep up.',merchant:'Silver buys everything. Including your tiles.',balanced:'Every move weighed. Every move better.'};
+var WINQ={shipwright:'Full holds, full points.',rancher:'Moo-ve over. The valley is mine.',builder:'Built to win.',scholar:'Exactly as the books predicted.',castellan:'Long live the castellan!',racer:'First across the line, as usual.',merchant:'Profit. Pure profit.',balanced:'As calculated.'};
+var LOSEQ={shipwright:'The tide will turn. Rematch.',rancher:'My sheep wandered off. Rematch.',builder:'Back to the drawing board.',scholar:'I need to study this loss.',castellan:'Even castles fall, it seems.',racer:'One more area and I had you!',merchant:'Put it on my tab. Rematch.',balanced:'Recalculating\u2026'};
+var mode='custom', rivals=pickRivals(), recorded=false;
+function lsGet(k,d){try{var v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function pickRivals(){var k=E.STRAT_KEYS.slice(),r=[];while(r.length<2){r.push(k.splice(Math.floor(Math.random()*k.length),1)[0]);}return r;}
+function getStats(){return Object.assign({played:0,wins:0,streak:0,bestStreak:0,bestVP:0,quick:0},lsGet('caistlesStats',{}));}
+function drawTitle(){
+  var h='';for(var i=0;i<rivals.length;i++){var S=E.STRAT[rivals[i]];h+='<div class="bot" style="--fc:'+PCOL[i+1]+'"><div class="face">'+MASCOTS[i]+'</div><div><div class="bn">'+E.BOT_NAMES[i]+'</div><div class="bl">'+S.i+' '+S.n+'</div><div class="bt">\u201c'+TAUNT[rivals[i]]+'\u201d</div></div></div>';}
+  $('titleBots').innerHTML=h;
+  var st=getStats();
+  $('titleStats').innerHTML=st.played?['<div class="stat"><b>'+st.played+'</b><span>played</span></div>','<div class="stat"><b>'+st.wins+'</b><span>won</span></div>','<div class="stat"><b>'+st.streak+'</b><span>win streak</span></div>','<div class="stat"><b>'+st.bestVP+'</b><span>best score</span></div>'].join(''):'<div class="sub">Draft tiles with your dice, fill your estate, finish areas. Most points wins.</div>';
+  $('resumeBtn').style.display=G&&!G.over?'':'none';
+}
+function showTitle(){drawTitle();$('title').className='screen show';$('over').className='modal';$('setup').className='modal';}
+function hideTitle(){$('title').className='screen';}
+function playNow(){
+  var players=[{name:'Me',human:true}];
+  for(var i=0;i<rivals.length;i++)players.push({name:E.BOT_NAMES[i],human:false,strategy:rivals[i],difficulty:'medium'});
+  G=E.newGame({players:players,first:'me',opts:{estate:'shared',quick:true,extraWorkers:false,knowSet:'shuffled',hints:false}});
+  mode='quick';recorded=false;ui.sel=null;ui.store=null;ui.buy=false;ui.discard=null;ui.view=0;ui.hintKey='';
+  $('setup').className='modal';$('over').className='modal';hideTitle();tip('');render();pump();
+}
+/* tips */
+var tipsOn=lsGet('caistlesTips',1)!==0, tipSeen=lsGet('caistlesTipsSeen',{}), curTip=null;
+var TIPS=[
+  ['goal',function(){return G.phase===0&&G.round===0;},function(){return 'Goal: score the most points by the end of phase '+G.letters[G.phases-1]+'. Finishing areas of your estate scores big, and early areas score a phase bonus.';}],
+  ['dice',function(){return myTurn();},function(){return 'Each die picks a market depot: take a tile from the depot with that number into your storage, or place a stored tile on a matching estate space.';}],
+  ['workers',function(){return myTurn()&&G.players[me()].workers>0;},function(){return 'Workers shift a die up or down by 1 each. Out of options? "Take 2 workers" turns a die into two workers.';}],
+  ['adjacent',function(){return myTurn()&&G.round>=1;},function(){return 'A tile must go next to something already in your estate, on a space of the same colour, with a die showing that space\u2019s number.';}],
+  ['goods',function(){return myTurn()&&G.round>=2;},function(){return 'Ships pick up goods. Selling a stack of goods pays silver and points, so let them pile up.';}],
+  ['black',function(){return myTurn()&&G.players[me()].silver>=2;},function(){return 'With 2 silver you can use Buy mode to grab a tile from the black market once per turn.';}],
+  ['last',function(){return G.phase===G.phases-1;},function(){return 'Final phase! Points for unfinished areas are gone, so spend workers and silver now. Leftovers only score a little.';}]
+];
+function updateTip(){
+  var box=$('coach');curTip=null;
+  if(G&&!G.over&&tipsOn&&$('title').className!=='screen show')for(var i=0;i<TIPS.length;i++){var t=TIPS[i];if(!tipSeen[t[0]]&&t[1]()){curTip=t[0];$('coachText').textContent='💡 '+t[2]();break;}}
+  box.className=curTip?'show':'';$('tipsBtn').style.opacity=tipsOn?'1':'.45';
+}
+window.__updateTip=updateTip;
+function setTips(on){tipsOn=!!on;lsSet('caistlesTips',on?1:0);updateTip();}
+$('coachOk').onclick=function(){if(curTip){tipSeen[curTip]=1;lsSet('caistlesTipsSeen',tipSeen);}updateTip();};
+$('coachOff').onclick=function(){setTips(0);toast('Tips off. Tap 💡 to turn them back on.');};
+$('tipsBtn').onclick=function(){setTips(!tipsOn);toast(tipsOn?'Tips on':'Tips off');};
+/* result */
+var lastCard='',lastShare='';
+function recordResult(){
+  if(recorded)return null;recorded=true;
+  var m=me(),won=G.winner===m,st=getStats(),badges=[],vp=G.players[m].vp;
+  st.played++;if(mode==='quick')st.quick++;
+  if(won){st.wins++;st.streak++;if(st.streak>st.bestStreak)st.bestStreak=st.streak;if(st.streak>1)badges.push('🔥 '+st.streak+'-win streak');}else st.streak=0;
+  if(vp>st.bestVP){if(st.played>1)badges.push('⭐ New best score');st.bestVP=vp;}
+  if(st.wins===1&&won)badges.push('🏅 First win');
+  lsSet('caistlesStats',st);return badges;
+}
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath();}
+function hex(x,cx,cy,s){x.beginPath();for(var i=0;i<6;i++){var a=Math.PI/180*(60*i-30);x.lineTo(cx+s*Math.cos(a),cy+s*Math.sin(a));}x.closePath();}
+function drawCard(){
+  var c=document.createElement('canvas');c.width=1200;c.height=630;var x=c.getContext('2d');
+  var g=x.createLinearGradient(0,0,1200,630);g.addColorStop(0,'#4a1f45');g.addColorStop(.6,'#1a1220');g.addColorStop(1,'#1f3a40');x.fillStyle=g;x.fillRect(0,0,1200,630);
+  var R=E.mkRng(G.seed||7);x.globalAlpha=.18;for(var k=0;k<40;k++){x.fillStyle=E.COLORS[Math.floor(R()*6)].fill;hex(x,R()*1200,R()*630,20+R()*30);x.fill();}x.globalAlpha=1;
+  x.font='900 80px system-ui,sans-serif';x.fillStyle='#f2c14e';x.fillText('c',60,115);var w1=x.measureText('c').width;x.fillStyle='#7fe0c0';x.fillText('AI',60+w1,115);var w2=x.measureText('AI').width;x.fillStyle='#f2c14e';x.fillText('stles',60+w1+w2,115);
+  var m=me(),won=G.winner===m,W=G.players[G.winner];
+  x.font='900 54px system-ui,sans-serif';x.fillStyle='#fff';x.fillText(won?'My estate wins! 🏆':W.name+' out-built me',60,195);
+  x.font='700 25px system-ui,sans-serif';x.fillStyle='#c0a9bd';x.fillText((mode==='quick'?'Quick game':'Full game')+' · '+G.phases+' phases · '+G.n+' players',60,240);
+  var ps=G.ranking.slice(0,4),mx=Math.max.apply(null,ps.map(function(k){return G.players[k].vp;}).concat([1]));
+  ps.forEach(function(k,j){var P=G.players[k],y=275+j*66,v=P.vp;
+    x.fillStyle='#ffffff14';rr(x,60,y,640,54,14);x.fill();
+    x.fillStyle=PCOL[k];rr(x,60,y,Math.max(60,640*v/mx),54,14);x.globalAlpha=.6;x.fill();x.globalAlpha=1;
+    x.font='800 26px system-ui,sans-serif';x.fillStyle='#fff';x.fillText((j+1)+'. '+(P.human?'Me':P.name),80,y+36);
+    x.textAlign='right';x.fillText(v+' pts',680,y+36);x.textAlign='left';});
+  var bi=won?G.ranking[1]:G.winner,B=G.players[bi];
+  if(B&&!B.human){var cx=950,cy=310;x.fillStyle=PCOL[bi];x.beginPath();x.ellipse(cx,cy,78,78,0,0,7);x.fill();x.lineWidth=6;x.strokeStyle='#fff';x.stroke();
+    x.font='84px system-ui,sans-serif';x.textAlign='center';x.fillText(MASCOTS[(bi-1)%3],cx,cy+30);
+    x.font='800 26px system-ui,sans-serif';x.fillStyle='#fff';x.fillText(B.name,cx,cy+118);
+    var q='\u201c'+(won?LOSEQ:WINQ)[B.strategy]+'\u201d';x.font='italic 600 22px system-ui,sans-serif';x.fillStyle='#f2c14e';
+    var words=q.split(' '),line='',ly=cy+156;words.forEach(function(wd){if(x.measureText(line+wd).width>360){x.fillText(line.trim(),cx,ly);ly+=28;line='';}line+=wd+' ';});x.fillText(line.trim(),cx,ly);x.textAlign='left';}
+  x.font='600 22px system-ui,sans-serif';x.fillStyle='#e8d8e4';x.fillText('by OmniXR · myomnixr.com',60,600);
+  x.textAlign='right';x.fillStyle='#7fe0c0';x.fillText(PUBLIC_URL.replace(/^https?:\/\//,''),1140,600);x.textAlign='left';
+  return c.toDataURL('image/png');
+}
+function shareText(){var m=me(),W=G.players[G.winner];
+  return G.winner===m?'I out-built '+(G.n-1)+' AI noble'+(G.n>2?'s':'')+' in cAIstles with '+G.players[m].vp+' points 🏆 Think you can beat them?':W.name+' out-built me at cAIstles ('+W.vp+' to '+G.players[m].vp+'). Can you beat the AI nobles?';}
+function polishOver(){
+  var badges=recordResult()||[];
+  lastCard=drawCard();$('cardImg').src=lastCard;
+  $('endBadges').innerHTML=badges.map(function(b){return '<span class="badge2">'+b+'</span>';}).join('');
+  lastShare='https://x.com/intent/post?text='+encodeURIComponent(shareText()+' '+PUBLIC_URL);
+  updateTip();
+}
+$('saveCard').onclick=function(){var a=document.createElement('a');a.href=lastCard;a.download='caistles-result.png';document.body.appendChild(a);a.click();a.remove();};
+$('shareX').onclick=function(){window.open(lastShare,'_blank','noopener');};
+$('overMenu').onclick=showTitle;$('menuBtn').onclick=showTitle;
+$('overAgain').onclick=function(){if(mode==='quick'){rivals=pickRivals();playNow();}else startGame();};
+$('playNow').onclick=playNow;$('setupBtn').onclick=function(){openSetup();};
+$('resumeBtn').onclick=function(){hideTitle();updateTip();};
+$('reroll').onclick=function(){rivals=pickRivals();drawTitle();};
+$('titleRules').onclick=function(){$('rules').className='modal show';};
+window.__result=function(){return G&&G.over?{winner:G.winner,won:G.winner===me(),vp:G.players.map(function(p){return p.vp;}),mode:mode,card:lastCard.length}:null;};
+window.__shareUrl=function(){return lastShare;};window.__stats=getStats;window.__tip=function(){return curTip;};window.__rivals=function(){return rivals.slice();};window.__playNow=playNow;
+function boot(){var h=location.hash;
+  if(h==='#setup'){hideTitle();openSetup();}
+  else if(/^#autostart=quick/.test(h))playNow();
+  else showTitle();}
+window.__finish=function(){while(!G.over)E.act(G,E.botAction(G));render();showOver();};
+
+$('overClose').onclick=function(){$('over').className='modal';};
+$('setupCancel').onclick=function(){$('setup').className='modal';};
+$('startBtn').onclick=startGame;
+$('rulesBtn').onclick=function(){$('rules').className='modal show';};$('rulesClose').onclick=function(){$('rules').className='modal';};
+$('speedSel').onchange=function(){ui.speed=this.value;try{localStorage.setItem('burgaindySpeed',ui.speed);}catch(e){}};
+
+window.__game=function(){return G;};window.__E=E;window.__cfg=function(){return cfg;};
+window.__ui={ui:ui,act:doAct,render:render,start:startGame,setCfg:function(c){Object.assign(cfg,c);saveCfg();},busy:function(){return ui.busy;}};
+boot();
+})();
+</script>
+</body>
+</html>

@@ -8,6 +8,7 @@ Free browser games against AI bots, by OmniXR · https://myomnixr.com
 - AIrks: https://yougitadmin.github.io/omnixr-games/airks/
 - TerrAImysticAI: https://yougitadmin.github.io/omnixr-games/terraimysticai/
 - lAIndlord: https://yougitadmin.github.io/omnixr-games/laindlord/
+- cAIstles: https://yougitadmin.github.io/omnixr-games/caistles/
 
 Each game is one self-contained HTML file that also works offline.
 
