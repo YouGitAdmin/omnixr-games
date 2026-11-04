@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a1220">
+<title>rAIsk</title>
+<meta name="description" content="Conquer a small island against AI generals in 5 minutes. Free, offline, no sign-up.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="OmniXR Games">
+<meta property="og:title" content="rAIsk: outwit the AI generals">
+<meta property="og:description" content="Conquer a small island against AI generals in 5 minutes. Free, offline, no sign-up.">
+<meta property="og:url" content="https://yougitadmin.github.io/omnixr-games/raisk/">
+<meta property="og:image" content="https://yougitadmin.github.io/omnixr-games/raisk/cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="rAIsk: a map conquest game against AI generals">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="rAIsk: outwit the AI generals">
+<meta name="twitter:description" content="Conquer a small island against AI generals in 5 minutes. Free, offline, no sign-up.">
+<meta name="twitter:image" content="https://yougitadmin.github.io/omnixr-games/raisk/cover.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23e5484d'/%3E%3Ctext x='32' y='45' font-size='36' text-anchor='middle'%3E%E2%9A%94%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#0a1220;--panel:#142236;--panel2:#1b2d46;--ink:#f2f5fa;--muted:#a6b8cf;--accent:#ffc94a;--ai:#ff5a5f;--bad:#ff7a6b;--ok:#62d18b;--brass:#c9a24a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Roboto,system-ui,-apple-system,Arial,sans-serif}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;background:radial-gradient(900px 500px at 50% -10%,#3a1a1f 0%,transparent 65%),radial-gradient(800px 500px at 110% 110%,#14324f 0%,transparent 60%),var(--bg);background-attachment:fixed}
+header{width:100%;max-width:1400px;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;gap:8px;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(22px,5vw,32px);color:var(--accent);font-weight:800;letter-spacing:.5px;white-space:nowrap}
+h1 .ai{color:var(--ai);text-shadow:0 0 14px #ff5a5f88}h1{text-shadow:0 0 18px #ffc94a55}
+.hbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.btn{appearance:none;border:0;border-radius:10px;padding:10px 14px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;background:#2c4766;color:var(--ink);touch-action:manipulation;white-space:nowrap}
+.btn:hover{filter:brightness(1.12)}.btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+.btn.primary{background:var(--accent);color:#2a1d00}.btn.small{padding:7px 10px;font-size:13px}.btn.on{background:#3f6a96}
+.btn.danger{background:#8a3a34}
+select.btn{padding:7px 8px;font-size:13px}
+main{width:100%;max-width:1400px;display:flex;gap:12px;padding:0 10px;align-items:flex-start}
+#left{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:6px}
+#side{flex:0 0 340px;display:flex;flex-direction:column;gap:8px}
+#mapWrap{position:relative;width:100%;overflow:auto;border-radius:12px;background:#0b1622;box-shadow:0 0 0 2px #c9a24a66,0 6px 24px #0008;-webkit-overflow-scrolling:touch}
+#map{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
+#map .terr{stroke:#0a1520;stroke-width:1.1;cursor:pointer;transition:fill .25s}
+#map .terr:hover{filter:brightness(1.15)}
+#map .terr.sel{stroke:#ffe066;stroke-width:3.5}
+#map .terr.tgt{stroke:#fff;stroke-width:2.6;stroke-dasharray:5 3;animation:march 1s linear infinite}
+#map .terr.flash{animation:flash .6s ease 2}
+#map .terr.dim{filter:saturate(.35) brightness(.7)}
+@keyframes march{to{stroke-dashoffset:-16}}
+@keyframes flash{50%{filter:brightness(1.8)}}
+#map .halo{fill:none;stroke-width:9;stroke-linejoin:round;opacity:.55}
+#map .land{fill:#d8ccb0}
+#map .lane{stroke:#cfe3f5;stroke-width:1.6;stroke-dasharray:5 4;opacity:.8;fill:none}
+#map .badge{cursor:pointer}
+#map .badge circle{stroke:#fff;stroke-width:1.8}
+#map .badge text{fill:#fff;font-weight:800;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:#0008;stroke-width:2px}
+#map .nm{font-size:9.5px;fill:#10202e;text-anchor:middle;font-weight:700;pointer-events:none;paint-order:stroke;stroke:#ffffffb0;stroke-width:2.4px}
+#map.nonames .nm{display:none}
+#map .contlbl{font-size:13px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;pointer-events:none;opacity:.85}
+#map.nonames .contlbl{display:none}
+#info{min-height:20px;font-size:13px;color:var(--muted);padding:0 4px}
+#info b{color:var(--ink)}
+.card{background:var(--panel);border-radius:12px;padding:10px 12px;border:1px solid #c9a24a33}
+.card h3{margin:0 0 6px;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+#phase{border:2px solid #2c4766}
+#phase.mine{border-color:var(--accent)}
+#phaseTitle{font-weight:800;font-size:17px}
+#phaseHelp{font-size:14px;color:var(--muted);margin:4px 0 8px;line-height:1.35}
+.ctl{display:none;gap:6px;flex-wrap:wrap;align-items:center}.ctl.show{display:flex}
+.seg{display:inline-flex;border-radius:10px;overflow:hidden}.seg .btn{border-radius:0;padding:8px 11px}
+input[type=range]{flex:1 1 140px;accent-color:var(--accent);height:28px}
+.big{font-size:20px;font-weight:800;min-width:36px;text-align:center}
+#dice{display:flex;align-items:center;gap:6px;min-height:46px;flex-wrap:wrap}
+.die{width:38px;height:38px;border-radius:8px;display:inline-grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:5px;box-shadow:inset 0 -3px 0 #0003}
+.die i{width:7px;height:7px;border-radius:50%;place-self:center;background:currentColor;visibility:hidden}.die i.p{visibility:visible}
+.die.a{background:#d94b45;color:#fff}.die.d{background:#f1f1ea;color:#222}
+.die.lost{opacity:.35;transform:scale(.85)}
+.die.roll{animation:roll var(--rt,.45s) ease}
+@keyframes roll{0%{transform:rotate(0) scale(.4)}60%{transform:rotate(320deg) scale(1.15)}100%{transform:rotate(360deg) scale(1)}}
+.vs{color:var(--muted);font-weight:700;margin:0 4px}
+#diceNote{font-size:13px;color:var(--muted);margin-top:4px}
+.pl{display:flex;gap:8px;padding:7px 8px;border-radius:10px;margin-bottom:5px;background:var(--panel2);border:2px solid transparent}
+.pl.cur{border-color:var(--accent)}.pl.dead{opacity:.45}.pl.dead .pn{text-decoration:line-through}
+.dot{width:14px;height:14px;border-radius:50%;flex:0 0 14px;margin-top:3px;border:2px solid #fff8}
+.pn{font-weight:800}.tag{font-size:11px;background:#0006;border-radius:6px;padding:1px 6px;margin-left:4px;color:var(--muted);font-weight:700}
+.strat{font-size:12.5px;margin-top:2px}.strat i{color:var(--muted);font-style:normal}
+.stats{font-size:12px;color:var(--muted);margin-top:2px}
+#hand{display:flex;gap:6px;flex-wrap:wrap}
+.cd{width:66px;min-height:76px;border-radius:8px;background:#efe6cf;color:#2a2112;padding:4px;font-size:10.5px;text-align:center;cursor:pointer;border:3px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.cd .sym{font-size:24px;line-height:1}.cd.sel{border-color:var(--accent);transform:translateY(-3px)}.cd.wild{background:#e9d0f5}
+.cd.own{box-shadow:0 0 0 2px #2f80ed inset}
+#log{max-height:240px;overflow:auto;font-size:13px;line-height:1.35}
+#log div{padding:2px 0;border-bottom:1px solid #ffffff10}
+#log .win{color:var(--accent);font-weight:800}#log .elim{color:var(--bad);font-weight:700}#log .turn{color:#cfe3f5;font-weight:700}
+#mission{font-size:14px}
+.modal{position:fixed;inset:0;background:#000a;display:none;align-items:flex-start;justify-content:center;z-index:20;overflow:auto;padding:16px 8px}
+.modal.show{display:flex}
+.mbox{background:var(--panel);border-radius:14px;padding:16px;max-width:620px;width:100%;box-shadow:0 10px 40px #000a}
+.mbox h2{margin:0 0 10px;color:var(--accent)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.row>label.lab{min-width:110px;color:var(--muted);font-size:14px;font-weight:700}
+.opt{display:inline-flex;gap:0;border-radius:10px;overflow:hidden;flex-wrap:wrap}
+.opt button{appearance:none;border:0;background:#2c4766;color:var(--ink);font:inherit;font-weight:700;font-size:14px;padding:9px 12px;cursor:pointer}
+.opt button.on{background:var(--accent);color:#2a1d00}
+.seat{display:grid;grid-template-columns:18px 1fr auto auto;gap:6px;align-items:center;background:var(--panel2);padding:6px 8px;border-radius:10px;margin-bottom:5px}
+.seat .sd{font-size:12px;color:var(--muted);grid-column:2/5}
+.seat select{background:#2c4766;color:var(--ink);border:0;border-radius:8px;padding:7px 6px;font:inherit;font-size:13px;max-width:170px}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#8a3a34;color:#fff;padding:10px 14px;border-radius:10px;font-weight:700;display:none;z-index:30;max-width:92vw;text-align:center}
+#toast.show{display:block}
+footer{margin:16px 0 18px;color:var(--muted);font-size:13px}
+footer a{color:var(--muted)}
+#zoomCtl{position:absolute;right:6px;top:6px;display:flex;gap:4px;z-index:2}
+#zoomCtl .btn{padding:4px 10px;font-size:16px;background:#0b1622cc}
+/* ---- title screen, tips, end card ---- */
+.screen{position:fixed;inset:0;z-index:40;overflow:auto;display:none;background:radial-gradient(800px 500px at 50% 0%,#4a1a22 0%,transparent 65%),radial-gradient(700px 500px at 100% 100%,#14324f 0%,transparent 60%),var(--bg)}
+.screen.show{display:block}
+.tWrap{max-width:720px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 16px 28px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
+.logo{font-size:clamp(64px,19vw,116px);font-weight:900;line-height:1;margin:6px 0 0;color:var(--accent);text-shadow:0 0 26px #ffc94a88,0 5px 0 #7a5a10}
+.logo .ai{color:var(--ai);text-shadow:0 0 26px #ff5a5faa,0 5px 0 #7a1a1d}
+.crest{font-size:30px;letter-spacing:10px}
+.pitch{font-size:clamp(18px,4.6vw,24px);font-weight:800;max-width:560px;margin:0}.pitch em{color:var(--accent);font-style:normal}
+.bots{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;max-width:520px}
+.bot{background:#ffffff0d;border:2px solid #ffffff1a;border-radius:16px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bot .face{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;background:var(--fc);box-shadow:0 0 0 3px #ffffffaa,0 0 18px var(--fc)}
+.bot .bn{font-weight:900;font-size:17px}.bot .bl{font-size:12px;color:var(--muted)}
+.bot .bt{font-size:13px;font-style:italic;color:#e8eef7;line-height:1.3}
+.bigPlay{font-size:26px!important;font-weight:900;padding:18px 54px!important;border-radius:999px!important;background:linear-gradient(180deg,#ffdb7a,#f0a91f)!important;color:#2a1a00!important;box-shadow:0 6px 0 #8a5a00,0 0 30px #ffc94a88;animation:pulse 1.8s ease-in-out infinite}
+.bigPlay:active{transform:translateY(4px);box-shadow:0 2px 0 #8a5a00}
+@keyframes pulse{50%{box-shadow:0 6px 0 #8a5a00,0 0 46px #ffc94acc}}
+@media (prefers-reduced-motion:reduce){.bigPlay{animation:none}}
+.sub{color:var(--muted);font-size:14px}
+.statsRow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.stat{background:#ffffff10;border-radius:12px;padding:8px 14px;min-width:96px}.stat b{display:block;font-size:22px;color:var(--accent)}.stat span{font-size:12px;color:var(--muted)}
+.credit{color:var(--muted);font-size:13px}.credit a{color:var(--accent);text-decoration:none}
+.pill{font-size:12px;font-weight:800;background:#ff5a5f22;color:#ffb0b2;border:1px solid #ff5a5f66;border-radius:999px;padding:4px 10px;white-space:nowrap}
+#tip{display:none;background:linear-gradient(90deg,#ffc94a22,#ff5a5f22);border:1px solid #ffc94a66;border-radius:12px;padding:8px 10px;font-size:14px;align-items:center;gap:8px}
+#tip.show{display:flex}#tip .tx{flex:1}#tip .btn{padding:6px 10px;font-size:13px}
+#cardImg{width:100%;border-radius:12px;box-shadow:0 6px 24px #000a;display:block;margin:6px 0 10px}
+.badge2{display:inline-block;background:var(--accent);color:#2a1a00;font-weight:900;border-radius:999px;padding:3px 10px;font-size:13px;margin:2px}
+#setup{z-index:45}
+@media (max-width:480px){.spdLab{display:none}header h1{font-size:22px}.hbar .btn.small{padding:6px 9px}.bot .face{width:52px;height:52px;font-size:30px}.bot .bt{font-size:12px}.bigPlay{font-size:24px!important;padding:16px 44px!important}}
+@media (max-width:900px){main{flex-direction:column}#side{flex:1 1 auto;width:100%}header{padding:6px 8px}.btn{padding:9px 11px}#log{max-height:180px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>r<span class="ai">AI</span>sk</h1>
+  <div class="hbar">
+    <span class="pill" id="modePill"></span>
+    <button class="btn small" id="tipsBtn" title="Tips on or off">💡</button>
+    <button class="btn small" id="menuBtn">Menu</button>
+    <button class="btn primary small" id="newBtn">New game</button>
+    <label for="speedSel" class="spdLab" style="font-size:13px;color:var(--muted)">Bot speed</label>
+    <select id="speedSel" class="btn small"><option value="slow">Slow</option><option value="normal">Normal</option><option value="fast">Fast</option><option value="instant">Instant</option></select>
+    <button class="btn small" id="namesBtn">Names</button>
+  </div>
+</header>
+<main>
+  <div id="left">
+    <div id="mapWrap"><div id="zoomCtl"><button class="btn" id="zoomOut" aria-label="Zoom out">−</button><button class="btn" id="zoomIn" aria-label="Zoom in">+</button></div>
+      <svg id="map" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg"></svg></div>
+    <div id="info">Tap a territory to see who holds it.</div>
+    <div id="tip" role="status"><span>💡</span><span class="tx" id="tipText"></span><button class="btn" id="tipOk">Got it</button><button class="btn" id="tipOff">Tips off</button></div>
+  </div>
+  <div id="side">
+    <div class="card" id="phase">
+      <div id="phaseTitle">rAIsk</div>
+      <div id="phaseHelp"></div>
+      <div class="ctl" id="ctlPlace">
+        <span style="font-size:13px;color:var(--muted)">Per tap</span>
+        <div class="seg" id="amtSeg"><button class="btn small" data-amt="1">1</button><button class="btn small" data-amt="3">3</button><button class="btn small" data-amt="5">5</button><button class="btn small" data-amt="all">All</button></div>
+        <button class="btn small" id="autoBtn">Auto-place</button>
+      </div>
+      <div class="ctl" id="ctlAttack">
+        <span style="font-size:13px;color:var(--muted)">Dice</span>
+        <div class="seg" id="diceSeg"><button class="btn small" data-d="1">1</button><button class="btn small" data-d="2">2</button><button class="btn small" data-d="3">3</button></div>
+        <button class="btn primary" id="rollBtn">Roll</button>
+        <button class="btn danger" id="blitzBtn">Blitz</button>
+        <button class="btn" id="endAtkBtn">End attacks</button>
+      </div>
+      <div class="ctl" id="ctlMove">
+        <button class="btn small" id="mvMin">Min</button>
+        <input type="range" id="mvRange" min="1" max="1" value="1">
+        <span class="big" id="mvVal">1</span>
+        <button class="btn small" id="mvMax">Max</button>
+        <button class="btn primary" id="mvBtn">Move</button>
+      </div>
+      <div class="ctl" id="ctlEnd"><button class="btn" id="endTurnBtn">End turn</button></div>
+      <div id="dice"></div><div id="diceNote"></div>
+    </div>
+    <div class="card" id="missionCard" style="display:none"><h3>Your secret mission</h3><div id="mission"></div></div>
+    <div class="card" id="cardsCard"><h3>Your cards <span id="nextSet" style="text-transform:none;letter-spacing:0"></span></h3><div id="hand"></div>
+      <div class="row" style="margin-bottom:0"><button class="btn small" id="pickSetBtn">Pick a set</button><button class="btn small primary" id="tradeBtn">Trade set</button></div></div>
+    <div class="card"><h3>Players</h3><div id="players"></div></div>
+    <div class="card"><h3>Battle log</h3><div id="log"></div></div>
+  </div>
+</main>
+<footer>by OmniXR · <a href="https://myomnixr.com" target="_blank" rel="noopener">myomnixr.com</a></footer>
+
+<div class="modal" id="setup"><div class="mbox">
+  <h2>New game of r<span style="color:var(--ai)">AI</span>sk</h2>
+  <div class="row"><label class="lab">Players</label><div class="opt" id="optN"></div></div>
+  <div id="seats"></div>
+  <div class="row"><label class="lab">All bots</label><div class="opt" id="optAllDiff"><button data-v="easy">Easy</button><button data-v="medium">Medium</button><button data-v="hard">Hard</button></div></div>
+  <div class="row"><label class="lab">Map</label><div class="opt" id="optMap"><button data-v="skirmish">Quick · small map</button><button data-v="world">World</button><button data-v="fantasy">Shattered Realms</button><button data-v="random">Random map</button></div></div>
+  <div class="row"><label class="lab">How to win</label><div class="opt" id="optWin"><button data-v="conquest">World conquest</button><button data-v="missions">Secret missions</button></div></div>
+  <div class="row"><label class="lab">Who goes first</label><div class="opt" id="optFirst"><button data-v="me">Me</button><button data-v="random">Random</button></div></div>
+  <div class="row"><label class="lab">Tips during play</label><div class="opt" id="optTips"><button data-v="on">On</button><button data-v="off">Off</button></div><button class="btn small" id="tipsReset">Show tips again</button></div>
+  <div class="sub" id="quickNote" style="margin:4px 0"></div>
+  <div class="row" style="justify-content:flex-end"><button class="btn" id="cancelSetup">Cancel</button><button class="btn primary" id="startBtn">Start game</button></div>
+</div></div>
+<div class="modal" id="over"><div class="mbox"><h2 id="overTitle"></h2>
+  <img id="cardImg" alt="Result card"><div id="endBadges"></div>
+  <div class="row" style="justify-content:center"><button class="btn" id="saveCard">⬇ Save image</button><button class="btn" id="shareX">Share on 𝕏</button></div>
+  <div id="overBody"></div>
+  <div class="row" style="justify-content:flex-end"><button class="btn" id="overClose">View map</button><button class="btn" id="overMenu">Menu</button><button class="btn" id="overNew">New game</button><button class="btn primary" id="overAgain">Play again</button></div>
+  <div class="credit" style="text-align:center">by OmniXR · <a href="https://myomnixr.com" target="_blank" rel="noopener">myomnixr.com</a></div></div></div>
+<div class="screen" id="title"><div class="tWrap">
+  <div class="crest" aria-hidden="true">⚔️🏰🎲</div>
+  <h1 class="logo">r<span class="ai">AI</span>sk</h1>
+  <p class="pitch">AI generals want your island. <em>Conquer it first, in 5 minutes.</em></p>
+  <div class="bots" id="titleBots"></div>
+  <button class="btn bigPlay" id="playNow">▶ Play now</button>
+  <div class="sub">Quick game · small map · you vs 2 bots · 10 rounds max</div>
+  <div class="statsRow" id="titleStats"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><button class="btn" id="resumeBtn" style="display:none">↩ Resume game</button><button class="btn" id="setupBtn">⚙ Setup</button><button class="btn" id="reroll">🔀 New rivals</button></div>
+  <div class="credit">by OmniXR · <a href="https://myomnixr.com" target="_blank" rel="noopener">myomnixr.com</a></div>
+</div></div>
+<div id="toast"></div>
+<script>
+// Public address of this game. Change it here (or in src/build.js) when the hosting address changes.
+var PUBLIC_URL = "https://yougitadmin.github.io/omnixr-games/raisk/";
+</script>
+<script>
+/* rAIsk engine: maps, rules and bots. Pure JS, runs in the browser and in node. by OmniXR · myomnixr.com */
+(function (root) {
+'use strict';
+const W = 1000, H = 600, HR = 5.5, HX = Math.sqrt(3) * HR, HY = 1.5 * HR;
+
+/* ---------------- random numbers ---------------- */
+function rngNext(o) {
+  let t = (o.rng = (o.rng + 0x6D2B79F5) >>> 0);
+  t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+function mkRng(seed) { const o = { rng: seed >>> 0 }; return () => rngNext(o); }
+function shuffle(a, R) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(R() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function hash2(ix, iy, s) { let h = Math.imul(ix, 374761393) ^ Math.imul(iy, 668265263) ^ Math.imul(s, 1442695041); h = Math.imul(h ^ (h >>> 13), 1274126177); h ^= h >>> 16; return (h >>> 0) / 4294967296; }
+function vnoise(x, y, s) {
+  const ix = Math.floor(x), iy = Math.floor(y), fx = x - ix, fy = y - iy, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+  const a = hash2(ix, iy, s), b = hash2(ix + 1, iy, s), c = hash2(ix, iy + 1, s), d = hash2(ix + 1, iy + 1, s);
+  return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy;
+}
+function fbm(x, y, s) { return 0.55 * vnoise(x / 70, y / 70, s) + 0.3 * vnoise(x / 28, y / 28, s + 7) + 0.15 * vnoise(x / 11, y / 11, s + 13); }
+
+/* ---------------- hex grid used to draw organic territory shapes ---------------- */
+let GRID = null;
+function grid() {
+  if (GRID) return GRID;
+  const cols = Math.ceil(W / HX) + 1, rows = Math.ceil(H / HY) + 1, n = cols * rows;
+  const cx = new Float32Array(n), cy = new Float32Array(n), nb = new Int32Array(n * 6).fill(-1);
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    const i = r * cols + c; cx[i] = c * HX + (r & 1 ? HX / 2 : 0); cy[i] = r * HY;
+    const d = (r & 1) ? [[1, -1], [1, 0], [1, 1], [0, 1], [-1, 0], [0, -1]] : [[0, -1], [1, 0], [0, 1], [-1, 1], [-1, 0], [-1, -1]];
+    for (let k = 0; k < 6; k++) { const c2 = c + d[k][0], r2 = r + d[k][1]; if (c2 >= 0 && c2 < cols && r2 >= 0 && r2 < rows) nb[i * 6 + k] = r2 * cols + c2; }
+  }
+  return (GRID = { cols, rows, n, cx, cy, nb });
+}
+const VOFF = [[0, -HR], [HX / 2, -HR / 2], [HX / 2, HR / 2], [0, HR], [-HX / 2, HR / 2], [-HX / 2, -HR / 2]];
+function trace(mask) {
+  const G = grid(), out = new Map(), edges = [];
+  const key = (x, y) => Math.round(x * 8) + ',' + Math.round(y * 8);
+  for (let i = 0; i < G.n; i++) if (mask[i]) for (let k = 0; k < 6; k++) {
+    const j = G.nb[i * 6 + k]; if (j >= 0 && mask[j]) continue;
+    const a = [G.cx[i] + VOFF[k][0], G.cy[i] + VOFF[k][1]], b = [G.cx[i] + VOFF[(k + 1) % 6][0], G.cy[i] + VOFF[(k + 1) % 6][1]];
+    const e = { a, ev: !(k & 1), ka: key(a[0], a[1]), kb: key(b[0], b[1]), used: false }; edges.push(e);
+    if (!out.has(e.ka)) out.set(e.ka, []); out.get(e.ka).push(e);
+  }
+  const loops = [];
+  for (const e0 of edges) {
+    if (e0.used) continue; const loop = []; let e = e0;
+    while (e && !e.used) { e.used = true; loop.push(e.ev ? e.a : null); const l = out.get(e.kb); e = l && l.find(x => !x.used); }
+    const l2 = loop.filter(Boolean); if (l2.length > 2) loops.push(l2);
+  }
+  return loops;
+}
+function chaikin(pts, it) {
+  for (let n = 0; n < it; n++) {
+    const o = [];
+    for (let i = 0; i < pts.length; i++) { const p = pts[i], q = pts[(i + 1) % pts.length]; o.push([p[0] * .75 + q[0] * .25, p[1] * .75 + q[1] * .25], [p[0] * .25 + q[0] * .75, p[1] * .25 + q[1] * .75]); }
+    pts = o;
+  }
+  return pts;
+}
+function loopsToPath(loops) {
+  return loops.map(l => { l = chaikin(l, 3); return 'M' + l.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('L') + 'Z'; }).join('');
+}
+
+/* Assign hexes to territory seeds (domain-warped, nearest seed, noisy coastline). */
+function carveHexes(seeds, o) {
+  const G = grid(), own = new Int16Array(G.n).fill(-1);
+  for (let i = 0; i < G.n; i++) {
+    const x = G.cx[i], y = G.cy[i]; if (x < 10 || x > W - 10 || y < 10 || y > H - 10) continue;
+    const wx = x + o.warp * (fbm(x, y, o.seed) - .5) * 2, wy = y + o.warp * (fbm(x, y, o.seed + 101) - .5) * 2;
+    let best = -1, bd = 1e9;
+    for (let s = 0; s < seeds.length; s++) { const d = Math.hypot(wx - seeds[s].x, (wy - seeds[s].y) * (seeds[s].ys || 1)) / (seeds[s].s || 1); if (d < bd) { bd = d; best = s; } }
+    if (bd < o.cap * (0.78 + 0.44 * fbm(x, y, o.seed + 202))) own[i] = best;
+  }
+  if (o.allowed) for (let pass = 0; pass < 4; pass++) {
+    const kill = [];
+    for (let i = 0; i < G.n; i++) if (own[i] >= 0) for (let k = 0; k < 6; k++) { const j = G.nb[i * 6 + k]; if (j >= 0 && own[j] >= 0 && own[j] !== own[i] && !o.allowed.has(own[i] + '|' + own[j])) kill.push(i, j); }
+    if (!kill.length) break; kill.forEach(i => { own[i] = -1; });
+  }
+  // keep only the largest connected piece of each territory
+  const seen = new Uint8Array(G.n), best = seeds.map(() => null);
+  for (let i = 0; i < G.n; i++) if (own[i] >= 0 && !seen[i]) {
+    const t = own[i], comp = [i]; seen[i] = 1;
+    for (let q = 0; q < comp.length; q++) for (let k = 0; k < 6; k++) { const j = G.nb[comp[q] * 6 + k]; if (j >= 0 && !seen[j] && own[j] === t) { seen[j] = 1; comp.push(j); } }
+    if (!best[t] || comp.length > best[t].length) { if (best[t]) best[t].forEach(h => { own[h] = -2; }); best[t] = comp; } else comp.forEach(h => { own[h] = -2; });
+  }
+  for (let i = 0; i < G.n; i++) if (own[i] === -2) own[i] = -1;
+  return own;
+}
+
+/* Build a full map object from territory seeds + continent defs. */
+function assemble(def, own) {
+  const G = grid(), T = def.terr.length, hexes = def.terr.map(() => []);
+  for (let i = 0; i < G.n; i++) if (own[i] >= 0) hexes[own[i]].push(i);
+  const geo = new Set();
+  for (let i = 0; i < G.n; i++) if (own[i] >= 0) for (let k = 0; k < 6; k++) { const j = G.nb[i * 6 + k]; if (j >= 0 && own[j] >= 0 && own[j] !== own[i]) geo.add(Math.min(own[i], own[j]) + '|' + Math.max(own[i], own[j])); }
+  const adjSet = new Set(def.adjPairs ? def.adjPairs.map(([a, b]) => Math.min(a, b) + '|' + Math.max(a, b)) : geo);
+  const lanes = [];
+  if (!def.adjPairs) (def.extraLanes || []).forEach(([a, b]) => adjSet.add(Math.min(a, b) + '|' + Math.max(a, b)));
+  adjSet.forEach(k => { if (!geo.has(k)) { const [a, b] = k.split('|').map(Number); lanes.push(laneBetween(hexes, a, b, def.wrap)); } });
+  const adj = def.terr.map(() => []);
+  adjSet.forEach(k => { const [a, b] = k.split('|').map(Number); adj[a].push(b); adj[b].push(a); });
+  adj.forEach(l => l.sort((a, b) => a - b));
+  const terr = def.terr.map((t, i) => {
+    const mask = new Uint8Array(G.n); hexes[i].forEach(h => { mask[h] = 1; });
+    // label point: hex farthest from the territory edge
+    const dist = new Map(), q = [];
+    hexes[i].forEach(h => { for (let k = 0; k < 6; k++) { const j = G.nb[h * 6 + k]; if (j < 0 || !mask[j]) { dist.set(h, 0); q.push(h); break; } } });
+    for (let qi = 0; qi < q.length; qi++) { const h = q[qi]; for (let k = 0; k < 6; k++) { const j = G.nb[h * 6 + k]; if (j >= 0 && mask[j] && !dist.has(j)) { dist.set(j, dist.get(h) + 1); q.push(j); } } }
+    let lh = hexes[i][0], ld = -1;
+    hexes[i].forEach(h => { const d = (dist.get(h) || 0) * 100 - Math.hypot(G.cx[h] - t.x, G.cy[h] - t.y); if (d > ld) { ld = d; lh = h; } });
+    return { id: i, name: t.name, cont: t.cont, hexes: hexes[i].length, lx: +G.cx[lh].toFixed(1), ly: +G.cy[lh].toFixed(1), path: loopsToPath(trace(mask)) };
+  });
+  const cont = def.cont.map((c, ci) => {
+    const mask = new Uint8Array(G.n); for (let i = 0; i < G.n; i++) if (own[i] >= 0 && def.terr[own[i]].cont === ci) mask[i] = 1;
+    return { id: ci, name: c.name, bonus: c.bonus, color: c.color, terr: terr.filter(t => t.cont === ci).map(t => t.id), path: loopsToPath(trace(mask)) };
+  });
+  cont.forEach(c => {
+    if (c.bonus == null) { const border = c.terr.filter(t => adj[t].some(u => terr[u].cont !== c.id)).length; c.bonus = Math.max(1, Math.round(c.terr.length * 0.35 + border * 0.7 - 0.5)); }
+  });
+  return { id: def.id, name: def.name, style: def.style, seed: def.seed, W, H, terr, cont, adj, lanes };
+}
+function laneBetween(hexes, a, b, wrap) {
+  const G = grid(); let best = null, bd = 1e9;
+  for (const h of hexes[a]) for (const g of hexes[b]) {
+    let dx = Math.abs(G.cx[h] - G.cx[g]); const w = wrap && dx > W / 2; if (w) dx = W - dx;
+    const d = dx * dx + (G.cy[h] - G.cy[g]) ** 2; if (d < bd) { bd = d; best = [h, g, w]; }
+  }
+  return { a, b, x1: +G.cx[best[0]].toFixed(1), y1: +G.cy[best[0]].toFixed(1), x2: +G.cx[best[1]].toFixed(1), y2: +G.cy[best[1]].toFixed(1), wrap: best[2] };
+}
+
+/* ---------------- World map: 42 territories, 6 continents, real place names ---------------- */
+const WORLD_CONT = [
+  { name: 'North America', bonus: 5, color: '#d9a441' }, { name: 'South America', bonus: 2, color: '#c9643b' },
+  { name: 'Europe', bonus: 5, color: '#5b8fd1' }, { name: 'Africa', bonus: 3, color: '#b9873a' },
+  { name: 'Asia', bonus: 7, color: '#5aa36b' }, { name: 'Oceania', bonus: 2, color: '#a467c4' }];
+// name, continent, longitude, latitude, size
+const WORLD_T = [
+  ['Alaska', 0, -153, 64, 1.05], ['Yukon', 0, -127, 64, 1.05], ['Nunavut', 0, -94, 66, 1.25], ['Greenland', 0, -41, 73, 1.05],
+  ['Cascadia', 0, -121, 47, 0.95], ['Great Plains', 0, -99, 43, 1.0], ['Quebec', 0, -71, 52, 1.0], ['Appalachia', 0, -82, 35, 0.9], ['Mexico', 0, -103, 22, 0.95],
+  ['Gran Colombia', 1, -71, 5, 1.0], ['Amazonia', 1, -54, -8, 1.25], ['Altiplano', 1, -71, -18, 0.9], ['Pampas', 1, -65, -37, 1.0],
+  ['Iceland', 2, -19, 65, 0.6], ['British Isles', 2, -3, 54, 0.62], ['Scandinavia', 2, 16, 64, 0.85], ['Iberia', 2, -4, 40, 0.7],
+  ['Central Europe', 2, 12, 49, 0.7], ['Balkans', 2, 23, 42, 0.68], ['Ukraine', 2, 34, 50, 0.8],
+  ['Maghreb', 3, 0, 30, 1.0], ['Nile', 3, 29, 25, 0.95], ['West Africa', 3, -2, 11, 1.0], ['Congo', 3, 21, -3, 1.05], ['Horn of Africa', 3, 42, 6, 0.95], ['Southern Africa', 3, 25, -25, 1.05],
+  ['Ural', 4, 60, 58, 0.95], ['Siberia', 4, 92, 63, 1.15], ['Yakutia', 4, 128, 64, 1.1], ['Chukotka', 4, 165, 66, 0.95],
+  ['Kazakhstan', 4, 68, 45, 0.95], ['Mongolia', 4, 104, 47, 1.0], ['China', 4, 110, 30, 1.1], ['Japan', 4, 140, 39, 0.65],
+  ['Persia', 4, 54, 31, 0.9], ['Arabia', 4, 45, 21, 0.85], ['India', 4, 78, 21, 0.95], ['Southeast Asia', 4, 103, 14, 0.85],
+  ['Indonesia', 5, 113, -2, 0.85], ['New Guinea', 5, 144, -6, 0.8], ['Western Australia', 5, 122, -25, 1.0], ['Eastern Australia', 5, 146, -27, 1.0]];
+const WORLD_ADJ = `Alaska-Yukon, Alaska-Chukotka, Yukon-Nunavut, Yukon-Cascadia, Yukon-Great Plains, Nunavut-Greenland, Nunavut-Quebec, Nunavut-Great Plains, Greenland-Quebec, Greenland-Iceland, Cascadia-Great Plains, Cascadia-Mexico, Great Plains-Quebec, Great Plains-Appalachia, Great Plains-Mexico, Quebec-Appalachia, Appalachia-Mexico, Mexico-Gran Colombia, Gran Colombia-Amazonia, Gran Colombia-Altiplano, Amazonia-Altiplano, Amazonia-Pampas, Amazonia-West Africa, Altiplano-Pampas, Iceland-British Isles, Iceland-Scandinavia, British Isles-Scandinavia, British Isles-Central Europe, British Isles-Iberia, Scandinavia-Central Europe, Scandinavia-Ukraine, Iberia-Central Europe, Iberia-Maghreb, Central Europe-Balkans, Central Europe-Ukraine, Balkans-Ukraine, Balkans-Nile, Balkans-Persia, Ukraine-Ural, Ukraine-Kazakhstan, Ukraine-Persia, Maghreb-Nile, Maghreb-West Africa, Nile-West Africa, Nile-Horn of Africa, Nile-Arabia, West Africa-Congo, Congo-Horn of Africa, Congo-Southern Africa, Horn of Africa-Southern Africa, Horn of Africa-Arabia, Ural-Siberia, Ural-Kazakhstan, Siberia-Yakutia, Siberia-Mongolia, Siberia-Kazakhstan, Yakutia-Chukotka, Yakutia-Mongolia, Chukotka-Japan, Mongolia-China, Mongolia-Kazakhstan, China-Japan, China-Kazakhstan, China-India, China-Southeast Asia, Kazakhstan-Persia, Persia-Arabia, Persia-India, India-Southeast Asia, Southeast Asia-Indonesia, Indonesia-New Guinea, Indonesia-Western Australia, New Guinea-Eastern Australia, Western Australia-Eastern Australia`;
+function worldDef() {
+  const terr = WORLD_T.map(([name, cont, lon, lat, s]) => ({ name, cont, x: (lon + 172) / 360 * W, y: (80 - lat) / 140 * H + 6, s }));
+  const idx = {}; terr.forEach((t, i) => { idx[t.name] = i; });
+  const adjPairs = WORLD_ADJ.split(/,\s*/).map(p => splitPair(p, idx));
+  return { id: 'world', name: 'World', style: 'world', seed: 7, terr, cont: WORLD_CONT, adjPairs, wrap: true };
+}
+function splitPair(p, idx) {
+  for (let i = 0; i < p.length; i++) if (p[i] === '-' && idx[p.slice(0, i)] != null && idx[p.slice(i + 1)] != null) return [idx[p.slice(0, i)], idx[p.slice(i + 1)]];
+  throw new Error('bad pair ' + p);
+}
+
+/* ---------------- Generated maps (fantasy realm = fixed seed, random = new seed each game) ---------------- */
+const FANTASY = {
+  name: 'The Shattered Realms', seed: 0, conts: [
+    ['Frostmarch', '#8fb8d8', ['Rimeholt', 'Glacierfang', 'Snowmere', 'Whitepeak', 'Icewatch', 'Hoarvale']],
+    ['Emberwild', '#d0603a', ['Cinderfell', 'Ashmoor', 'Flamegate', 'Smoulderdeep', 'Pyreholm', 'Scorchreach', 'Embermaw']],
+    ['Verdance', '#5aa851', ['Mosshaven', 'Thornwood', 'Greenhollow', 'Fernwatch', 'Oakmere', 'Briarvale', 'Willowmarch']],
+    ['Duskhollow', '#8a63b8', ['Gloamspire', 'Shadefen', 'Nightbarrow', 'Murkwater', 'Duskgate', 'Ravenhold']],
+    ['Sunken Isles', '#3fa3a8', ['Coralreach', 'Tidegrave', 'Pearlstrand', 'Saltspire', 'Wavecrest']],
+    ['Glasswaste', '#d4b04a', ['Shardsand', 'Mirrordune', 'Sunscour', 'Prismhold', 'Dustcrown']]]
+};
+const CONT_COLORS = ['#d9a441', '#5b8fd1', '#5aa36b', '#c9643b', '#a467c4', '#3fa3a8', '#d4b04a'];
+const SYL_A = ['Ka', 'Mor', 'Vel', 'Tha', 'Dra', 'El', 'Os', 'Bri', 'Gal', 'Ny', 'Zan', 'Quel', 'Ar', 'Ser', 'Tor', 'Wyn', 'Ul', 'Fen', 'Ish', 'Cor', 'Hal', 'Lum', 'Bel', 'Ves', 'Kor', 'Ilm', 'Rho', 'Sca', 'Tam', 'Yor'];
+const SYL_B = ['dor', 'mere', 'vale', 'gard', 'heim', 'ra', 'thas', 'wick', 'moor', 'ia', 'ost', 'an', 'reach', 'fell', 'holm', 'spire', 'mark', 'ford', 'wyn', 'ven', 'lund', 'crest', 'rith', 'oth'];
+const CONT_A = ['Ash', 'Iron', 'Storm', 'Amber', 'Silver', 'Hollow', 'Thorn', 'Mist', 'Gold', 'Raven', 'Salt', 'Star', 'Frost', 'Sun', 'Bramble', 'Cloud'];
+const CONT_B = [' Reach', ' Lands', ' March', ' Wilds', ' Coast', ' Vale', ' Expanse', ' Holds', ' Shire', ' Fells'];
+function genLayout(R, sizes) {
+  const centers = [];
+  for (let tries = 0; centers.length < sizes.length && tries < 20000; tries++) {
+    const minD = Math.max(150, 300 - tries * 0.02), x = 120 + R() * 760, y = 100 + R() * 400;
+    if (centers.every(c => Math.hypot(c.x - x, (c.y - y) * 1.3) > minD)) centers.push({ x, y });
+  }
+  if (centers.length < sizes.length) return null;
+  const seeds = [];
+  for (let ci = 0; ci < sizes.length; ci++) {
+    const k = sizes[ci], rc = 30 * Math.sqrt(k) + 18; let placed = 0;
+    for (let tries = 0; placed < k && tries < 6000; tries++) {
+      const a = R() * Math.PI * 2, rr = Math.sqrt(R()) * (rc + tries * 0.01), x = centers[ci].x + Math.cos(a) * rr * 1.3, y = centers[ci].y + Math.sin(a) * rr;
+      if (x < 40 || x > W - 40 || y < 35 || y > H - 35) continue;
+      const ok = seeds.every(s => { const d = Math.hypot(s.x - x, s.y - y); return s.cont === ci ? d > 52 : d > 120; });
+      if (ok) { seeds.push({ x, y, cont: ci, s: 1 }); placed++; }
+    }
+    if (placed < k) return null;
+  }
+  return seeds;
+}
+function genMap(kind, seed) {
+  for (let attempt = 0; attempt < 60; attempt++) {
+    const s = ((seed >>> 0) + attempt * 7919) >>> 0, R = mkRng(s);
+    let sizes, contDefs, names;
+    if (kind === 'fantasy') { sizes = FANTASY.conts.map(c => c[2].length); contDefs = FANTASY.conts.map(c => ({ name: c[0], color: c[1] })); }
+    else {
+      // 'skirmish' = the quick-game map: 3 regions, 13 to 15 territories
+      const small = kind === 'skirmish';
+      const nC = small ? 3 : 4 + Math.floor(R() * 3), total = small ? 13 + Math.floor(R() * 3) : 30 + Math.floor(R() * 11), base = small ? 4 : 3; sizes = Array(nC).fill(base); let left = total - base * nC;
+      while (left-- > 0) sizes[Math.floor(R() * nC)]++;
+      const used = new Set(), usedB = new Set(); contDefs = sizes.map((_, i) => { let a, b; do a = CONT_A[Math.floor(R() * CONT_A.length)]; while (used.has(a)); do b = CONT_B[Math.floor(R() * CONT_B.length)]; while (usedB.has(b) && usedB.size < CONT_B.length); used.add(a); usedB.add(b); return { name: a + b, color: CONT_COLORS[i] }; });
+    }
+    const seeds = genLayout(R, sizes); if (!seeds) continue;
+    if (kind === 'fantasy') { const ctr = sizes.map(() => 0); names = seeds.map(sd => FANTASY.conts[sd.cont][2][ctr[sd.cont]++]); }
+    else { const used = new Set(); names = seeds.map(() => { let n; do n = SYL_A[Math.floor(R() * SYL_A.length)] + SYL_B[Math.floor(R() * SYL_B.length)]; while (used.has(n)); used.add(n); return n; }); }
+    const own = carveHexes(seeds, { seed: s & 0xffff, cap: kind === 'skirmish' ? 120 : 50, warp: 22 }); // bigger territories on the small quick map, so they are easy to tap
+    const cnt = seeds.map(() => 0); for (let i = 0; i < own.length; i++) if (own[i] >= 0) cnt[own[i]]++;
+    if (cnt.some(c => c < 18)) continue;
+    const def = { id: kind, name: kind === 'fantasy' ? FANTASY.name : kind === 'skirmish' ? 'Skirmish Isles' : 'Random map', style: kind, seed: s, cont: contDefs, terr: seeds.map((sd, i) => ({ name: names[i], cont: sd.cont, x: sd.x, y: sd.y })) };
+    // geometric adjacency, then sea lanes so every continent links to the world at least twice
+    let m = assemble(def, own);
+    const lanes = [], G = grid(), cents = m.terr.map(t => [t.lx, t.ly]);
+    const comp = () => { const c = m.terr.map(() => -1); let k = 0; m.terr.forEach((t, i) => { if (c[i] >= 0) return; const q = [i]; c[i] = k; for (let j = 0; j < q.length; j++) [...m.adj[q[j]], ...lanes.filter(l => l[0] === q[j] || l[1] === q[j]).map(l => l[0] === q[j] ? l[1] : l[0])].forEach(u => { if (c[u] < 0) { c[u] = k; q.push(u); } }); k++; }); return c; };
+    const d2 = (a, b) => (cents[a][0] - cents[b][0]) ** 2 + (cents[a][1] - cents[b][1]) ** 2;
+    for (let guard = 0; guard < 50; guard++) {
+      const c = comp(); if (Math.max(...c) === 0) break;
+      let best = null, bd = 1e12; for (let a = 0; a < c.length; a++) for (let b = 0; b < c.length; b++) if (c[a] === 0 && c[b] !== 0 && d2(a, b) < bd) { bd = d2(a, b); best = [a, b]; }
+      lanes.push(best);
+    }
+    m.cont.forEach(cn => {
+      const ext = new Set(); cn.terr.forEach(t => m.adj[t].forEach(u => { if (m.terr[u].cont !== cn.id) ext.add(u); })); lanes.forEach(l => { if (cn.terr.includes(l[0]) && m.terr[l[1]].cont !== cn.id) ext.add(l[1]); if (cn.terr.includes(l[1]) && m.terr[l[0]].cont !== cn.id) ext.add(l[0]); });
+      for (let g = 0; ext.size < 2 && g < 5; g++) {
+        let best = null, bd = 1e12; cn.terr.forEach(a => m.terr.forEach((t, b) => { if (t.cont !== cn.id && !ext.has(b) && d2(a, b) < bd) { bd = d2(a, b); best = [a, b]; } }));
+        if (!best) break; lanes.push(best); ext.add(best[1]);
+      }
+    });
+    def.extraLanes = lanes; m = assemble(def, own); void G;
+    return m;
+  }
+  throw new Error('map generation failed');
+}
+const MAP_CACHE = {};
+function getMap(kind, seed) {
+  if (kind === 'world') return MAP_CACHE.world || (MAP_CACHE.world = assemble(worldDef(), (() => { const d = worldDef(), al = new Set(); d.adjPairs.forEach(([a, b]) => { al.add(a + '|' + b); al.add(b + '|' + a); }); return carveHexes(d.terr, { seed: 7, cap: 52, warp: 20, allowed: al }); })()));
+  if (kind === 'fantasy') return MAP_CACHE.fantasy || (MAP_CACHE.fantasy = genMap('fantasy', FANTASY.seed || 20261103));
+  if (kind === 'skirmish') return genMap('skirmish', seed >>> 0);
+  return genMap('random', seed >>> 0);
+}
+
+/* ---------------- dice odds ---------------- */
+const ROLLS = {};
+(function () {
+  for (let ad = 1; ad <= 3; ad++) for (let dd = 1; dd <= 2; dd++) {
+    const res = {}; let tot = 0;
+    const rec = (arr, n) => { if (arr.length === n) { tot++; const a = arr.slice(0, ad).sort((x, y) => y - x), d = arr.slice(ad).sort((x, y) => y - x); let al = 0, dl = 0; for (let i = 0; i < Math.min(ad, dd); i++) { if (a[i] > d[i]) dl++; else al++; } const k = al + ',' + dl; res[k] = (res[k] || 0) + 1; return; } for (let f = 1; f <= 6; f++) rec(arr.concat(f), n); };
+    rec([], ad + dd); ROLLS[ad + '' + dd] = Object.keys(res).map(k => { const [al, dl] = k.split(',').map(Number); return { al, dl, p: res[k] / tot }; });
+  }
+})();
+const WP_N = 120, WP = new Float64Array((WP_N + 1) * (WP_N + 1));
+(function () {
+  for (let a = 0; a <= WP_N; a++) for (let d = 0; d <= WP_N; d++) {
+    if (d === 0) { WP[a * (WP_N + 1)] = 1; continue; } if (a === 0) { WP[d] = 0; continue; }
+    let p = 0; for (const o of ROLLS[Math.min(3, a) + '' + Math.min(2, d)]) p += o.p * WP[Math.max(0, a - o.al) * (WP_N + 1) + Math.max(0, d - o.dl)];
+    WP[a * (WP_N + 1) + d] = p;
+  }
+})();
+/* chance that `a` attacking armies (not counting the one left behind) eventually take a territory held by `d` */
+function winProb(a, d) { if (d <= 0) return 1; if (a <= 0) return 0; const m = Math.max(a, d); if (m > WP_N) { a = Math.round(a * WP_N / m); d = Math.max(1, Math.round(d * WP_N / m)); } return WP[a * (WP_N + 1) + d]; }
+
+/* ---------------- bot strategy profiles ---------------- */
+const STRATEGIES = [
+  { id: 'turtle', icon: '🐢', name: 'Turtle', desc: 'Walls up its borders and only strikes with crushing odds.', minP: 0.76, aggr: 0.5, defense: 1.8, cont: 1.0, leader: 0.3, weak: 0.6, cardFarm: 0.7, spread: true, maxConq: 2, fortify: 'threat' },
+  { id: 'blitzer', icon: '⚡', name: 'Blitzer', desc: 'Attacks early and often, even on thin odds.', minP: 0.45, aggr: 1.8, defense: 0.35, cont: 0.6, leader: 0.4, weak: 0.8, cardFarm: 1, spread: false, maxConq: 99, fortify: 'front' },
+  { id: 'hoarder', icon: '🏰', name: 'Continent Hoarder', desc: 'Grabs a continent, then guards the bonus with everything it has.', minP: 0.6, aggr: 1.0, defense: 1.1, cont: 2.8, leader: 0.3, weak: 0.4, cardFarm: 0.8, spread: false, maxConq: 99, fortify: 'continent' },
+  { id: 'opportunist', icon: '🦊', name: 'Opportunist', desc: 'Picks off weak neighbours and banks a card every turn.', minP: 0.68, aggr: 1.0, defense: 0.9, cont: 0.7, leader: 0.4, weak: 2.6, cardFarm: 2.2, spread: false, maxConq: 99, stopAfterCard: 0.86, fortify: 'front' },
+  { id: 'kingslayer', icon: '👑', name: 'Kingslayer', desc: 'Hunts whoever is leading the table.', minP: 0.56, aggr: 1.2, defense: 0.8, cont: 0.6, leader: 4.0, weak: 0.4, cardFarm: 1, spread: false, maxConq: 99, fortify: 'leader' },
+  { id: 'diplomat', icon: '🕊️', name: 'Diplomat', desc: 'Keeps the peace and builds up, then pounces once it is strong.', minP: 0.55, aggr: 1.1, defense: 1.3, cont: 1.2, leader: 0.8, weak: 0.6, cardFarm: 0.6, spread: true, maxConq: 99, peaceShare: 0.3, fortify: 'threat' },
+  { id: 'strategist', icon: '♟️', name: 'Strategist', desc: 'Weighs bonuses, threats and odds before every move.', minP: 0.5, aggr: 1.3, defense: 1.0, cont: 1.5, leader: 1.2, weak: 0.9, cardFarm: 1.2, spread: false, maxConq: 99, fortify: 'threat' },
+  { id: 'gambler', icon: '🎲', name: 'Gambler', desc: 'Chases long shots and changes plans on a whim.', minP: 0.32, aggr: 1.4, defense: 0.5, cont: 0.8, leader: 0.6, weak: 0.6, cardFarm: 1, spread: false, maxConq: 99, chaos: 1, fortify: 'random' }];
+const STRAT = {}; STRATEGIES.forEach(s => { STRAT[s.id] = s; });
+const DIFF = {
+  easy: { noise: 2.5, minPAdj: 0.1, skipFort: 0.6, stopRate: 0.25, contAdd: 0, defAdd: 0, sloppy: 0.5 },
+  medium: { noise: 1.2, minPAdj: 0.04, sloppy: 0.25, skipFort: 0.1, stopRate: 0, contAdd: 0.3, defAdd: 0.15 },
+  hard: { noise: 0, smart: true, minPAdj: -0.02, skipFort: 0, stopRate: 0, contAdd: 0.8, defAdd: 0.4 } };
+const BOT_NAMES = ['CAIsar', 'AIttila', 'GenerAIl', 'KhAIn', 'BonAIparte'];
+const COLORS = ['#2f80ed', '#e5484d', '#30a46c', '#f5a524', '#8e4ec6', '#12a594'];
+const SYMBOLS = ['Peak', 'Banner', 'Star', 'Wild'];
+
+/* ---------------- game setup ---------------- */
+const START = { 2: 40, 3: 35, 4: 30, 5: 25, 6: 20 };
+function tradeValue(n) { return n < 6 ? [4, 6, 8, 10, 12, 15][n] : 15 + 5 * (n - 5); }
+function newGame(cfg) {
+  const st = { rng: (cfg.seed >>> 0) || 12345 }, R = () => rngNext(st);
+  const map = cfg.mapObj || getMap(cfg.map || 'world', cfg.mapSeed != null ? cfg.mapSeed : Math.floor(R() * 4294967296));
+  const T = map.terr.length, n = cfg.players.length;
+  if (n < 2 || n > 6) throw new Error('2 to 6 players');
+  st.map = map; st.mapId = map.id; st.mapSeed = map.seed; st.win = cfg.win === 'missions' ? 'missions' : 'conquest';
+  st.maxRounds = cfg.maxRounds > 0 ? cfg.maxRounds | 0 : 0; // quick game: after this many rounds the player holding the most territories wins
+  st.players = cfg.players.map((p, i) => {
+    let s = p.strategy; if (!p.human && (!s || s === 'random' || !STRAT[s])) s = STRATEGIES[Math.floor(R() * STRATEGIES.length)].id;
+    return { id: i, name: p.name, human: !!p.human, difficulty: DIFF[p.difficulty] ? p.difficulty : 'medium', strategy: p.human ? null : s, strategyPicked: p.human ? null : (p.strategy && p.strategy !== 'random' ? 'chosen' : 'random'), color: p.color || COLORS[i % COLORS.length], alive: true, cards: [], mission: null, elimBy: null };
+  });
+  const hi = st.players.findIndex(p => p.human);
+  st.first = cfg.first === 'random' ? Math.floor(R() * n) : (hi >= 0 ? hi : 0);
+  st.owner = new Array(T).fill(-1); st.armies = new Array(T).fill(0);
+  shuffle([...Array(T).keys()], R).forEach((t, k) => { st.owner[t] = (st.first + k) % n; st.armies[t] = 1; });
+  const total = Math.max(Math.round(START[n] * T / 42), Math.ceil(T / n) + 4);
+  st.deployLeft = st.players.map(p => total - st.owner.filter(o => o === p.id).length);
+  st.deck = shuffle([...Array(T).keys()].map(t => ({ t, s: t % 3 })).concat([{ t: -1, s: 3 }, { t: -1, s: 3 }]), R); st.discard = [];
+  st.trades = 0; st.turn = 0; st.round = 0; st.log = []; st.winner = null; st.conquered = false; st.turnConq = 0; st.turnRolls = 0; st.pending = null; st.lastRoll = null;
+  if (st.win === 'missions') assignMissions(st, R);
+  st.cur = st.first; st.phase = 'deploy'; st.reserve = st.deployLeft[st.cur];
+  log(st, 'New game on ' + map.name + ' — ' + st.players.map(p => p.name).join(', ') + '. ' + st.players[st.first].name + ' deploys first.', 'sys');
+  return st;
+}
+function log(st, text, kind, p) { st.log.push({ text, kind: kind || '', p: p == null ? st.cur : p, turn: st.turn }); if (st.log.length > 400) st.log.splice(0, st.log.length - 400); }
+
+/* ---------------- missions ---------------- */
+function assignMissions(st, R) {
+  const m = st.map, T = m.terr.length, pool = [];
+  pool.push({ type: 'territories', n: Math.round(T * 0.57) });
+  pool.push({ type: 'garrison', n: Math.round(T * 0.43), k: 2 });
+  const C = m.cont.length;
+  for (let a = 0; a < C; a++) for (let b = a + 1; b < C; b++) {
+    const sz = m.cont[a].terr.length + m.cont[b].terr.length;
+    if (sz >= T * 0.28 && sz <= T * 0.52) pool.push({ type: 'continents', ids: [a, b], plus: 0 });
+    else if (sz >= T * 0.18 && sz < T * 0.28) pool.push({ type: 'continents', ids: [a, b], plus: 1 });
+  }
+  st.players.forEach(p => {
+    const opts = pool.slice(); st.players.forEach(q => { if (q.id !== p.id) opts.push({ type: 'eliminate', target: q.id }); });
+    const taken = st.players.filter(q => q.mission).map(q => JSON.stringify(q.mission));
+    const free = opts.filter(o => !taken.includes(JSON.stringify(o)));
+    p.mission = (free.length ? free : opts)[Math.floor(R() * (free.length || opts.length))];
+  });
+}
+function missionText(st, mi) {
+  if (!mi) return ''; const m = st.map;
+  if (mi.type === 'territories') return 'Control ' + mi.n + ' territories.';
+  if (mi.type === 'garrison') return 'Control ' + mi.n + ' territories with at least ' + mi.k + ' armies on each.';
+  if (mi.type === 'continents') return 'Control all of ' + m.cont[mi.ids[0]].name + ' and ' + m.cont[mi.ids[1]].name + (mi.plus ? ', plus any one other continent.' : '.');
+  if (mi.type === 'eliminate') return 'Wipe ' + st.players[mi.target].name + ' off the map.';
+  return '';
+}
+function ownsCont(st, pid, c) { return st.map.cont[c].terr.every(t => st.owner[t] === pid); }
+function missionDone(st, p) {
+  const mi = p.mission; if (!mi) return false;
+  const mine = st.owner.reduce((a, o, t) => (o === p.id ? a.concat(t) : a), []);
+  if (mi.type === 'territories') return mine.length >= mi.n;
+  if (mi.type === 'garrison') return mine.filter(t => st.armies[t] >= mi.k).length >= mi.n;
+  if (mi.type === 'continents') { if (!mi.ids.every(c => ownsCont(st, p.id, c))) return false; return !mi.plus || st.map.cont.some(c => !mi.ids.includes(c.id) && ownsCont(st, p.id, c.id)); }
+  if (mi.type === 'eliminate') return !st.players[mi.target].alive && st.players[mi.target].elimBy === p.id;
+  return false;
+}
+function checkWin(st) {
+  if (st.winner != null) return true;
+  const p = st.players[st.cur];
+  if (st.owner.every(o => o === p.id)) { st.winner = p.id; st.winReason = 'conquest'; }
+  else if (st.win === 'missions' && st.phase !== 'deploy' && missionDone(st, p)) { st.winner = p.id; st.winReason = 'mission'; }
+  if (st.winner != null) { st.phase = 'over'; log(st, p.name + (st.winReason === 'mission' ? ' completes the secret mission: ' + missionText(st, p.mission) : ' rules the whole map!') + ' Game over.', 'win'); return true; }
+  return false;
+}
+
+/* ---------------- rules ---------------- */
+function reinforcements(st, pid) {
+  const n = st.owner.filter(o => o === pid).length; let r = Math.max(3, Math.floor(n / 3));
+  st.map.cont.forEach(c => { if (ownsCont(st, pid, c.id)) r += c.bonus; });
+  return r;
+}
+function isSet(cards) {
+  if (cards.length !== 3) return false; const s = cards.map(c => c.s), w = s.filter(x => x === 3).length, r = s.filter(x => x !== 3);
+  if (w >= 1) return true; return (r[0] === r[1] && r[1] === r[2]) || (r[0] !== r[1] && r[1] !== r[2] && r[0] !== r[2]);
+}
+function validSets(cards) {
+  const out = []; for (let a = 0; a < cards.length; a++) for (let b = a + 1; b < cards.length; b++) for (let c = b + 1; c < cards.length; c++) if (isSet([cards[a], cards[b], cards[c]])) out.push([a, b, c]); return out;
+}
+function connected(st, from, to) {
+  const pid = st.owner[from]; if (st.owner[to] !== pid) return false;
+  const seen = new Set([from]), q = [from];
+  while (q.length) { const t = q.shift(); if (t === to) return true; for (const u of st.map.adj[t]) if (!seen.has(u) && st.owner[u] === pid) { seen.add(u); q.push(u); } }
+  return false;
+}
+function beginTurn(st) {
+  const p = st.players[st.cur];
+  st.turn++; st.conquered = false; st.turnConq = 0; st.turnRolls = 0; st.turnBlitz = 0; st.pending = null; st.midTrade = false;
+  st.reserve = reinforcements(st, p.id); st.phase = 'reinforce';
+  log(st, p.name + "'s turn: " + st.reserve + ' new armies.', 'turn');
+}
+function nextAlive(st, from) { const n = st.players.length; for (let k = 1; k <= n; k++) { const i = (from + k) % n; if (st.players[i].alive) return i; } return from; }
+function fail(msg) { throw new Error('Illegal move: ' + msg); }
+function act(st, a) {
+  if (st.phase === 'over') fail('game is over');
+  const p = st.players[st.cur], m = st.map, T = m.terr.length;
+  const terrOk = t => Number.isInteger(t) && t >= 0 && t < T;
+  let res = { ok: true };
+  switch (a.type) {
+    case 'place': {
+      if (st.phase !== 'deploy' && st.phase !== 'reinforce') fail('not placing now');
+      if (!terrOk(a.t) || st.owner[a.t] !== p.id) fail('not your territory');
+      if (!Number.isInteger(a.n) || a.n < 1 || a.n > st.reserve) fail('bad army count');
+      if (st.phase === 'reinforce' && p.cards.length >= 5) fail('you hold 5+ cards and must trade a set first');
+      st.armies[a.t] += a.n; st.reserve -= a.n;
+      if (st.phase === 'reinforce') log(st, p.name + ' places ' + a.n + ' on ' + m.terr[a.t].name + '.', 'place');
+      if (st.reserve === 0) {
+        if (st.phase === 'deploy') {
+          st.deployLeft[st.cur] = 0; log(st, p.name + ' has deployed.', 'place');
+          const nx = st.players.findIndex((q, i) => st.deployLeft[(st.cur + 1 + i) % st.players.length] > 0);
+          if (nx >= 0) { st.cur = (st.cur + 1 + nx) % st.players.length; st.reserve = st.deployLeft[st.cur]; }
+          else { st.cur = st.first; st.round = 1; beginTurn(st); }
+        } else { st.phase = 'attack'; st.midTrade = false; checkWin(st); }
+      } else if (st.phase === 'deploy') st.deployLeft[st.cur] = st.reserve;
+      break;
+    }
+    case 'trade': {
+      if (st.phase !== 'reinforce') fail('cards are traded at the start of your turn');
+      const ix = a.cards; if (!Array.isArray(ix) || ix.length !== 3 || new Set(ix).size !== 3 || ix.some(i => !p.cards[i])) fail('pick three of your cards');
+      const cs = ix.map(i => p.cards[i]); if (!isSet(cs)) fail('those three cards are not a set');
+      const v = tradeValue(st.trades); st.trades++; st.reserve += v;
+      const bonusCard = cs.find(c => c.t >= 0 && st.owner[c.t] === p.id);
+      if (bonusCard) st.armies[bonusCard.t] += 2;
+      p.cards = p.cards.filter((c, i) => !ix.includes(i)); st.discard.push(...cs);
+      log(st, p.name + ' trades a set for ' + v + ' armies' + (bonusCard ? ' (+2 on ' + m.terr[bonusCard.t].name + ')' : '') + '.', 'trade');
+      res = { value: v, bonus: bonusCard ? bonusCard.t : -1 };
+      break;
+    }
+    case 'attack': {
+      if (st.phase !== 'attack') fail('not the attack phase');
+      const { from, to } = a; if (!terrOk(from) || !terrOk(to)) fail('no such territory');
+      if (st.owner[from] !== p.id) fail('attack from your own territory'); if (st.owner[to] === p.id) fail('cannot attack yourself');
+      if (!m.adj[from].includes(to)) fail('territories are not neighbours'); if (st.armies[from] < 2) fail('need at least 2 armies to attack');
+      const maxD = Math.min(3, st.armies[from] - 1), dice = a.dice == null ? maxD : a.dice;
+      if (!Number.isInteger(dice) || dice < 1 || dice > maxD) fail('bad dice count');
+      const dd = Math.min(2, st.armies[to]), R = () => rngNext(st);
+      const ar = Array.from({ length: dice }, () => 1 + Math.floor(R() * 6)).sort((x, y) => y - x), dr = Array.from({ length: dd }, () => 1 + Math.floor(R() * 6)).sort((x, y) => y - x);
+      let al = 0, dl = 0; for (let i = 0; i < Math.min(dice, dd); i++) { if (ar[i] > dr[i]) dl++; else al++; }
+      st.armies[from] -= al; st.armies[to] -= dl; st.turnRolls++;
+      const def = st.owner[to]; res = { a: ar, d: dr, al, dl, from, to, def, conquered: false };
+      st.lastRoll = res;
+      if (st.armies[to] === 0) {
+        res.conquered = true; st.owner[to] = p.id; st.conquered = true; st.turnConq++;
+        log(st, p.name + ' takes ' + m.terr[to].name + ' from ' + st.players[def].name + '.', 'conquer');
+        st.pending = { from, to, min: dice, max: st.armies[from] - 1 }; st.phase = 'advance';
+        if (!st.owner.includes(def)) {
+          const d = st.players[def]; d.alive = false; d.elimBy = p.id; res.eliminated = def;
+          log(st, d.name + ' is eliminated by ' + p.name + (d.cards.length ? ' (' + d.cards.length + ' cards change hands)' : '') + '.', 'elim');
+          p.cards.push(...d.cards); d.cards = [];
+          st.players.forEach(q => { if (q.alive && q.mission && q.mission.type === 'eliminate' && q.mission.target === def && q.id !== p.id) q.mission = { type: 'territories', n: Math.round(T * 0.57), was: def }; });
+        }
+        if (checkWin(st)) { st.armies[to] += st.pending.max; st.armies[from] -= st.pending.max; st.pending = null; }
+      }
+      break;
+    }
+    case 'blitz': {
+      if (st.phase !== 'attack') fail('not the attack phase');
+      const rolls = []; let r;
+      const aBefore = st.armies[a.from], dBefore = st.armies[a.to]; st.turnBlitz = (st.turnBlitz || 0) + 1;
+      do { r = act(st, { type: 'attack', from: a.from, to: a.to }); rolls.push(r); }
+      while (!r.conquered && st.phase === 'attack' && st.armies[a.from] >= 2 && st.armies[a.from] > (a.stopAt || 1) && !(a.abortBelow && winProb(st.armies[a.from] - 1, st.armies[a.to]) < a.abortBelow));
+      res = { rolls, last: r, conquered: r.conquered, from: a.from, to: a.to, aLost: aBefore - st.armies[a.from] - (r.conquered && st.pending ? 0 : 0), dLost: dBefore - (r.conquered ? 0 : st.armies[a.to]) };
+      if (!r.conquered) log(st, p.name + "'s blitz on " + m.terr[a.to].name + ' stalls.', 'roll');
+      break;
+    }
+    case 'advance': {
+      if (st.phase !== 'advance' || !st.pending) fail('nothing to move in');
+      const { from, to, min, max } = st.pending; if (!Number.isInteger(a.n) || a.n < min || a.n > max) fail('move between ' + min + ' and ' + max);
+      st.armies[from] -= a.n; st.armies[to] += a.n; st.pending = null; st.phase = 'attack';
+      if (p.cards.length >= 6) { st.phase = 'reinforce'; st.midTrade = true; st.reserve = 0; log(st, p.name + ' holds ' + p.cards.length + ' cards and must trade now.', 'trade'); }
+      checkWin(st);
+      break;
+    }
+    case 'endAttack': {
+      if (st.phase !== 'attack') fail('not the attack phase'); st.phase = 'fortify'; break;
+    }
+    case 'fortify': {
+      if (st.phase !== 'attack' && st.phase !== 'fortify') fail('not the time to fortify');
+      const { from, to, n } = a; if (!terrOk(from) || !terrOk(to) || from === to) fail('pick two territories');
+      if (st.owner[from] !== p.id || st.owner[to] !== p.id) fail('both must be yours');
+      if (!connected(st, from, to)) fail('no path through your own territories');
+      if (!Number.isInteger(n) || n < 1 || n > st.armies[from] - 1) fail('bad army count');
+      st.armies[from] -= n; st.armies[to] += n; log(st, p.name + ' fortifies ' + m.terr[to].name + ' with ' + n + ' from ' + m.terr[from].name + '.', 'fortify');
+      if (!checkWin(st)) endTurn(st);
+      break;
+    }
+    case 'endTurn': {
+      if (st.phase !== 'attack' && st.phase !== 'fortify') fail('finish placing or moving first');
+      endTurn(st); break;
+    }
+    default: fail('unknown action ' + a.type);
+  }
+  if (st.phase === 'reinforce' && st.midTrade && st.reserve === 0 && p.cards.length < 5) { st.phase = 'attack'; st.midTrade = false; }
+  return res;
+}
+function endTurn(st) {
+  const p = st.players[st.cur];
+  if (st.conquered) {
+    if (!st.deck.length) { st.deck = shuffle(st.discard, () => rngNext(st)); st.discard = []; }
+    if (st.deck.length) { p.cards.push(st.deck.pop()); log(st, p.name + ' earns a card.', 'card'); }
+  }
+  if (checkWin(st)) return;
+  const nx = nextAlive(st, st.cur); if (nx <= st.cur) st.round++;
+  if (st.maxRounds && st.round > st.maxRounds) { st.round = st.maxRounds; return roundsOver(st); }
+  st.cur = nx; beginTurn(st);
+}
+function standings(st) {
+  return st.players.map(q => { let terr = 0, arm = 0; st.owner.forEach((o, t) => { if (o === q.id) { terr++; arm += st.armies[t]; } }); return { id: q.id, terr, arm }; })
+    .sort((a, b) => b.terr - a.terr || b.arm - a.arm || a.id - b.id);
+}
+function roundsOver(st) {
+  const s = standings(st); st.winner = s[0].id; st.winReason = 'rounds'; st.phase = 'over';
+  log(st, 'Time! After ' + st.maxRounds + ' rounds ' + st.players[s[0].id].name + ' holds the most territories (' + s[0].terr + '). Game over.', 'win');
+}
+
+/* ---------------- bots ---------------- */
+function context(st, pid) {
+  const m = st.map, n = st.players.length, terrCount = Array(n).fill(0), armyCount = Array(n).fill(0);
+  st.owner.forEach((o, t) => { terrCount[o]++; armyCount[o] += st.armies[t]; });
+  const contOwned = m.cont.map(c => c.terr.filter(t => st.owner[t] === pid).length);
+  const contHolder = m.cont.map(c => { const o = st.owner[c.terr[0]]; return c.terr.every(t => st.owner[t] === o) ? o : -1; });
+  const strength = st.players.map(q => q.alive ? terrCount[q.id] * 1.5 + armyCount[q.id] + reinforcements(st, q.id) * 2 + q.cards.length * 2 : -1);
+  let leader = -1; strength.forEach((s, i) => { if (i !== pid && st.players[i].alive && (leader < 0 || s > strength[leader])) leader = i; });
+  const totalArmies = armyCount.reduce((a, b) => a + b, 0);
+  return { terrCount, armyCount, contOwned, contHolder, strength, leader, share: armyCount[pid] / totalArmies, myStrength: strength[pid] };
+}
+function profile(p) {
+  const S = Object.assign({}, STRAT[p.strategy] || STRAT.strategist), D = DIFF[p.difficulty] || DIFF.medium;
+  S.cont += D.contAdd; S.defense += D.defAdd; return { S, D };
+}
+function targetValue(st, p, e, S, ctx) {
+  const m = st.map, c = m.terr[e].cont, C = m.cont[c], o = st.owner[e], size = C.terr.length;
+  let v = 1; const after = (ctx.contOwned[c] + 1) / size;
+  v += S.cont * (after === 1 ? C.bonus * 2.2 : after * after * C.bonus * 0.8);
+  if (ctx.contHolder[c] === o) v += C.bonus * (0.8 + S.cont * 0.5);
+  if (o === ctx.leader) v += 2.2 * S.leader * (ctx.strength[o] > ctx.myStrength ? 1.4 : 0.8);
+  v += S.weak * 3 / (st.armies[e] + 1);
+  if (ctx.terrCount[o] <= 2) v += 3 + st.players[o].cards.length * 1.6 * S.cardFarm;
+  const mi = p.mission;
+  if (mi) {
+    if (mi.type === 'eliminate' && mi.target === o) v += 4 + 6 / ctx.terrCount[o];
+    if (mi.type === 'continents' && mi.ids.includes(c)) v += 3 + after * 3;
+    if (mi.type === 'territories' || mi.type === 'garrison') v += 1.2;
+  }
+  return v;
+}
+function threatOn(st, t) { let s = 0; for (const u of st.map.adj[t]) if (st.owner[u] !== st.owner[t]) s += st.armies[u]; return s; }
+function guardNeed(st, p, t, ctx) { const m = st.map, c = m.terr[t].cont; if (ctx.contOwned[c] !== m.cont[c].terr.length) return 0; let g = 0; for (const u of m.adj[t]) if (st.owner[u] !== p.id) g = Math.max(g, st.armies[u]); return Math.ceil(g * 0.7); }
+function enemyAdj(st, t) { return st.map.adj[t].filter(u => st.owner[u] !== st.owner[t]); }
+function noise(st, D) { return D.noise ? (rngNext(st) - 0.5) * 2 * D.noise : 0; }
+function placeScores(st, p, S, D, ctx, extra) {
+  const m = st.map, mine = []; st.owner.forEach((o, t) => { if (o === p.id) mine.push(t); });
+  let cand = mine.filter(t => enemyAdj(st, t).length); if (!cand.length) cand = mine;
+  return cand.map(t => {
+    const ea = enemyAdj(st, t), th = threatOn(st, t) - st.armies[t];
+    let opp = 0; ea.forEach(e => { const pw = winProb(st.armies[t] - 1 + extra, st.armies[e]); opp = Math.max(opp, targetValue(st, p, e, S, ctx) * pw); });
+    const c = m.terr[t].cont, C = m.cont[c], frac = ctx.contOwned[c] / C.terr.length;
+    const contBorder = m.adj[t].some(u => m.terr[u].cont !== c);
+    let guard = frac === 1 ? C.bonus * S.cont * (contBorder ? 1 : 0.4) * (th > -3 ? 1 : 0.3) : frac * S.cont * C.bonus * 0.4;
+    let sc = S.defense * Math.max(0, th + 2) * 0.35 + S.aggr * opp * 1.5 + guard;
+    if (S.peaceShare && ctx.share < S.peaceShare) sc = S.defense * Math.max(0, th + 3) * 0.5 + guard + opp * 0.5;
+    sc *= 1 + (S.chaos ? (rngNext(st) - 0.5) * 1.5 : 0); sc += noise(st, D) * 2;
+    return { t, sc };
+  }).sort((a, b) => b.sc - a.sc);
+}
+function aiPlace(st, p, S, D) {
+  const ctx = context(st, p.id), sc = placeScores(st, p, S, D, ctx, D.smart ? st.reserve : Math.min(st.reserve, 6));
+  const pick = D.sloppy && rngNext(st) < D.sloppy ? sc[Math.floor(rngNext(st) * sc.length)] : sc[0];
+  let n = st.reserve;
+  if (st.phase === 'deploy') n = Math.max(1, Math.ceil(st.reserve / (S.spread ? 6 : 3)));
+  else if (S.spread) n = Math.max(1, Math.ceil(st.reserve / 3));
+  else if (D.noise > 1) n = Math.max(1, Math.ceil(st.reserve / 2));
+  return { type: 'place', t: pick.t, n: Math.min(n, st.reserve) };
+}
+function aiTrade(st, p) {
+  const sets = validSets(p.cards); if (!sets.length) return null;
+  if (p.cards.length < 5 && !st.midTrade && (p.strategy === 'turtle' || p.strategy === 'diplomat') && p.cards.length < 4) return null;
+  let best = null, bs = -1e9;
+  sets.forEach(s => { const cs = s.map(i => p.cards[i]); const sc = cs.filter(c => c.t >= 0 && st.owner[c.t] === p.id).length * 2 - cs.filter(c => c.s === 3).length * 3; if (sc > bs) { bs = sc; best = s; } });
+  return { type: 'trade', cards: best };
+}
+function pressure(st) { return Math.min(0.35, Math.max(0, (st.round - 22) * 0.012)); }
+function aiAttack(st, p, S, D) {
+  if (S.maxConq && st.turnConq >= S.maxConq && pressure(st) < 0.1) return null;
+  if (D.stopRate && st.turnBlitz > 0 && rngNext(st) < D.stopRate) return null;
+  const ctx = context(st, p.id); let minP = S.minP + D.minPAdj - pressure(st);
+  if (S.peaceShare && ctx.share < S.peaceShare && pressure(st) < 0.15) minP = Math.max(minP, 0.85);
+  if (S.stopAfterCard && st.conquered) minP = Math.max(minP, S.stopAfterCard);
+  const cands = [];
+  st.owner.forEach((o, t) => {
+    if (o !== p.id || st.armies[t] < 2) return;
+    for (const e of st.map.adj[t]) {
+      if (st.owner[e] === p.id) continue;
+      const pw = winProb(st.armies[t] - 1, st.armies[e]); let need = minP;
+      if (!st.conquered) need -= 0.08 * S.cardFarm;
+      if (ctx.terrCount[st.owner[e]] <= 2) need -= 0.08;
+      if (pw < need) continue;
+      if (D.smart) { const g = guardNeed(st, p, t, ctx); if (g && st.armies[t] - 1 - g < st.armies[e] * 1.2 && pw < 0.9) continue; }
+      const v = targetValue(st, p, e, S, ctx), exposure = (threatOn(st, t) - st.armies[e]) / (st.armies[t] + 1);
+      cands.push({ from: t, to: e, pw, sc: pw * v - (1 - pw) * 1.5 - Math.max(0, exposure) * S.defense * 0.3 + noise(st, D) });
+    }
+  });
+  if (!cands.length) return null;
+  let pick; if (S.chaos && rngNext(st) < 0.5) pick = cands[Math.floor(rngNext(st) * cands.length)]; else pick = cands.reduce((a, b) => (b.sc > a.sc ? b : a));
+  return { type: 'blitz', from: pick.from, to: pick.to, abortBelow: Math.max(0.12, minP - 0.2) };
+}
+function aiAdvance(st, p, S, D) {
+  const { from, to, min, max } = st.pending;
+  if (D && D.sloppy && rngNext(st) < D.sloppy) return min;
+  const fromThreat = st.map.adj[from].filter(u => st.owner[u] !== p.id).reduce((a, u) => a + st.armies[u], 0);
+  const toThreat = st.map.adj[to].filter(u => st.owner[u] !== p.id).reduce((a, u) => a + st.armies[u], 0);
+  if (S.chaos) return min + Math.floor(rngNext(st) * (max - min + 1));
+  if (fromThreat === 0) return max; if (toThreat === 0) return min;
+  if (D && D.smart) { const g = guardNeed(st, p, from, context(st, p.id)); if (g) return Math.max(min, Math.min(max, st.armies[from] - 1 - g)); }
+  const ratio = (toThreat * S.aggr) / (toThreat * S.aggr + fromThreat * S.defense);
+  return Math.max(min, Math.min(max, Math.round(min + (max - min) * ratio)));
+}
+function aiFortify(st, p, S, D) {
+  if (D.skipFort && rngNext(st) < D.skipFort) return null;
+  const mine = []; st.owner.forEach((o, t) => { if (o === p.id) mine.push(t); });
+  if (S.fortify === 'random' && rngNext(st) < 0.6) {
+    const src = mine.filter(t => st.armies[t] > 1); if (!src.length) return null;
+    const f = src[Math.floor(rngNext(st) * src.length)], dests = mine.filter(t => t !== f && connected(st, f, t)); if (!dests.length) return null;
+    return { type: 'fortify', from: f, to: dests[Math.floor(rngNext(st) * dests.length)], n: 1 + Math.floor(rngNext(st) * (st.armies[f] - 1)) };
+  }
+  const ctx = context(st, p.id), need = t => {
+    const th = threatOn(st, t); if (!th) return -1e9;
+    let v = th * S.defense - st.armies[t] * 0.5;
+    if (S.fortify === 'front' || S.fortify === 'leader') { let opp = 0; enemyAdj(st, t).forEach(e => { opp = Math.max(opp, targetValue(st, p, e, S, ctx) / (st.armies[e] + 1)); }); v += opp * 6 * S.aggr; }
+    if (S.fortify === 'leader' && enemyAdj(st, t).some(e => st.owner[e] === ctx.leader)) v += 10;
+    if (S.fortify === 'continent') { const c = st.map.terr[t].cont; if (ctx.contOwned[c] === st.map.cont[c].terr.length) v += st.map.cont[c].bonus * 4; }
+    return v;
+  };
+  const interior = mine.filter(t => st.armies[t] > 1 && threatOn(st, t) === 0).sort((a, b) => st.armies[b] - st.armies[a]);
+  for (const f of interior) {
+    let best = -1, bv = -1e9; mine.forEach(t => { if (t !== f && threatOn(st, t) > 0) { const v = need(t); if (v > bv && connected(st, f, t)) { bv = v; best = t; } } });
+    if (best >= 0) return { type: 'fortify', from: f, to: best, n: st.armies[f] - 1 };
+  }
+  // no idle interior armies: shift surplus from a quiet border to a hot one
+  let bestMove = null, gain = 2;
+  mine.forEach(f => { const surplus = st.armies[f] - 1 - threatOn(st, f); if (surplus < 3) return; mine.forEach(t => { if (t === f) return; const g = need(t) - need(f); if (g > gain && connected(st, f, t)) { gain = g; bestMove = { type: 'fortify', from: f, to: t, n: Math.floor(surplus / 2) || 1 }; } }); });
+  return bestMove;
+}
+function botAction(st) {
+  const p = st.players[st.cur], { S, D } = profile(p);
+  switch (st.phase) {
+    case 'deploy': return aiPlace(st, p, S, D);
+    case 'reinforce': { const tr = (p.cards.length >= 3) ? aiTrade(st, p) : null; if (tr) return tr; return aiPlace(st, p, S, D); }
+    case 'attack': return aiAttack(st, p, S, D) || aiFortify(st, p, S, D) || { type: 'endTurn' };
+    case 'advance': return { type: 'advance', n: aiAdvance(st, p, S, D) };
+    case 'fortify': return aiFortify(st, p, S, D) || { type: 'endTurn' };
+  }
+  return null;
+}
+/* Helper the human can use: one auto-placement step using the Strategist's judgement. */
+function suggestPlace(st) { const p = st.players[st.cur]; const { S, D } = profile(Object.assign({}, p, { strategy: 'strategist', difficulty: 'hard' })); return aiPlace(st, p, S, D); }
+
+const api = { W, H, getMap, genMap, newGame, act, botAction, suggestPlace, reinforcements, isSet, validSets, tradeValue, winProb, connected, missionText, missionDone,
+  STRATEGIES, STRAT, DIFF, BOT_NAMES, COLORS, SYMBOLS, ROLLS, standings, QUICK: { map: 'skirmish', players: 3, rounds: 10 } };
+if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.RaiskEngine = api;
+})(this);
+
+</script>
+<script>
+(function(){
+'use strict';
+var E=window.RaiskEngine, $=function(id){return document.getElementById(id);};
+var PIPS=[[4],[0,8],[0,4,8],[0,2,6,8],[0,2,4,6,8],[0,2,3,5,6,8]];function face(v){var h='';for(var i=0;i<9;i++)h+='<i'+(PIPS[v-1].indexOf(i)>=0?' class="p"':'')+'></i>';return h;}
+var SYM=['⛰','⚑','✦','✱'], SPEED={slow:1100,normal:550,fast:160,instant:0};
+var DLAB={easy:'Easy',medium:'Medium',hard:'Hard'};
+var G=null, token=0, ui={sel:-1,tgt:-1,amt:1,dice:3,cards:[],busy:false,zoom:1,speed:'normal',names:null};
+var cfg=loadCfg();
+function loadCfg(){var d={n:4,map:'world',win:'conquest',first:'me',seats:[0,1,2,3,4].map(function(){return {s:'random',d:'medium'};})};
+  try{var c=JSON.parse(localStorage.getItem('raiskSetup')||'null');if(c){['n','map','win','first'].forEach(function(k){if(c[k]!=null)d[k]=c[k];});if(Array.isArray(c.seats))c.seats.slice(0,5).forEach(function(s,i){if(s&&(s.s==='random'||E.STRAT[s.s]))d.seats[i].s=s.s;if(s&&E.DIFF[s.d])d.seats[i].d=s.d;});}}catch(e){}
+  if(!(d.n>=2&&d.n<=6))d.n=4;if(['skirmish','world','fantasy','random'].indexOf(d.map)<0)d.map='world';if(d.map==='skirmish'&&d.n>3)d.n=3;if(d.win!=='missions')d.win='conquest';if(d.first!=='random')d.first='me';return d;}
+function saveCfg(){try{localStorage.setItem('raiskSetup',JSON.stringify(cfg));}catch(e){}}
+try{ui.speed=localStorage.getItem('raiskSpeed')||'normal';if(!(ui.speed in SPEED))ui.speed='normal';}catch(e){}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+function toast(msg){var t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(function(){t.classList.remove('show');},2600);}
+function me(){return G.players.find(function(p){return p.human;});}
+function myTurn(){return G&&G.phase!=='over'&&G.players[G.cur].human&&!ui.busy;}
+function tname(t){return G.map.terr[t].name;}
+
+/* ---------- setup screen ---------- */
+function opt(id,val,set){var box=$(id);[].forEach.call(box.children,function(b){b.classList.toggle('on',b.dataset.v===String(val));b.onclick=function(){set(b.dataset.v);renderSetup();};});}
+function renderSetup(){
+  var on=$('optN');if(!on.children.length){for(var n=2;n<=6;n++){var b=document.createElement('button');b.dataset.v=n;b.textContent=n;on.appendChild(b);}}
+  opt('optN',cfg.n,function(v){cfg.n=+v;});opt('optMap',cfg.map,function(v){cfg.map=v;if(v==='skirmish'&&cfg.n>3)cfg.n=3;});
+  [].forEach.call($('optN').children,function(b){b.disabled=cfg.map==='skirmish'&&+b.dataset.v>3;b.style.opacity=b.disabled?.35:1;});
+  opt('optTips',SET.tips?'on':'off',function(v){SET.tips=v==='on';saveSet();if(!SET.tips)hideTip();});
+  $('quickNote').textContent=cfg.map==='skirmish'?'Quick game: a small island of 13 to 15 territories for 2 or 3 players. Conquer it, or hold the most territories after 10 rounds.':'';opt('optWin',cfg.win,function(v){cfg.win=v;});opt('optFirst',cfg.first,function(v){cfg.first=v;});
+  var same=cfg.seats.slice(0,cfg.n-1).every(function(s){return s.d===cfg.seats[0].d;});
+  opt('optAllDiff',same?cfg.seats[0].d:'',function(v){cfg.seats.forEach(function(s){s.d=v;});});
+  var h='<div class="seat"><span class="dot" style="background:'+E.COLORS[0]+'"></span><b>Me</b><span></span><span></span><div class="sd">You</div></div>';
+  for(var i=0;i<cfg.n-1;i++){var s=cfg.seats[i],st=E.STRAT[s.s];
+    h+='<div class="seat"><span class="dot" style="background:'+E.COLORS[i+1]+'"></span><b>'+E.BOT_NAMES[i]+'</b><select data-seat="'+i+'" data-k="s" aria-label="'+E.BOT_NAMES[i]+' strategy"><option value="random">🎯 Random strategy</option>'+
+      E.STRATEGIES.map(function(x){return '<option value="'+x.id+'"'+(x.id===s.s?' selected':'')+'>'+x.icon+' '+x.name+'</option>';}).join('')+'</select>'+
+      '<select data-seat="'+i+'" data-k="d" aria-label="'+E.BOT_NAMES[i]+' difficulty">'+['easy','medium','hard'].map(function(d){return '<option value="'+d+'"'+(d===s.d?' selected':'')+'>'+DLAB[d]+'</option>';}).join('')+'</select>'+
+      '<div class="sd">'+(st?esc(st.desc):'Strategy picked at random when the game starts.')+'</div></div>';}
+  $('seats').innerHTML=h;
+  [].forEach.call($('seats').querySelectorAll('select'),function(el){el.onchange=function(){cfg.seats[+el.dataset.seat][el.dataset.k]=el.value;renderSetup();};});
+}
+function openSetup(){renderSetup();$('setup').classList.add('show');$('cancelSetup').style.display=(G||$('title').classList.contains('show'))?'':'none';}
+$('newBtn').onclick=openSetup;$('cancelSetup').onclick=function(){$('setup').classList.remove('show');};
+$('startBtn').onclick=function(){saveCfg();$('setup').classList.remove('show');startGame();};
+
+function startGame(){
+  token++;ui.busy=false;ui.sel=ui.tgt=-1;ui.cards=[];
+  var players=[{name:'Me',human:true}];
+  for(var i=0;i<cfg.n-1;i++)players.push({name:E.BOT_NAMES[i],human:false,strategy:cfg.seats[i].s,difficulty:cfg.seats[i].d});
+  G=E.newGame({map:cfg.map,players:players,win:cfg.win,first:cfg.first,seed:(Math.random()*4294967296)>>>0,mapSeed:(Math.random()*4294967296)>>>0,maxRounds:cfg.map==='skirmish'?E.QUICK.rounds:0});
+  G.quick=cfg.map==='skirmish';G.ended=false;gameNo++;hideTip();$('title').classList.remove('show');
+  $('dice').innerHTML='';$('diceNote').textContent='';$('info').textContent='Tap a territory to see who holds it.';$('over').classList.remove('show');
+  drawMap();render();runBots();
+}
+
+/* ---------- map ---------- */
+function drawMap(){
+  var m=G.map,h='',bg=m.style==='world'?'#163650':(m.style==='fantasy'?'#24485a':'#1b3a4f');
+  h+='<defs><pattern id="waves" width="40" height="20" patternUnits="userSpaceOnUse"><path d="M0 10 Q10 4 20 10 T40 10" fill="none" stroke="#ffffff10" stroke-width="1.2"/></pattern></defs>';
+  h+='<rect width="1000" height="600" fill="'+bg+'"/><rect width="1000" height="600" fill="url(#waves)"/>';
+  if(m.style==='world'){for(var x=50;x<1000;x+=100)h+='<line x1="'+x+'" y1="0" x2="'+x+'" y2="600" stroke="#ffffff0d"/>';for(var y=40;y<600;y+=80)h+='<line x1="0" y1="'+y+'" x2="1000" y2="'+y+'" stroke="#ffffff0d"/>';}
+  else h+='<g transform="translate(950 548)" opacity=".5"><circle r="26" fill="none" stroke="#e8dcc0" stroke-width="1.5"/><path d="M0 -34 L6 0 L0 34 L-6 0Z" fill="#e8dcc0"/><path d="M-34 0 L0 -6 L34 0 L0 6Z" fill="#e8dcc0" opacity=".6"/><text y="-38" text-anchor="middle" fill="#e8dcc0" font-size="11" font-weight="800">N</text></g>';
+  m.cont.forEach(function(c){h+='<path class="halo" d="'+c.path+'" stroke="'+c.color+'"/>';});
+  m.cont.forEach(function(c){h+='<path class="land" d="'+c.path+'"/>';});
+  m.lanes.forEach(function(l){
+    if(l.wrap){var ym=(l.y1+l.y2)/2,e1=l.x1<500?0:1000,e2=l.x2<500?0:1000;h+='<path class="lane" d="M'+l.x1+' '+l.y1+'L'+e1+' '+ym+'M'+l.x2+' '+l.y2+'L'+e2+' '+ym+'"/>';}
+    else h+='<path class="lane" d="M'+l.x1+' '+l.y1+'L'+l.x2+' '+l.y2+'"/>';});
+  m.terr.forEach(function(t){h+='<path class="terr" id="t'+t.id+'" data-t="'+t.id+'" fill="'+G.players[G.owner[t.id]].color+'" d="'+t.path+'"><title>'+esc(t.name)+' ('+esc(m.cont[t.cont].name)+')</title></path>';});
+  m.cont.forEach(function(c){var xs=0,ys=0,top=1e9;c.terr.forEach(function(t){xs+=m.terr[t].lx;ys+=m.terr[t].ly;top=Math.min(top,m.terr[t].ly);});
+    var cx=xs/c.terr.length;h+='<text class="contlbl" x="'+cx.toFixed(0)+'" y="'+Math.max(16,top-24).toFixed(0)+'" text-anchor="middle" fill="'+c.color+'" stroke="#0009" stroke-width="3" paint-order="stroke">'+esc(c.name)+' +'+c.bonus+'</text>';});
+  m.terr.forEach(function(t){h+='<text class="nm" x="'+t.lx+'" y="'+(t.ly+21)+'">'+esc(t.name)+'</text>';});
+  m.terr.forEach(function(t){h+='<g class="badge" data-t="'+t.id+'" transform="translate('+t.lx+' '+t.ly+')"><circle r="11"/><text font-size="12">1</text></g>';});
+  $('map').innerHTML=h;applyZoom();
+}
+function badgeScale(){var w=$('mapWrap').clientWidth*ui.zoom||1000;return Math.max(1,Math.min(1.9,620/w));}
+function applyZoom(){var svg=$('map');svg.style.width=(ui.zoom*100)+'%';
+  if(ui.names==null)ui.names=$('mapWrap').clientWidth>=700;svg.classList.toggle('nonames',!ui.names);$('namesBtn').classList.toggle('on',ui.names);paint();}
+$('zoomIn').onclick=function(){ui.zoom=Math.min(3,ui.zoom+0.5);applyZoom();};
+$('zoomOut').onclick=function(){ui.zoom=Math.max(1,ui.zoom-0.5);applyZoom();};
+$('namesBtn').onclick=function(){ui.names=!ui.names;applyZoom();};
+window.addEventListener('resize',function(){if(G)paint();});
+function paint(){
+  if(!G)return;var m=G.map,k=badgeScale(),tg=targets();
+  m.terr.forEach(function(t){var p=$('t'+t.id);if(!p)return;var o=G.owner[t.id];p.setAttribute('fill',G.players[o].color);
+    p.classList.toggle('sel',t.id===ui.sel||t.id===ui.tgt);p.classList.toggle('tgt',tg.indexOf(t.id)>=0&&t.id!==ui.tgt);});
+  [].forEach.call(document.querySelectorAll('#map .badge'),function(b){var t=+b.dataset.t,o=G.owner[t],a=G.armies[t];
+    b.firstChild.setAttribute('fill',G.players[o].color);b.firstChild.setAttribute('r',(a>99?13:11)*k);b.lastChild.setAttribute('font-size',(a>99?11:13)*k);b.lastChild.textContent=a;});
+}
+function targets(){
+  if(!myTurn())return [];var p=G.cur;
+  if(G.phase==='attack'&&ui.sel>=0)return G.map.adj[ui.sel].filter(function(u){return G.owner[u]!==p;});
+  if(G.phase==='fortify'&&ui.sel>=0)return G.owner.map(function(o,t){return o===p&&t!==ui.sel&&E.connected(G,ui.sel,t)?t:-1;}).filter(function(t){return t>=0;});
+  return [];
+}
+function flash(ts){ts.forEach(function(t){var p=$('t'+t);if(!p)return;p.classList.remove('flash');void p.getBBox;p.offsetWidth;p.classList.add('flash');});}
+
+/* ---------- human input ---------- */
+$('map').addEventListener('click',function(e){var el=e.target.closest&&e.target.closest('[data-t]');if(!el||!G)return;onTerr(+el.dataset.t);});
+function showInfo(t){var m=G.map,c=m.cont[m.terr[t].cont],o=G.players[G.owner[t]];
+  $('info').innerHTML='<b>'+esc(m.terr[t].name)+'</b> · '+esc(c.name)+' (+'+c.bonus+') · <span style="color:'+o.color+';font-weight:800">'+esc(o.name)+'</span> · '+G.armies[t]+' armies';}
+function onTerr(t){
+  showInfo(t);if(!myTurn())return;var p=G.cur;
+  if(G.phase==='deploy'||G.phase==='reinforce'){
+    if(G.owner[t]!==p){toast('Place armies on your own territories.');return;}
+    if(G.phase==='reinforce'&&G.players[p].cards.length>=5){toast('You hold 5 cards: trade a set first.');return;}
+    var n=ui.amt==='all'?G.reserve:Math.min(ui.amt,G.reserve);doAct({type:'place',t:t,n:n});flash([t]);return;}
+  if(G.phase==='attack'){
+    if(G.owner[t]===p){if(G.armies[t]<2){toast('You need at least 2 armies to attack from there.');return;}ui.sel=(ui.sel===t?-1:t);ui.tgt=-1;render();return;}
+    if(ui.sel<0){toast('First tap one of your territories with 2+ armies.');return;}
+    if(G.map.adj[ui.sel].indexOf(t)<0){toast(tname(t)+' is not next to '+tname(ui.sel)+'.');return;}
+    ui.tgt=t;render();return;}
+  if(G.phase==='fortify'){
+    if(G.owner[t]!==p){toast('Fortify between your own territories.');return;}
+    if(ui.sel<0||t===ui.sel){if(G.armies[t]<2){toast('Pick a territory with 2+ armies to move from.');return;}ui.sel=(ui.sel===t?-1:t);ui.tgt=-1;render();return;}
+    if(!E.connected(G,ui.sel,t)){if(G.armies[t]>=2){ui.sel=t;ui.tgt=-1;render();return;}toast('No path through your own territories.');return;}
+    ui.tgt=t;setRange(1,G.armies[ui.sel]-1,G.armies[ui.sel]-1);render();return;}
+}
+function doAct(a){var r;try{r=E.act(G,a);}catch(e){toast(e.message.replace('Illegal move: ',''));return null;}
+  if(a.type==='attack'||a.type==='blitz')showRoll(a,r,true);
+  if(G.phase!=='attack'&&G.phase!=='fortify'){ui.sel=ui.tgt=-1;}
+  if(a.type==='advance'){ui.sel=-1;ui.tgt=-1;}
+  if(G.phase==='advance')setRange(G.pending.min,G.pending.max,G.pending.max);
+  render();if(G.phase==='over')gameOver();else runBots();return r;}
+[].forEach.call(document.querySelectorAll('#amtSeg .btn'),function(b){b.onclick=function(){ui.amt=b.dataset.amt==='all'?'all':+b.dataset.amt;render();};});
+[].forEach.call(document.querySelectorAll('#diceSeg .btn'),function(b){b.onclick=function(){ui.dice=+b.dataset.d;render();};});
+$('autoBtn').onclick=function(){if(!myTurn())return;var st=G.phase,guard=0;
+  while(G.phase===st&&G.players[G.cur].human&&G.reserve>0&&guard++<200){if(G.phase==='reinforce'&&G.players[G.cur].cards.length>=5){toast('Trade a set first.');break;}var a=E.suggestPlace(G);try{E.act(G,a);}catch(e){break;}flash([a.t]);}
+  render();if(G.phase==='over')gameOver();else runBots();};
+$('rollBtn').onclick=function(){if(!myTurn()||ui.sel<0||ui.tgt<0)return;doAct({type:'attack',from:ui.sel,to:ui.tgt,dice:Math.min(ui.dice,G.armies[ui.sel]-1)});afterAttack();};
+$('blitzBtn').onclick=function(){if(!myTurn()||ui.sel<0||ui.tgt<0)return;doAct({type:'blitz',from:ui.sel,to:ui.tgt});afterAttack();};
+function afterAttack(){if(G.phase==='attack'&&ui.sel>=0&&G.armies[ui.sel]<2){ui.sel=ui.tgt=-1;render();}}
+$('endAtkBtn').onclick=function(){if(!myTurn())return;ui.sel=ui.tgt=-1;doAct({type:'endAttack'});};
+$('endTurnBtn').onclick=function(){if(!myTurn())return;ui.sel=ui.tgt=-1;doAct({type:'endTurn'});};
+function setRange(min,max,val){var r=$('mvRange');r.min=min;r.max=max;r.value=val;$('mvVal').textContent=val;}
+$('mvRange').oninput=function(){$('mvVal').textContent=this.value;};
+$('mvMin').onclick=function(){$('mvRange').value=$('mvRange').min;$('mvVal').textContent=$('mvRange').value;};
+$('mvMax').onclick=function(){$('mvRange').value=$('mvRange').max;$('mvVal').textContent=$('mvRange').value;};
+$('mvBtn').onclick=function(){if(!myTurn())return;var n=+$('mvRange').value;
+  if(G.phase==='advance')doAct({type:'advance',n:n});else if(G.phase==='fortify'&&ui.sel>=0&&ui.tgt>=0){var f=ui.sel,t=ui.tgt;ui.sel=ui.tgt=-1;doAct({type:'fortify',from:f,to:t,n:n});flash([f,t]);}};
+$('pickSetBtn').onclick=function(){var s=E.validSets(me().cards);if(!s.length){toast('No set in your hand yet.');return;}
+  var cs=me().cards,best=s[0],bs=-9;s.forEach(function(x){var sc=x.filter(function(i){return cs[i].t>=0&&G.owner[cs[i].t]===me().id;}).length-x.filter(function(i){return cs[i].s===3;}).length*2;if(sc>bs){bs=sc;best=x;}});ui.cards=best.slice();render();};
+$('tradeBtn').onclick=function(){if(!myTurn())return;if(G.phase!=='reinforce'){toast('Trade sets while placing armies at the start of your turn.');return;}
+  if(ui.cards.length!==3){toast('Pick three cards first.');return;}var r=doAct({type:'trade',cards:ui.cards.slice()});if(r){ui.cards=[];if(r.bonus>=0)flash([r.bonus]);render();}};
+$('speedSel').onchange=function(){ui.speed=this.value;try{localStorage.setItem('raiskSpeed',ui.speed);}catch(e){}};
+
+/* ---------- dice ---------- */
+function showRoll(a,r,human){
+  var last=a.type==='blitz'?r.last:r;if(!last||!last.a)return;
+  var tray=$('dice'),h='',rt=human?'.45s':(Math.max(0.15,SPEED[ui.speed]/1600)+'s');tray.style.setProperty('--rt',rt);
+  var n=Math.min(last.a.length,last.d.length);
+  last.a.forEach(function(v,i){var lost=i<n&&last.a[i]<=last.d[i];h+='<span class="die a roll'+(lost?' lost':'')+'" data-v="'+v+'">'+face(v)+'</span>';});
+  h+='<span class="vs">vs</span>';
+  last.d.forEach(function(v,i){var lost=i<n&&last.a[i]>last.d[i];h+='<span class="die d roll'+(lost?' lost':'')+'" data-v="'+v+'">'+face(v)+'</span>';});
+  tray.innerHTML=h;
+  var who=G.players[G.owner[a.from]].name,def=G.players[last.def].name,txt;
+  if(a.type==='blitz'){var al=0,dl=0;r.rolls.forEach(function(x){al+=x.al;dl+=x.dl;});txt=who+' blitzes '+tname(a.to)+': '+r.rolls.length+' roll'+(r.rolls.length>1?'s':'')+' · attacker lost '+al+' · '+def+' lost '+dl+(r.conquered?' · Taken!':' · Stopped.');}
+  else txt=who+' → '+tname(a.to)+': attacker lost '+last.al+', '+def+' lost '+last.dl+(last.conquered?' · Taken!':'');
+  $('diceNote').textContent=txt;flash([a.from,a.to]);
+}
+
+/* ---------- bots ---------- */
+async function runBots(){
+  if(ui.busy||!G)return;ui.busy=true;var my=token,count=0;render();
+  while(G.phase!=='over'&&!G.players[G.cur].human){
+    var a=E.botAction(G),r;try{r=E.act(G,a);}catch(e){console.error(e);break;}
+    if(my!==token)return;var d=SPEED[ui.speed];
+    if(d>0){if(a.type==='blitz'){showRoll(a,r,false);}else if(a.t!=null)flash([a.t]);else if(a.type==='fortify')flash([a.from,a.to]);
+      render();var f={place:G.phase==='deploy'?0.25:0.45,trade:0.6,blitz:1.2,advance:0.35,fortify:0.9,endTurn:0.4,endAttack:0.2}[a.type]||0.4;await sleep(d*f);}
+    else if(++count%60===0){render();await sleep(0);}
+    if(my!==token)return;
+  }
+  ui.busy=false;render();if(G.phase==='over')gameOver();
+}
+
+/* ---------- panels ---------- */
+var PHASE={deploy:'Deploy',reinforce:'Reinforce',attack:'Attack',advance:'Move in',fortify:'Fortify',over:'Game over'};
+function render(){
+  if(!G)return;paint();var p=G.players[G.cur],mine=myTurn(),h='';
+  $('phase').classList.toggle('mine',mine);
+  $('phaseTitle').innerHTML=G.phase==='over'?'Game over':'<span style="color:'+p.color+'">'+esc(p.name)+'</span> · '+PHASE[G.phase]+(G.round?' <span class="tag">Round '+G.round+'</span>':'');
+  var help='';
+  ['ctlPlace','ctlAttack','ctlMove','ctlEnd'].forEach(function(id){$(id).classList.remove('show');});
+  if(G.phase==='over'){var w=G.players[G.winner];help=esc(w.name)+(G.winReason==='mission'?' completed a secret mission.':G.winReason==='rounds'?' holds the most territories after '+G.maxRounds+' rounds.':' holds every territory.');}
+  else if(!mine){var s=E.STRAT[p.strategy];help=p.human?'':(s?s.icon+' '+esc(p.name)+' ('+s.name+', '+DLAB[p.difficulty]+') is playing…':'');if(G.phase==='deploy')help+=' Deploying starting armies.';}
+  else if(G.phase==='deploy'||G.phase==='reinforce'){
+    help=(G.phase==='deploy'?'Deploy your starting armies: ':'Place your new armies: ')+'<b>'+G.reserve+'</b> left. Tap your territories.';
+    if(G.phase==='reinforce'&&me().cards.length>=5)help='You hold '+me().cards.length+' cards — trade a set first (below), then place '+G.reserve+'.';
+    if(G.midTrade)help='You took a whole hand of cards: trade down to 4 or fewer, then place the armies.';
+    $('ctlPlace').classList.add('show');}
+  else if(G.phase==='attack'){
+    if(ui.sel<0)help='Tap one of your territories with 2+ armies, then an enemy neighbour. Or end attacks to fortify.';
+    else if(ui.tgt<0)help='From <b>'+esc(tname(ui.sel))+'</b> ('+G.armies[ui.sel]+'): tap a highlighted enemy neighbour.';
+    else{var wp=E.winProb(G.armies[ui.sel]-1,G.armies[ui.tgt]);help='<b>'+esc(tname(ui.sel))+'</b> ('+G.armies[ui.sel]+') → <b>'+esc(tname(ui.tgt))+'</b> ('+G.armies[ui.tgt]+'). Blitz win chance: <b>'+Math.round(wp*100)+'%</b>.';}
+    $('ctlAttack').classList.add('show');$('ctlEnd').classList.add('show');
+    var can=ui.sel>=0&&ui.tgt>=0;$('rollBtn').disabled=!can;$('blitzBtn').disabled=!can;
+    var md=ui.sel>=0?Math.min(3,G.armies[ui.sel]-1):3;[].forEach.call(document.querySelectorAll('#diceSeg .btn'),function(b){var d=+b.dataset.d;b.disabled=d>md;b.classList.toggle('on',d===Math.min(ui.dice,md));});}
+  else if(G.phase==='advance'){help='You took <b>'+esc(tname(G.pending.to))+'</b>! Move in '+G.pending.min+' to '+G.pending.max+' armies from '+esc(tname(G.pending.from))+'.';$('ctlMove').classList.add('show');}
+  else if(G.phase==='fortify'){
+    if(ui.sel<0)help='Fortify once: tap a territory with 2+ armies, then a connected territory you hold. Or end your turn.';
+    else if(ui.tgt<0)help='Move from <b>'+esc(tname(ui.sel))+'</b>: tap a highlighted territory.';
+    else{help='Move armies from <b>'+esc(tname(ui.sel))+'</b> to <b>'+esc(tname(ui.tgt))+'</b>.';$('ctlMove').classList.add('show');}
+    $('ctlEnd').classList.add('show');}
+  $('phaseHelp').innerHTML=help;
+  $('modePill').textContent=G.quick?('Quick · Round '+Math.max(1,G.round)+'/'+G.maxRounds):(G.map.name);
+  if(!curTip)checkTips();
+  [].forEach.call(document.querySelectorAll('#amtSeg .btn'),function(b){b.classList.toggle('on',String(ui.amt)===b.dataset.amt);});
+  // mission
+  var mm=me();$('missionCard').style.display=G.win==='missions'?'':'none';if(mm&&mm.mission)$('mission').textContent=E.missionText(G,mm.mission)+(mm.mission.was!=null?' (Your original target was knocked out by someone else.)':'');
+  // cards
+  ui.cards=ui.cards.filter(function(i){return i<mm.cards.length;});
+  $('hand').innerHTML=mm.cards.length?mm.cards.map(function(c,i){return '<div class="cd'+(c.s===3?' wild':'')+(ui.cards.indexOf(i)>=0?' sel':'')+(c.t>=0&&G.owner[c.t]===mm.id?' own':'')+'" data-i="'+i+'"><span class="sym">'+SYM[c.s]+'</span><span>'+(c.t>=0?esc(tname(c.t)):'Wild')+'</span></div>';}).join(''):'<span style="color:var(--muted);font-size:13px">Conquer at least one territory in a turn to earn a card. Three alike, one of each, or any set with a wild trades for armies.</span>';
+  [].forEach.call($('hand').children,function(el){if(!el.dataset.i)return;el.onclick=function(){var i=+el.dataset.i,k=ui.cards.indexOf(i);if(k>=0)ui.cards.splice(k,1);else{if(ui.cards.length>=3)ui.cards.shift();ui.cards.push(i);}render();};});
+  $('nextSet').textContent='· next set: '+E.tradeValue(G.trades)+' armies';
+  var setOk=ui.cards.length===3&&E.isSet(ui.cards.map(function(i){return mm.cards[i];}));
+  $('tradeBtn').disabled=!(mine&&G.phase==='reinforce'&&setOk);$('pickSetBtn').disabled=mm.cards.length<3;
+  // players
+  G.players.forEach(function(q){var terr=0,arm=0;G.owner.forEach(function(o,t){if(o===q.id){terr++;arm+=G.armies[t];}});var s=E.STRAT[q.strategy];
+    h+='<div class="pl'+(q.id===G.cur&&G.phase!=='over'?' cur':'')+(q.alive?'':' dead')+'" data-p="'+q.id+'"><span class="dot" style="background:'+q.color+'"></span><div style="flex:1;min-width:0"><span class="pn">'+esc(q.name)+'</span>'+
+    (q.human?'<span class="tag">You</span>':'<span class="tag">'+DLAB[q.difficulty]+'</span>')+
+    (s?'<div class="strat">'+s.icon+' <b>'+esc(s.name)+'</b>'+(q.strategyPicked==='random'?' <span class="tag">random pick</span>':'')+'<br><i>'+esc(s.desc)+'</i></div>':'')+
+    '<div class="stats">'+(q.alive?terr+' territories · '+arm+' armies · '+q.cards.length+' card'+(q.cards.length===1?'':'s')+' · +'+E.reinforcements(G,q.id)+'/turn':'Eliminated by '+esc(G.players[q.elimBy].name))+'</div></div></div>';});
+  $('players').innerHTML=h;
+  // log
+  var lg=G.log.slice(-80).reverse();$('log').innerHTML=lg.map(function(l){var c=G.players[l.p]?G.players[l.p].color:'#fff';return '<div class="'+l.kind+'"><span style="color:'+c+'">●</span> '+esc(l.text)+'</div>';}).join('');
+}
+function gameOver(){
+  if(!G||G.phase!=='over')return;var w=G.players[G.winner];
+  $('overTitle').textContent=w.human?'You win!':w.name+' wins';
+  var h='<p>'+(G.winReason==='rounds'?'Time is up after '+G.maxRounds+' rounds. '+esc(w.name)+' holds the most territories.':G.winReason==='mission'?esc(w.name)+' completed the secret mission: <b>'+esc(E.missionText(G,w.mission))+'</b>':esc(w.name)+' holds every territory on '+esc(G.map.name)+'.')+' Round '+G.round+'.</p>';
+  h+=G.players.map(function(q){var s=E.STRAT[q.strategy];return '<div class="pl'+(q.alive?'':' dead')+'"><span class="dot" style="background:'+q.color+'"></span><div><span class="pn">'+esc(q.name)+'</span>'+(s?' <span class="tag">'+s.icon+' '+esc(s.name)+' · '+DLAB[q.difficulty]+'</span>':'')+
+    (G.win==='missions'?'<div class="stats">Mission: '+esc(E.missionText(G,q.mission))+'</div>':'')+'</div></div>';}).join('');
+  $('overBody').innerHTML=h;
+  if(!G.ended){G.ended=true;var res=resultOf(G),st=recordResult(res);lastRes=res;lastCanvas=drawCard(res,st);
+    var bb=$('endBadges');bb.innerHTML='';function bdg(t){var e=document.createElement('span');e.className='badge2';e.textContent=t;bb.appendChild(e);}
+    if(st.newFast)bdg('⚡ Fastest win: '+res.rounds+' rounds');if(st.stats.streak>0)bdg('🔥 Win streak: '+st.stats.streak);
+    $('cardImg').src=lastCanvas.toDataURL('image/png');}
+  hideTip();$('over').classList.add('show');
+}
+
+/* ---------- result card, stats, sharing ---------- */
+var MASCOT={CAIsar:'🏛️',AIttila:'🐎',GenerAIl:'🎖️',KhAIn:'🏹',BonAIparte:'🎩',Me:'🙂'};
+var TAUNT={turtle:'“My walls are taller than your plans.”',blitzer:'“Why wait? Attack!”',hoarder:'“That continent? Already mine.”',opportunist:'“Leave one territory weak. I dare you.”',kingslayer:'“Lead the table and I’ll come for you.”',diplomat:'“Peace… until I’m ready.”',strategist:'“I’ve run the odds. You lose.”',gambler:'“One die. All in. Let’s go!”'};
+var QUIP={win:{turtle:'Slow and steady takes the island.',blitzer:'Speed kills. Rematch?',hoarder:'Every region, mine.',opportunist:'You left a door open.',kingslayer:'Long live the new king.',diplomat:'Nothing personal. Just borders.',strategist:'Exactly as calculated.',gambler:'Lucky rolls count too!'},
+  lose:{turtle:'My walls… breached?!',blitzer:'Too fast, too reckless. Noted.',hoarder:'I should have spread out.',opportunist:'You gave me nothing to grab.',kingslayer:'I hunted the wrong leader.',diplomat:'I waited too long.',strategist:'Within expected variance.',gambler:'The dice betrayed me!'}};
+function resultOf(g){
+  var s=E.standings(g),w=g.players[g.winner],meP=me(),won=!!w.human;
+  var quipBot=won?g.players[s.filter(function(x){return !g.players[x.id].human;})[0].id]:w;
+  return {won:won,quick:!!g.quick,rounds:g.round,reason:g.winReason,map:g.map.name,winner:{name:w.name,strategy:w.strategy},
+    rows:s.map(function(x){var q=g.players[x.id];return {name:q.name,human:q.human,color:q.color,terr:x.terr,strategy:q.strategy,alive:q.alive};}),
+    quipBot:{name:quipBot.name,strategy:quipBot.strategy},quip:quipBot.strategy?QUIP[won?'lose':'win'][quipBot.strategy]:'',total:g.map.terr.length,players:g.players.length};
+}
+function shareText(r){
+  var t;
+  if(r.won)t=r.reason==='rounds'?'I out-held '+(r.players-1)+' AI generals in rAIsk, most territories after '+r.rounds+' rounds! ⚔️ Can you beat them?':'I conquered '+r.map+' in rAIsk in '+r.rounds+' rounds, beating '+(r.players-1)+' AI generals! ⚔️ Can you do it faster?';
+  else{var st=E.STRAT[r.winner.strategy];t=r.winner.name+(st?' the '+st.name:'')+' beat me in rAIsk'+(r.reason==='rounds'?' on the round cap':'')+'. ⚔️ Can you outwit the AI generals?';}
+  return t+' '+PUBLIC_URL;
+}
+function shareUrl(r){return 'https://x.com/intent/post?text='+encodeURIComponent(shareText(r));}
+function loadStats(){var d={played:0,wins:0,streak:0,bestStreak:0,fastest:0};try{var x=JSON.parse(localStorage.getItem('raiskStats')||'null');if(x)Object.keys(d).forEach(function(k){d[k]=x[k]|0;});}catch(e){}return d;}
+function saveStats(d){try{localStorage.setItem('raiskStats',JSON.stringify(d));}catch(e){}}
+function recordResult(r){var d=loadStats(),newFast=false;d.played++;
+  if(r.won){d.wins++;d.streak++;if(d.streak>d.bestStreak)d.bestStreak=d.streak;if(r.quick&&r.reason==='conquest'&&(!d.fastest||r.rounds<d.fastest)){d.fastest=r.rounds;newFast=true;}}else d.streak=0;
+  saveStats(d);return {stats:d,newFast:newFast};}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+function drawCard(r,st){
+  var cv=document.createElement('canvas');cv.width=1200;cv.height=630;var c=cv.getContext('2d'),F='"Segoe UI",Roboto,Arial,sans-serif';
+  var gr=c.createLinearGradient(0,0,1200,630);gr.addColorStop(0,'#3a1a1f');gr.addColorStop(.55,'#0a1220');gr.addColorStop(1,'#14324f');c.fillStyle=gr;c.fillRect(0,0,1200,630);
+  // mini map motif: the actual territories, scaled
+  c.save();c.translate(780,150);c.scale(.4,.4);c.globalAlpha=.85;
+  G.map.terr.forEach(function(t){try{var p=new Path2D(t.path);c.fillStyle=G.players[G.owner[t.id]].color;c.fill(p);c.strokeStyle='#0a1520';c.lineWidth=2;c.stroke(p);}catch(e){}});
+  c.restore();c.globalAlpha=1;
+  c.font='900 80px '+F;var x=60;['r','AI','sk'].forEach(function(part,k){c.fillStyle=k===1?'#ff5a5f':'#ffc94a';c.shadowColor=c.fillStyle;c.shadowBlur=22;c.fillText(part,x,108);x+=c.measureText(part).width;});c.shadowBlur=0;
+  c.font='800 28px '+F;c.fillStyle='#a6b8cf';c.fillText((r.quick?'Quick game · ':'')+r.map+' · '+r.rounds+' round'+(r.rounds===1?'':'s'),64,150);
+  c.font='900 54px '+F;c.fillStyle='#fff';c.fillText(r.won?(r.reason==='rounds'?'I held the most ground! 🏆':'I conquered the map! 🏆'):(r.reason==='rounds'?r.winner.name+' held the most ground':r.winner.name+' took the map'),60,230);
+  var max=Math.max(1,r.total);
+  r.rows.forEach(function(p,k){var y=262+k*58;if(k>4)return;c.font='32px '+F;c.fillText(MASCOT[p.name]||'🙂',62,y+32);
+    c.font=(p.human?'900 ':'700 ')+'27px '+F;c.fillStyle=p.human?'#ffc94a':'#f2f5fa';c.fillText(p.name,108,y+24);
+    c.font='600 16px '+F;c.fillStyle='#a6b8cf';var s=E.STRAT[p.strategy];c.fillText(p.human?'You':(s?s.name:''),108,y+44);
+    var bw=Math.max(8,Math.round(360*p.terr/max));c.fillStyle=p.color;rr(c,300,y+10,bw,30,8);c.fill();
+    c.fillStyle='#fff';c.font='900 26px '+F;c.fillText(p.alive?p.terr+' terr.':'OUT',312+bw,y+36);});
+  if(r.quip){c.fillStyle='#ffffff14';rr(c,60,536,720,62,14);c.fill();c.font='italic 600 25px '+F;c.fillStyle='#e8eef7';c.fillText((MASCOT[r.quipBot.name]||'')+' '+r.quipBot.name+': “'+r.quip+'”',80,576);}
+  c.textAlign='right';c.font='800 26px '+F;c.fillStyle='#ffc94a';var yy=500;
+  if(st&&st.stats.streak>1){c.fillText('🔥 '+st.stats.streak+'-game win streak',1140,yy);yy-=38;}
+  if(st&&st.newFast)c.fillText('⚡ Fastest win yet',1140,yy);
+  c.font='700 24px '+F;c.fillStyle='#a6b8cf';c.fillText('by OmniXR · myomnixr.com',1140,590);c.textAlign='left';
+  return cv;
+}
+var lastRes=null,lastCanvas=null;
+$('saveCard').onclick=function(){if(!lastCanvas)return;var a=document.createElement('a');a.download='raisk-result.png';a.href=lastCanvas.toDataURL('image/png');document.body.appendChild(a);a.click();a.remove();};
+$('shareX').onclick=function(){if(lastRes)window.open(shareUrl(lastRes),'_blank','noopener');};
+$('overMenu').onclick=function(){$('over').classList.remove('show');showTitle();};
+$('overAgain').onclick=function(){$('over').classList.remove('show');if(G&&G.quick)playQuick();else startGame();};
+
+/* ---------- settings, title screen, quick game ---------- */
+var SET=(function(){var d={tips:true};try{var x=JSON.parse(localStorage.getItem('raiskPrefs')||'null');if(x&&x.tips===false)d.tips=false;}catch(e){}return d;})();
+function saveSet(){try{localStorage.setItem('raiskPrefs',JSON.stringify(SET));}catch(e){}}
+function pickRivals(){var pool=E.STRATEGIES.map(function(x){return x.id;});for(var i=pool.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pool[i];pool[i]=pool[j];pool[j]=t;}return pool.slice(0,E.QUICK.players-1);}
+var rivals=pickRivals();
+var FC=['#e5484d','#30a46c','#f5a524','#8e4ec6','#12a594'];
+function renderTitle(){var tb=$('titleBots'),h='';
+  rivals.forEach(function(sid,i){var n=E.BOT_NAMES[i],st=E.STRAT[sid];h+='<div class="bot"><div class="face" style="--fc:'+E.COLORS[i+1]+'">'+MASCOT[n]+'</div><div class="bn">'+esc(n)+'</div><div class="bl">'+st.icon+' '+esc(st.name)+' · Medium</div><div class="bt">'+esc(TAUNT[sid])+'</div></div>';});
+  tb.innerHTML=h;var d=loadStats(),ts=$('titleStats');
+  ts.innerHTML=[[d.fastest?d.fastest+' rounds':'–','Fastest quick win'],[d.streak,'Win streak'],[d.wins+'/'+d.played,'Wins']].map(function(x){return '<div class="stat"><b>'+esc(x[0])+'</b><span>'+x[1]+'</span></div>';}).join('');}
+function showTitle(){token++;ui.busy=false;renderTitle();$('resumeBtn').style.display=(G&&G.phase!=='over')?'':'none';$('setup').classList.remove('show');$('title').classList.add('show');$('tipsBtn').style.opacity=SET.tips?1:.45;}
+function playQuick(){
+  // Play now: default quick settings, no setup. Does not change the saved classic setup.
+  var saved=JSON.parse(JSON.stringify(cfg));
+  cfg.n=E.QUICK.players;cfg.map=E.QUICK.map;cfg.win='conquest';cfg.first='me';
+  rivals.forEach(function(sid,i){cfg.seats[i]={s:sid,d:'medium'};});
+  startGame();rivals=pickRivals();
+  cfg=saved;
+}
+$('playNow').onclick=playQuick;
+$('resumeBtn').onclick=function(){$('title').classList.remove('show');render();runBots();};
+$('reroll').onclick=function(){rivals=pickRivals();renderTitle();};
+$('setupBtn').onclick=function(){openSetup();};
+$('menuBtn').onclick=function(){showTitle();};
+$('tipsBtn').onclick=function(){SET.tips=!SET.tips;saveSet();$('tipsBtn').style.opacity=SET.tips?1:.45;if(!SET.tips)hideTip();else checkTips();};
+$('tipsReset').onclick=function(){tipsSeen={};saveSeen();SET.tips=true;saveSet();renderSetup();this.textContent='Done ✓';};
+
+/* ---------- tips (taught during play, can be turned off) ---------- */
+var tipsSeen={};try{tipsSeen=JSON.parse(localStorage.getItem('raiskTipsSeen')||'{}')||{};}catch(e){}
+function saveSeen(){try{localStorage.setItem('raiskTipsSeen',JSON.stringify(tipsSeen));}catch(e){}}
+var curTip=null,gameNo=0;
+function mineNow(){return G&&G.phase!=='over'&&G.players[G.cur].human&&!ui.busy;}
+var TIPS=[
+  {id:'quick',when:function(){return G.quick;},text:'Quick game: take the whole island, or hold the most territories when round 10 ends.'},
+  {id:'deploy',when:function(){return mineNow()&&G.phase==='deploy';},text:'Tap your own territories to place starting armies. Auto-place does it for you.'},
+  {id:'reinforce',when:function(){return mineNow()&&G.phase==='reinforce';},text:'New armies each turn: one per 3 territories (at least 3), plus the +bonus for every whole region you hold.'},
+  {id:'attack',when:function(){return mineNow()&&G.phase==='attack';},text:'Attack: tap your territory with 2+ armies, then an enemy neighbour. Roll once, or Blitz to fight it out.'},
+  {id:'odds',when:function(){return mineNow()&&G.phase==='attack'&&ui.tgt>=0;},text:'The blitz win chance shows above. Attack with more armies than the defender and your odds climb fast.'},
+  {id:'advance',when:function(){return mineNow()&&G.phase==='advance';},text:'You took it! Choose how many armies march in. Leave enough behind to guard the border.'},
+  {id:'fortify',when:function(){return mineNow()&&G.phase==='fortify';},text:'Fortify once: move armies between two connected territories you hold, then your turn ends.'},
+  {id:'cards',when:function(){return me()&&me().cards.length>0;},text:'You earned a card for taking a territory. Three alike, one of each, or any set with a wild trades for armies.'},
+  {id:'last',repeat:true,when:function(){return G.quick&&G.round===G.maxRounds&&G.phase!=='over';},text:'Final round! Grab territories now: the most territories wins when it ends.'}
+];
+function checkTips(){if(!SET.tips||!G||G.phase==='over'||$('title').classList.contains('show')||$('setup').classList.contains('show'))return;if(curTip&&!tipsSeen[curTip])return;
+  for(var i=0;i<TIPS.length;i++){var t=TIPS[i],key=t.repeat?t.id+':'+gameNo:t.id;if(tipsSeen[key])continue;var w=false;try{w=t.when();}catch(e){}
+    if(w){curTip=key;$('tipText').textContent=t.text;$('tip').classList.add('show');return;}}}
+function hideTip(){$('tip').classList.remove('show');curTip=null;}
+$('tipOk').onclick=function(){if(curTip){tipsSeen[curTip]=1;saveSeen();}hideTip();checkTips();};
+$('tipOff').onclick=function(){if(curTip){tipsSeen[curTip]=1;saveSeen();}SET.tips=false;saveSet();hideTip();$('tipsBtn').style.opacity=.45;toast('Tips off. Turn them back on with 💡 or in Setup.');};
+$('overClose').onclick=function(){$('over').classList.remove('show');};
+$('overNew').onclick=function(){$('over').classList.remove('show');openSetup();};
+
+/* ---------- boot ---------- */
+$('speedSel').value=ui.speed;
+window.__game=function(){return G;};window.__E=E;window.__cfg=function(){return cfg;};
+window.__ui={ui:ui,act:doAct,render:render,start:startGame,setCfg:function(c){Object.assign(cfg,c);saveCfg();},busy:function(){return ui.busy;}};
+window.__result=function(){return resultOf(G);};window.__shareUrl=function(r){return shareUrl(r||resultOf(G));};window.__stats=loadStats;window.__tip=function(){return curTip;};window.__rivals=function(){return rivals;};
+// Deep links: #setup opens the classic setup screen directly (used by browser-test.js); #autostart=quick starts a quick game with tips off.
+if(/setup/.test(location.hash)){SET.tips=false;openSetup();}
+else if(/autostart=quick/.test(location.hash)){SET.tips=false;playQuick();}
+else showTitle();
+})();
+</script>
+</body>
+</html>
