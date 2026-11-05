@@ -1033,7 +1033,7 @@ $('speedSel').onchange=function(){ui.speed=this.value;try{localStorage.setItem('
 /* ---------- dice ---------- */
 function showRoll(a,r,human){
   var last=a.type==='blitz'?r.last:r;if(!last||!last.a)return;
-  var tray=$('dice'),h='',rt=human?'.45s':(Math.max(0.15,SPEED[ui.speed]/1600)+'s');tray.style.setProperty('--rt',rt);
+  var tray=$('dice'),h='',rt=human?'.45s':(Math.max(0.15,SPEED[ui.speed]/1600)+'s');tray.style.setProperty('--rt',rt);if(window.OXDICE&&parseFloat(rt)>=0.3)OXDICE.roll(last.a.length+last.d.length,Math.max(600,parseFloat(rt)*1000+200));
   var n=Math.min(last.a.length,last.d.length);
   last.a.forEach(function(v,i){var lost=i<n&&last.a[i]<=last.d[i];h+='<span class="die a roll'+(lost?' lost':'')+'" data-v="'+v+'">'+face(v)+'</span>';});
   h+='<span class="vs">vs</span>';
@@ -1490,5 +1490,69 @@ if(location.hash==='#setup')setTimeout(function(){if(document.querySelector('.mo
 
 </script>
 <!--/OXVOICE-->
+<!--OXDICE-->
+<script>window.OXDICE_KEY="raisk";
+/* ---- OmniXR dice sound: a rattle-and-clatter made live with the Web Audio API (no audio files, works offline) · by OmniXR · myomnixr.com ----
+   - Unlocks on the same first real gesture as the voice core (pointerup / touchend / click / keydown); nothing plays before the first tap.
+   - Follows the 🔊/🔇 voice mute toggle, plus its own "Dice sound" On/Off Setup row (saved in localStorage as <key>DiceSound).
+   - Holds bot speech while the dice roll: a line already speaking is paused (not on Android, where pause is unreliable)
+     and any new line waits until the dice settle, so the two sounds never overlap.
+   Games call OXDICE.roll(numberOfDice, durationMs) when the dice roll. */
+(function(){
+'use strict';
+var KEY=(window.OXDICE_KEY||'oxg')+'DiceSound';
+function lsGet(k,d){try{var v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+var D={on:lsGet(KEY,1)!==0,unlocked:false,ctx:null,plays:0,last:null,holdUntil:0,log:[]};
+var ANDROID=/Android/i.test((navigator&&navigator.userAgent)||'');
+function AC(){return window.AudioContext||window.webkitAudioContext||null;}
+function unlock(){if(D.unlocked)return;var A=AC();if(!A)return;D.unlocked=true;
+  try{if(!D.ctx)D.ctx=new A();if(D.ctx.resume)D.ctx.resume();
+    var b=D.ctx.createBuffer(1,1,22050),s=D.ctx.createBufferSource();s.buffer=b;s.connect(D.ctx.destination);s.start(0);}catch(e){}}
+['pointerup','touchend','click','keydown'].forEach(function(ev){window.addEventListener(ev,unlock,{capture:true,passive:true});});
+function voiceMuted(){var b=document.getElementById('voiceBtn');if(!b)return false;return b.getAttribute('aria-pressed')==='false'||b.textContent.indexOf('\uD83D\uDD07')>=0;}
+function active(){return D.on&&D.unlocked&&!voiceMuted()&&!!D.ctx;}
+/* --- speech hold --- */
+var SSo=window.speechSynthesis||null;
+if(SSo&&typeof SSo.speak==='function'){var origSpeak=SSo.speak;
+  try{SSo.speak=function(u){var self=this,w=D.holdUntil-Date.now();if(w>0){setTimeout(function(){try{origSpeak.call(self,u);}catch(e){}},w);return;}return origSpeak.call(self,u);};}catch(e){}}
+function holdSpeech(ms){D.holdUntil=Math.max(D.holdUntil,Date.now()+ms);
+  if(!SSo||ANDROID)return;var sp=false;try{sp=SSo.speaking&&!SSo.paused;}catch(e){}
+  if(sp){try{SSo.pause();}catch(e){}setTimeout(function(){if(Date.now()>=D.holdUntil-5)try{SSo.resume();}catch(e){}},ms);}}
+/* --- the sound: a shaken-cup rattle of tiny clicks, then a few bigger bounces on the table --- */
+var noiseBuf=null;
+function noise(){if(noiseBuf)return noiseBuf;var c=D.ctx,n=Math.floor(c.sampleRate*0.05),b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0);for(var i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3);return noiseBuf=b;}
+function click(t,gain,freq,len){var c=D.ctx,s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();
+  s.buffer=noise();f.type='bandpass';f.frequency.value=freq;f.Q.value=3+Math.random()*4;
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(gain,t+0.002);g.gain.exponentialRampToValueAtTime(0.0001,t+len);
+  s.connect(f);f.connect(g);g.connect(D.out);s.start(t);s.stop(t+len+0.02);}
+function roll(n,ms){n=Math.max(1,Math.min(12,+n||1));ms=Math.max(450,Math.min(900,+ms||700));
+  var rec={n:n,ms:ms,played:false,t:Date.now()};D.last=rec;D.log.push(rec);if(D.log.length>50)D.log.shift();
+  if(!active())return false;
+  holdSpeech(ms+80);
+  try{var c=D.ctx;if(c.state==='suspended'&&c.resume)c.resume();
+    if(!D.out){D.out=c.createGain();D.out.gain.value=0.55;D.out.connect(c.destination);}
+    var t0=c.currentTime+0.01,dur=ms/1000,rattle=dur*0.55,busy=Math.min(2.2,1+0.25*(n-1));
+    var k=Math.round(14*busy*rattle/0.4);
+    for(var i=0;i<k;i++){var t=t0+Math.random()*rattle;click(t,0.12+Math.random()*0.12,2200+Math.random()*2600,0.018+Math.random()*0.02);}
+    var dice=Math.min(n,6);
+    for(var j=0;j<dice;j++){var tb=t0+rattle+Math.random()*0.06,amp=0.5,gap=0.07+Math.random()*0.05;
+      while(tb<t0+dur&&amp>0.05){click(tb,amp,900+Math.random()*900,0.05+amp*0.05);tb+=gap;gap*=0.72;amp*=0.55;}}
+    D.plays++;rec.played=true;return true;}catch(e){return false;}}
+function setOn(on){D.on=!!on;lsSet(KEY,D.on?1:0);sync();}
+function sync(){var a=document.getElementById('oxdSeg');if(!a)return;[].forEach.call(a.querySelectorAll('button'),function(x){var on=(+x.dataset.v===1)===D.on;x.classList.toggle('on',on);x.classList.toggle('primary',on);});}
+function buildRow(){if(document.getElementById('oxdSeg'))return;var vn=document.getElementById('voiceNote');if(!vn)return;
+  var anchor=vn.closest('.oxvRow')||vn.closest('.row')||vn.parentNode;
+  var css=document.createElement('style');css.textContent='.oxdRow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0;text-align:left}.oxdRow>b{min-width:110px;font-weight:600}.oxdSeg{display:inline-flex;border-radius:9px;overflow:hidden;border:1px solid rgba(127,127,127,.45)}.oxdSeg button{font:inherit;font-size:14px;padding:7px 12px;min-height:36px;border:0;background:transparent;color:inherit;cursor:pointer}.oxdSeg button.on{background:rgba(120,170,255,.35);font-weight:700}';document.head.appendChild(css);
+  var r=document.createElement('div');r.className='oxdRow';r.innerHTML='<b>\uD83C\uDFB2 Dice sound</b><div class="oxdSeg" id="oxdSeg"><button type="button" data-v="1">On</button><button type="button" data-v="0">Off</button></div>';
+  anchor.parentNode.insertBefore(r,anchor.nextSibling);
+  [].forEach.call(r.querySelectorAll('button'),function(x){x.onclick=function(){setOn(+x.dataset.v===1);if(D.on){unlock();roll(2,600);}};});sync();}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(buildRow,0);});else setTimeout(buildRow,0);
+setTimeout(buildRow,800);
+window.OXDICE={roll:roll,set:setOn,state:function(){return {on:D.on,unlocked:D.unlocked,muted:voiceMuted(),plays:D.plays,last:D.last,rolls:D.log.length,holdUntil:D.holdUntil,ctx:!!D.ctx};}};
+})();
+
+</script>
+<!--/OXDICE-->
 </body>
 </html>
