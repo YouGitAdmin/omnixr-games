@@ -63,6 +63,8 @@ main{width:100%;max-width:1400px;display:grid;grid-template-columns:minmax(0,1fr
 .dcard.mini{width:58px;min-height:78px;cursor:default}.dcard.mini .v{font-size:19px}.dcard.mini .w,.dcard.mini .l{display:none}
 .dcard .who{font-size:10.5px;font-weight:800;background:#000a;color:#fff;border-radius:5px;padding:1px 4px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dcard.win{box-shadow:0 0 0 3px var(--accent),0 0 18px var(--accent)}
+.dcard .l.warn{background:#b8860b;color:#fff;font-weight:700}
+.warnTxt{color:#ffd24a;font-weight:700;font-size:.9em}
 .dcard .tag{font-size:10px;font-weight:800;color:#fff;background:#2e8a5a;border-radius:5px;text-align:center}
 .dcard .tag.no{background:#8a3340}
 .trick{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end;min-height:20px}
@@ -583,6 +585,7 @@ function claimTown(G, p, t) { if (t < 0 || G.owner[t] >= 0) return false; G.owne
 function applyDeed(G, p, card, won, plan, quiet) {
   var P = G.players[p], C = E.CARDS[card], syms = won ? C.pri : C.sec[plan.opt], out = { p: p, card: card, won: won, syms: syms, plan: plan };
   var buy = won ? null : E.buyKind(syms);
+  out.wantRaid = count(syms, 'raid');
   syms.forEach(function (s) {
     if (s === 'take') { if (G.activeTown >= 0) claimTown(G, p, G.activeTown); G.banner = p; }
     else if (s === 'silver') P.silver++;
@@ -596,7 +599,7 @@ function applyDeed(G, p, card, won, plan, quiet) {
   });
   if (buy && plan && plan.extra > 0) {
     var e = Math.min(plan.extra, Math.floor(P.silver / 2));
-    if (buy === 'raid') e = Math.min(e, G.shore);
+    if (buy === 'raid') { out.extraAsked = e; out.shoreAfterBase = G.shore; e = Math.min(e, G.shore); }
     if (buy === 'court') { var before = P.ladder; e = Math.min(e, E.LADDER_TOP - P.ladder); }
     P.silver -= 2 * e;
     if (buy === 'raid') takeRaiders(G, p, e); else if (buy === 'offer') P.offer += e; else if (buy === 'court') climb(G, p, e);
@@ -678,7 +681,10 @@ E.cardName = cardName;
 function describeDeed(G, o) {
   var s = nm(G, o.p) + (o.won ? ' wins with ' + cardName(o.card) + ': ' : ' (' + cardName(o.card) + '): ');
   if (o.won) s += 'take' + vs(G, o.p) + ' ' + (G.activeTown >= 0 ? G.map.towns[G.activeTown].name : 'the Banner') + (o.syms.length > 1 ? ', ' + E.symWords(o.syms.slice(1)) : '');
-  else { s += E.symWords(o.syms.filter(function (x) { return x !== 'march' && x !== 'drive'; })); if (o.extra) s += ', +' + o.extra + ' more for Silver'; if (o.marched != null) s += ', march' + (G.players[o.p].human ? '' : 'e') + vs(G, o.p) + ' to ' + G.map.towns[o.marched].name; if (o.drove != null) s += ', drive' + vs(G, o.p) + ' the Norse out of ' + G.map.towns[o.drove].name; }
+  else { var words = E.symWords(o.syms.filter(function (x) { return x !== 'march' && x !== 'drive'; }));
+    if (o.wantRaid > 0 && (o.gotRaid || 0) < o.wantRaid) words = words.replace(E.symWords(o.syms.filter(function (x) { return x === 'raid'; })), 'took ' + (o.gotRaid || 0) + ' of ' + o.wantRaid + ' Raider' + (o.wantRaid > 1 ? 's' : '') + ' (the Shore ' + ((o.gotRaid || 0) === 0 ? 'is empty' : 'ran short') + ')');
+    s += words;
+    if (o.extraAsked > (o.extra || 0)) s += ', took ' + (o.extra || 0) + ' of ' + o.extraAsked + ' more Raiders for Silver (the Shore ' + (o.shoreAfterBase === 0 ? 'is empty' : 'ran short') + ')'; else if (o.extra) s += ', +' + o.extra + ' more for Silver'; if (o.marched != null) s += ', march' + (G.players[o.p].human ? '' : 'e') + vs(G, o.p) + ' to ' + G.map.towns[o.marched].name; if (o.drove != null) s += ', drive' + vs(G, o.p) + ' the Norse out of ' + G.map.towns[o.drove].name; }
   return s.replace(/: $/, '') + '.';
 }
 function startRound(G) {
@@ -1469,12 +1475,14 @@ function tapTown(t){
 }
 
 /* ---------------- cards ---------------- */
+function shoreWarn(syms){var k=syms.filter(function(x){return x==='raid';}).length;return k>0&&G&&G.round>=1&&G.shore<k;}
+function cardWarn(c){var C=E.CARDS[c];return C.sec.some(shoreWarn);}
 function cardHTML(c,o){
   o=o||{};var C=E.CARDS[c],tx=E.cardText(C),S=SU[C.s];
   var cls='dcard'+(o.mini?' mini':'')+(o.sel?' sel':'')+(o.dim?' dim':'')+(o.win?' win':'');
   var tag=o.tag?'<div class="tag'+(o.tagNo?' no':'')+'">'+o.tag+'</div>':'';
-  return '<button class="'+cls+'" data-c="'+c+'" style="--cc:'+S.col+'" title="'+esc(S.n+' '+C.v+'. Win: '+E.symWords(C.pri)+'. Lose: '+C.sec.map(E.symWords).join(' OR '))+'"><span class="v">'+C.v+'</span><span class="su">'+S.i+'</span>'+
-    (o.who?'<div class="who">'+esc(o.who)+'</div>':'')+'<div class="w">'+tx.win+'</div>'+tx.lose.map(function(l){return '<div class="l">'+l+'</div>';}).join('')+tag+'</button>';
+  return '<button class="'+cls+'" data-c="'+c+'" style="--cc:'+S.col+'" title="'+esc(S.n+' '+C.v+'. Win: '+E.symWords(C.pri)+'. Lose: '+C.sec.map(E.symWords).join(' OR ')+(o.warn?'. Warning: the Shore has only '+G.shore+' Raider'+(G.shore===1?'':'s')+', fewer than the Raiders this bottom line takes.':''))+'"><span class="v">'+C.v+'</span><span class="su">'+S.i+'</span>'+
+    (o.who?'<div class="who">'+esc(o.who)+'</div>':'')+'<div class="w">'+tx.win+'</div>'+tx.lose.map(function(l){return '<div class="l">'+l+'</div>';}).join('')+(o.warn?'<div class="l warn">⚠️ Shore '+G.shore+'</div>':'')+tag+'</button>';
 }
 function curBest(){var T=G.trick;if(!T)return -1;var b=-1;T.plays.forEach(function(pl){if(E.qualifies(G,pl.card,T.town))b=Math.max(b,E.CARDS[pl.card].v);});return b;}
 
@@ -1502,9 +1510,9 @@ function renderTurn(){
   else if(q.type==='resolve'){var C=E.CARDS[q.card];
     if(q.won){t='🏆 You won '+tn(G.trick.town)+'!';hp='Your '+E.cardName(q.card)+' gives you: <b>'+E.symWords(C.pri)+'</b>.';ctl='<button class="btn primary" id="resGo">Take it</button>';}
     else{t='🎴 Use your '+E.cardName(q.card);hp='You lost the trick, so pick one bottom line.';
-      body=trickHTML()+'<div class="opts">'+C.sec.map(function(s,i){return '<button class="btn'+(ui.sel.opt===i?' on':'')+'" data-opt="'+i+'">'+s.map(function(x){return E.SYM[x].i;}).join('')+' '+esc(E.symWords(s))+(s.indexOf('drive')>=0&&!E.longphorts(G).length?' (no Longphort to drive out)':'')+(s.indexOf('raid')>=0&&!G.shore?' (the Shore is empty)':'')+'</button>';}).join('')+'</div>';
+      body=trickHTML()+'<div class="opts">'+C.sec.map(function(s,i){return '<button class="btn'+(ui.sel.opt===i?' on':'')+'" data-opt="'+i+'">'+s.map(function(x){return E.SYM[x].i;}).join('')+' '+esc(E.symWords(s))+(s.indexOf('drive')>=0&&!E.longphorts(G).length?' (no Longphort to drive out)':'')+(s.indexOf('raid')>=0&&!G.shore?' (the Shore is empty)':'')+(shoreWarn(s)&&G.shore>0?' <span class="warnTxt">⚠️ Shore has only '+G.shore+'</span>':'')+'</button>';}).join('')+'</div>';
       if(ui.sel.opt!=null){var syms=C.sec[ui.sel.opt],buy=E.buyKind(syms),all=E.plans(G,m,q.card).filter(function(x){return x.opt===ui.sel.opt;}),mx=Math.max.apply(null,all.map(function(x){return x.extra;}));
-        if(buy&&mx>0)body+='<div class="row"><span class="step">Buy more for 2 Silver each: <button class="btn small" id="exM">−</button><b>'+(ui.sel.extra||0)+'</b><button class="btn small" id="exP">+</button></span></div>';
+        if(buy&&mx>0)body+='<div class="row"><span class="step">Buy more for 2 Silver each: <button class="btn small" id="exM">−</button><b>'+(ui.sel.extra||0)+'</b><button class="btn small" id="exP">+</button></span>'+(buy==='raid'&&Math.floor(P.silver/2)>mx?' <span class="warnTxt">⚠️ Shore has only '+G.shore+' left, so no more can be bought</span>':'')+'</div>';
         var pl=plansFor(),mt=pl.filter(function(x){return x.march>=0;}),dr=pl.filter(function(x){return x.drive>=0;});
         if(mt.length)body+='<div class="sub">🥾 March: tap a glowing rath to pay 5 Silver for it'+(ui.sel.march>=0?' (<b>'+tn(ui.sel.march)+'</b> chosen, tap again to cancel)':', or leave it')+'.</div>';
         else if(syms.indexOf('march')>=0)body+='<div class="sub">🥾 No March possible (you need 5 Silver and an empty rath on a road next to yours).</div>';
@@ -1519,7 +1527,7 @@ function renderTurn(){
   $('tTitle').textContent=t;$('tHelp').innerHTML=hp;$('tBody').innerHTML=body;$('ctl').innerHTML=ctl;
   wireTurn();
 }
-function handHTML(f){var P=G.players[me()];return '<div class="sub" style="margin-top:6px">Your hand</div><div class="hand" id="hand">'+P.hand.map(function(c){return cardHTML(c,f(c));}).join('')+'</div>';}
+function handHTML(f){var P=G.players[me()];return '<div class="sub" style="margin-top:6px">Your hand</div><div class="hand" id="hand">'+P.hand.map(function(c){var o=f(c);if(cardWarn(c))o.warn=true;return cardHTML(c,o);}).join('')+'</div>';}
 function trickHTML(){var T=G.trick;if(!T)return '';var w=T.winner;return '<div class="sub">On '+esc(tn(T.town))+':</div><div class="trick">'+T.plays.map(function(pl){return cardHTML(pl.card,{mini:true,who:NAME(pl.p),win:w===pl.p});}).join('')+'</div>';}
 function wireTurn(){
   var q=G.pending;
