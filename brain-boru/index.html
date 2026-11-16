@@ -575,8 +575,12 @@ E.buyKind = function (syms) { return hasSym(syms, 'raid') ? 'raid' : hasSym(syms
 
 /* ---------------- effects ---------------- */
 function paySilver(G, p, k) { var P = G.players[p]; for (var i = 0; i < k; i++) { if (P.silver > 0) P.silver--; else P.pts = Math.max(0, P.pts - 2); } }
-function climb(G, p, k) {
+// Fix 16 Nov 2026 (rulebook): during an action you climb freely (free step + paid steps);
+// only after the whole action is resolved, if you share a rung, you slide down to the nearest
+// empty rung (or the bottom). Pass noSettle=true for the steps inside an action.
+function climb(G, p, k, noSettle) {
   var P = G.players[p]; P.ladder = Math.min(E.LADDER_TOP, P.ladder + k);
+  if (noSettle) return;
   while (P.ladder > 0 && G.players.some(function (Q, q) { return q !== p && Q.ladder === P.ladder; })) P.ladder--;
 }
 function takeRaiders(G, p, k) { var t = Math.min(k, G.shore); G.shore -= t; G.players[p].raiders += t; return t; }
@@ -593,7 +597,7 @@ function applyDeed(G, p, card, won, plan, quiet) {
     else if (s === 'glory') P.glory++;
     else if (s === 'raid') out.gotRaid = (out.gotRaid || 0) + takeRaiders(G, p, 1);
     else if (s === 'offer') P.offer++;
-    else if (s === 'court') climb(G, p, 1);
+    else if (s === 'court') climb(G, p, 1, true);
     else if (s === 'march') { if (plan && plan.march >= 0 && P.silver >= 5 && G.owner[plan.march] < 0 && marchTargets(G, p).indexOf(plan.march) >= 0) { P.silver -= 5; claimTown(G, p, plan.march); out.marched = plan.march; } }
     else if (s === 'drive') { var lp = longphorts(G); if (lp.length) { var d = plan && lp.indexOf(plan.drive) >= 0 ? plan.drive : lp[0]; G.viking[d] = false; out.drove = d; } }
   });
@@ -602,10 +606,10 @@ function applyDeed(G, p, card, won, plan, quiet) {
     if (buy === 'raid') { out.extraAsked = e; out.shoreAfterBase = G.shore; e = Math.min(e, G.shore); }
     if (buy === 'court') { var before = P.ladder; e = Math.min(e, E.LADDER_TOP - P.ladder); }
     P.silver -= 2 * e;
-    if (buy === 'raid') takeRaiders(G, p, e); else if (buy === 'offer') P.offer += e; else if (buy === 'court') climb(G, p, e);
+    if (buy === 'raid') takeRaiders(G, p, e); else if (buy === 'offer') P.offer += e; else if (buy === 'court') climb(G, p, e, true);
     out.extra = e;
   }
-  if (buy === 'court') { /* re-settle ladder once after the whole action */ climb(G, p, 0); }
+  if (hasSym(syms, 'court')) { /* settle ladder once after the whole action (rulebook) */ climb(G, p, 0); }
   return out;
 }
 E.applyDeed = applyDeed;
